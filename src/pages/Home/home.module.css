@@ -1,0 +1,33 @@
+.header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.main__container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    margin-top: 20%;
+    margin-bottom: auto;
+    gap: 1rem;
+}
+
+
+button {
+    width: 200px;
+    margin-bottom: 1rem; 
+}
+
+@media (width < 768px) {
+    .header {
+        font-size: 1.2rem;
+    }
+}

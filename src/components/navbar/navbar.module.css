@@ -1,4 +1,5 @@
 .logo__image {
   width: 4.5rem;
-  height: 2.5rem;
+  height: 2.25rem;
+  border-radius: .5rem;
 }
