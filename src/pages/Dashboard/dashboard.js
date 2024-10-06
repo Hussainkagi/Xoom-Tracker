@@ -10,6 +10,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import Chip from "@mui/material/Chip";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -34,14 +35,38 @@ function a11yProps(index) {
   };
 }
 
-function createData(driver, time, date, location, status) {
-  return { driver, time, date, location, status };
+function createData(empCode, name, vehicleNum, time, date, location, status) {
+  return { empCode, name, vehicleNum, time, date, location, status };
 }
 
 const rows = [
-  createData("XDS45001", "11:30 AM", "11/01/2024", "Abu Hail", "Check In"),
-  createData("XDS45002", "12:30 PM", "11/01/2024", "Abu Hail", "Check In"),
-  createData("XDS45001", "5:30 PM", "11/01/2024", "Abu Hail", "Check Out"),
+  createData(
+    "XDS45001",
+    "Arshid",
+    "DXB123",
+    "11:30 AM",
+    "11/01/2024",
+    "Abu Hail",
+    "Check In"
+  ),
+  createData(
+    "XDS45002",
+    "Ahsan",
+    "DXB453",
+    "12:30 PM",
+    "11/01/2024",
+    "Abu Hail",
+    "Check In"
+  ),
+  createData(
+    "XDS45001",
+    "harshul",
+    "DXB223",
+    "5:30 PM",
+    "11/01/2024",
+    "Abu Hail",
+    "Check Out"
+  ),
 ];
 
 const Dashboard = () => {
@@ -75,11 +100,17 @@ const Dashboard = () => {
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Driver</TableCell>
-                    <TableCell align="right">Time</TableCell>
-                    <TableCell align="right">Date</TableCell>
-                    <TableCell align="right">Location</TableCell>
-                    <TableCell align="right">status</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Employee Code
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Vehicle number
+                    </TableCell>
+                    <TableCell align="centre">Date</TableCell>
+                    <TableCell align="centre">Time</TableCell>
+                    <TableCell align="centre">Location</TableCell>
+                    <TableCell align="centre">status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -89,12 +120,21 @@ const Dashboard = () => {
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell component="th" scope="row">
-                        {row.driver}
+                        {row.empCode}
                       </TableCell>
-                      <TableCell align="right">{row.time}</TableCell>
-                      <TableCell align="right">{row.date}</TableCell>
-                      <TableCell align="right">{row.location}</TableCell>
-                      <TableCell align="right">{row.status}</TableCell>
+                      <TableCell align="centre">{row.name}</TableCell>
+                      <TableCell align="centre">{row.vehicleNum}</TableCell>
+                      <TableCell align="centre">{row.date}</TableCell>
+                      <TableCell align="centre">{row.time}</TableCell>
+                      <TableCell align="centre">{row.location}</TableCell>
+                      <TableCell align="centre">
+                        <Chip
+                          label={row.status}
+                          color={
+                            row.status === "Check In" ? `success` : "error"
+                          }
+                        />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

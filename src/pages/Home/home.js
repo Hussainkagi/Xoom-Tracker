@@ -1,11 +1,16 @@
 import styles from "./home.module.css";
 import Modal from "../../components/ModalComponent/model";
+
 import React, { useState } from "react";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
+  const [formTitle, setFormTitle] = useState("");
 
-  const handleShowModal = () => setShowModal(true);
+  const handleShowModal = (type) => {
+    setFormTitle(type);
+    setShowModal(true);
+  };
   const handleCloseModal = () => setShowModal(false);
 
   const [employeeCode, setEmployeeCode] = useState("");
@@ -60,21 +65,20 @@ const Home = () => {
 
   const formContent = (
     <form>
-      {/* Location Dropdown */}
+      {/* Vehicle No Dropdown */}
       <div className="mb-3">
-        <label htmlFor="location" className="form-label">
-          Location
+        <label htmlFor="vehicleNo" className="form-label">
+          Vehicle No.
         </label>
-        <select className="form-select" id="location">
-          <option>Select a location</option>
-          {locations.map((location, index) => (
-            <option key={index} value={location}>
-              {location}
+        <select className="form-select" id="vehicleNo">
+          <option>Select a vehicle</option>
+          {vehicles.map((vehicle, index) => (
+            <option key={index} value={vehicle}>
+              {vehicle}
             </option>
           ))}
         </select>
       </div>
-
       {/* Employee Code */}
       <div className="mb-3">
         <label htmlFor="employeeCode" className="form-label">
@@ -89,7 +93,6 @@ const Home = () => {
           ))}
         </select>
       </div>
-
       {/* Name (Automatically fetched based on Employee Code) */}
       <div className="mb-3">
         <label htmlFor="name" className="form-label">
@@ -104,16 +107,31 @@ const Home = () => {
         />
       </div>
 
-      {/* Vehicle No Dropdown */}
       <div className="mb-3">
-        <label htmlFor="vehicleNo" className="form-label">
-          Vehicle No.
+        <label htmlFor="date" className="form-label">
+          Date
         </label>
-        <select className="form-select" id="vehicleNo">
-          <option>Select a vehicle</option>
-          {vehicles.map((vehicle, index) => (
-            <option key={index} value={vehicle}>
-              {vehicle}
+        <input type="date" className="form-control" id="date" />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="time" className="form-label">
+          Time
+        </label>
+        <div className="d-flex gap-2">
+          <input type="time" className="form-control" id="time" />
+        </div>
+      </div>
+      {/* Location Dropdown */}
+      <div className="mb-3">
+        <label htmlFor="location" className="form-label">
+          Location
+        </label>
+        <select className="form-select" id="location">
+          <option>Select a location</option>
+          {locations.map((location, index) => (
+            <option key={index} value={location}>
+              {location}
             </option>
           ))}
         </select>
@@ -222,13 +240,14 @@ const Home = () => {
             backgroundColor: "#9acb3b",
             border: "none",
           }}
-          onClick={handleShowModal}
+          onClick={() => handleShowModal("Check In")}
         >
           <i class="bi bi-arrow-bar-left"></i>Check In
         </button>
         <button
           type="button"
           className={`btn btn-primary btn-lg ${styles.button__checkin}`}
+          onClick={() => handleShowModal("Check Out")}
           style={{
             backgroundColor: "red",
             border: "none",
@@ -238,7 +257,7 @@ const Home = () => {
         </button>
       </div>
       <Modal
-        title="User Form"
+        title={formTitle}
         content={formContent}
         show={showModal}
         handleClose={handleCloseModal}
