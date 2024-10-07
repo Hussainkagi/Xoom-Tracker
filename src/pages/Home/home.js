@@ -1,6 +1,5 @@
 import styles from "./home.module.css";
 import Modal from "../../components/ModalComponent/model";
-
 import React, { useState } from "react";
 
 const Home = () => {
@@ -15,6 +14,10 @@ const Home = () => {
 
   const [employeeCode, setEmployeeCode] = useState("");
   const [name, setName] = useState("");
+  const [vehicleNo, setVehicleNo] = useState("");
+  const [location, setLocation] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [vehiclePictures, setVehiclePictures] = useState({
     front: null,
     back: null,
@@ -36,9 +39,9 @@ const Home = () => {
   const handleEmployeeCodeChange = (e) => {
     const code = e.target.value;
     setEmployeeCode(code);
-    if (code === "EMP001") {
+    if (code === "XDS4500") {
       setName("John Doe");
-    } else if (code === "EMP002") {
+    } else if (code === "XDS4501") {
       setName("Jane Smith");
     } else {
       setName("");
@@ -63,14 +66,35 @@ const Home = () => {
     reader.readAsDataURL(file);
   };
 
+  // Form submission handler
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = {
+      vehicleNo,
+      employeeCode,
+      name,
+      date,
+      time,
+      location,
+      vehiclePictures,
+      comments,
+    };
+    console.log("Form Data:", formData);
+  };
+
   const formContent = (
-    <form>
+    <form onSubmit={handleSubmit}>
       {/* Vehicle No Dropdown */}
       <div className="mb-3">
         <label htmlFor="vehicleNo" className="form-label">
           Vehicle No.
         </label>
-        <select className="form-select" id="vehicleNo">
+        <select
+          className="form-select"
+          id="vehicleNo"
+          value={vehicleNo}
+          onChange={(e) => setVehicleNo(e.target.value)}
+        >
           <option>Select a vehicle</option>
           {vehicles.map((vehicle, index) => (
             <option key={index} value={vehicle}>
@@ -84,11 +108,16 @@ const Home = () => {
         <label htmlFor="employeeCode" className="form-label">
           Employee Code
         </label>
-        <select className="form-select" id="vehicleNo">
-          <option>Select a vehicle</option>
-          {empCode.map((vehicle, index) => (
-            <option key={index} value={vehicle}>
-              {vehicle}
+        <select
+          className="form-select"
+          id="employeeCode"
+          value={employeeCode}
+          onChange={handleEmployeeCodeChange}
+        >
+          <option>Select an employee</option>
+          {empCode.map((code, index) => (
+            <option key={index} value={code}>
+              {code}
             </option>
           ))}
         </select>
@@ -111,7 +140,13 @@ const Home = () => {
         <label htmlFor="date" className="form-label">
           Date
         </label>
-        <input type="date" className="form-control" id="date" />
+        <input
+          type="date"
+          className="form-control"
+          id="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
       </div>
 
       <div className="mb-3">
@@ -119,7 +154,13 @@ const Home = () => {
           Time
         </label>
         <div className="d-flex gap-2">
-          <input type="time" className="form-control" id="time" />
+          <input
+            type="time"
+            className="form-control"
+            id="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+          />
         </div>
       </div>
       {/* Location Dropdown */}
@@ -127,7 +168,12 @@ const Home = () => {
         <label htmlFor="location" className="form-label">
           Location
         </label>
-        <select className="form-select" id="location">
+        <select
+          className="form-select"
+          id="location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        >
           <option>Select a location</option>
           {locations.map((location, index) => (
             <option key={index} value={location}>
@@ -176,7 +222,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Left and Right  */}
+        {/* Left and Right */}
         <div className="row">
           <div className="col-md-6 mb-3">
             <label>Left</label>
@@ -226,6 +272,10 @@ const Home = () => {
           onChange={(e) => setComments(e.target.value)}
         ></textarea>
       </div>
+
+      <button type="submit" className="btn btn-primary">
+        Submit
+      </button>
     </form>
   );
 
@@ -242,7 +292,7 @@ const Home = () => {
           }}
           onClick={() => handleShowModal("Check In")}
         >
-          <i class="bi bi-arrow-bar-left"></i>Check In
+          <i className="bi bi-arrow-bar-left"></i>Check In
         </button>
         <button
           type="button"
@@ -253,7 +303,7 @@ const Home = () => {
             border: "none",
           }}
         >
-          Check Out<i class="bi bi-arrow-bar-right"></i>
+          Check Out<i className="bi bi-arrow-bar-right"></i>
         </button>
       </div>
       <Modal

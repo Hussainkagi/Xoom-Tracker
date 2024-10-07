@@ -11,6 +11,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+import TextField from "@mui/material/TextField";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -34,6 +37,75 @@ function a11yProps(index) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
+
+const theme = createTheme({
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#9acb3b",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#9acb3b",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#9acb3b",
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: "grey",
+          "&.Mui-focused": {
+            color: "grey",
+          },
+        },
+      },
+    },
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          color: "#9acb3b",
+        },
+        indicator: {
+          backgroundColor: "#9acb3b",
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          "&.Mui-selected": {
+            color: "#9acb3b",
+          },
+          "&:hover": {
+            color: "#9acb3b",
+          },
+        },
+      },
+    },
+    MuiBottomNavigation: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#1976d2",
+        },
+      },
+    },
+    MuiBottomNavigationAction: {
+      styleOverrides: {
+        root: {
+          color: "white",
+          "&.Mui-selected": {
+            color: "lime",
+          },
+        },
+      },
+    },
+  },
+});
 
 function createData(empCode, name, vehicleNum, time, date, location, status) {
   return { empCode, name, vehicleNum, time, date, location, status };
@@ -79,21 +151,65 @@ const Dashboard = () => {
   return (
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
+        <div className={styles.header__tab}>
+          <div className="row align-items-end">
+            {" "}
+            {/* Adjusts alignment to bottom */}
+            {/* Search input using Material UI */}
+            <div className="col-md-4 mb-3">
+              {/* Adjust column width as needed */}
+              <ThemeProvider theme={theme}>
+                <TextField
+                  id="outlined-basic"
+                  label="Search"
+                  variant="outlined"
+                  fullWidth
+                />
+              </ThemeProvider>
+            </div>
+            {/* Start Date Picker */}
+            <div className="col-md-3 mb-3">
+              <label htmlFor="startDate" className="form-label">
+                Start Date
+              </label>
+              <input type="date" className="form-control" id="startDate" />
+            </div>
+            {/* End Date Picker */}
+            <div className="col-md-3 mb-3">
+              <label htmlFor="endDate" className="form-label">
+                End Date
+              </label>
+              <input type="date" className="form-control" id="endDate" />
+            </div>
+            {/* Select input for Availability */}
+            <div className="col-md-2 mb-3">
+              <label htmlFor="availability" className="form-label">
+                Availability
+              </label>
+              <select className="form-select" id="availability">
+                <option value="available">Available</option>
+                <option value="notAvailable">Not Available</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div className={styles.tabs}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
-              variant="scrollable"
-              scrollButtons="auto"
-              allowScrollButtonsMobile
-            >
-              <Tab label="Transactions" {...a11yProps(0)} />
-              <Tab label="Drivers" {...a11yProps(1)} />
-              <Tab label="Vehicles" {...a11yProps(2)} />
-              <Tab label="Locations" {...a11yProps(3)} />
-            </Tabs>
+            <ThemeProvider theme={theme}>
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                aria-label="basic tabs example"
+                variant="scrollable"
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+              >
+                <Tab label="Transactions" color="#9acb3b" {...a11yProps(0)} />
+                <Tab label="Drivers" {...a11yProps(1)} />
+                <Tab label="Vehicles" {...a11yProps(2)} />
+                <Tab label="Locations" {...a11yProps(3)} />
+              </Tabs>
+            </ThemeProvider>
           </Box>
           <CustomTabPanel value={value} index={0}>
             <TableContainer component={Paper}>
