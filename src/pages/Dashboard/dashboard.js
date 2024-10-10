@@ -110,7 +110,18 @@ const theme = createTheme({
 function createData(empCode, name, vehicleNum, time, date, location, status) {
   return { empCode, name, vehicleNum, time, date, location, status };
 }
+const emp = [
+  {
+    code: "XDS45002",
+    name: "Altafh Bin Abdullah",
+  },
+  {
+    code: "XDS002",
+    name: "Mohd. Bin Uzair",
+  },
+];
 
+let locas = ["sharjah warehouse", "abu hail", "jumeira"];
 const rows = [
   createData(
     "XDS45001",
@@ -151,46 +162,65 @@ const Dashboard = () => {
   return (
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
+        <div>
+          <button
+            type="button"
+            data-mdb-button-init
+            data-mdb-ripple-init
+            className="btn btn-primary btn-sm"
+            style={{
+              backgroundColor: "#9acb3b",
+              border: "none",
+            }}
+          >
+            Import
+          </button>
+        </div>
         <div className={styles.header__tab}>
-          <div className="row align-items-end">
-            {" "}
-            {/* Adjusts alignment to bottom */}
-            {/* Search input using Material UI */}
-            <div className="col-md-4 mb-3">
-              {/* Adjust column width as needed */}
-              <ThemeProvider theme={theme}>
-                <TextField
-                  id="outlined-basic"
-                  label="Search"
-                  variant="outlined"
-                  fullWidth
-                />
-              </ThemeProvider>
+          <div className={styles.filter__container}>
+            <div className="mb-3 w-100">
+              {/* Search Input Field */}
+              <label htmlFor="endDate" className="form-label">
+                Search...
+              </label>
+              <input
+                type="text"
+                className="form-control w-100"
+                id="startDate"
+                placeholder="Search..."
+              />
             </div>
+
             {/* Start Date Picker */}
-            <div className="col-md-3 mb-3">
+            <div className="mb-3 w-100">
               <label htmlFor="startDate" className="form-label">
                 Start Date
               </label>
-              <input type="date" className="form-control" id="startDate" />
+              <input
+                type="date"
+                className="form-control w-100"
+                id="startDate"
+              />
             </div>
+
             {/* End Date Picker */}
-            <div className="col-md-3 mb-3">
+            <div className="mb-3 w-100">
               <label htmlFor="endDate" className="form-label">
                 End Date
               </label>
-              <input type="date" className="form-control" id="endDate" />
+              <input type="date" className="form-control w-100" id="endDate" />
             </div>
+
             {/* Select input for Availability */}
-            <div className="col-md-2 mb-3">
+            {/* <div className="mb-3 w-100">
               <label htmlFor="availability" className="form-label">
                 Availability
               </label>
-              <select className="form-select" id="availability">
+              <select className="form-select w-100" id="availability">
                 <option value="available">Available</option>
                 <option value="notAvailable">Not Available</option>
               </select>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className={styles.tabs}>
@@ -258,13 +288,51 @@ const Dashboard = () => {
             </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            Drivers
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Employee Code
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {emp.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell align="left">{row.code}</TableCell>
+                      <TableCell align="left">{row.name}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             Vehicles
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
-            Locations
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: "bold" }}>Sr no.</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Location Name
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {locas.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell align="left">{index + 1}</TableCell>
+                      <TableCell align="left">{row}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CustomTabPanel>
         </div>
       </div>
