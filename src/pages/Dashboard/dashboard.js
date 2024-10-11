@@ -1,5 +1,5 @@
 import styles from "./dashboard.module.css";
-import * as React from "react";
+import React, { useState, useRef } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -12,8 +12,6 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
-import TextField from "@mui/material/TextField";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -153,7 +151,23 @@ const rows = [
 ];
 
 const Dashboard = () => {
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
+  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState("");
+
+  // Handle the button click to trigger the file input
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  // Handle file selection
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFileName(file.name);
+      // Process the file as needed
+    }
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -162,35 +176,68 @@ const Dashboard = () => {
   return (
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
-        <div>
+        <div className="d-flex  flex-column justify-content-end align-items-end mb-2">
           <button
             type="button"
             data-mdb-button-init
             data-mdb-ripple-init
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
             style={{
               backgroundColor: "#9acb3b",
               border: "none",
+              borderRadius: "1.5rem",
+              fontWeight: "bold",
             }}
+            onClick={handleButtonClick}
           >
-            Import
+            Bulk Import{" "}
+            <i
+              className="bi bi-cloud-arrow-down"
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: "bold",
+              }}
+            ></i>
+          </button>
+          {/* Hidden file input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+          {fileName && (
+            <p style={{ marginTop: "10px", color: "#333" }}>
+              Selected file: <strong>{fileName}</strong>
+            </p>
+          )}
+        </div>
+        <div className="d-flex  flex-column justify-content-end align-items-end">
+          <button
+            type="button"
+            data-mdb-button-init
+            data-mdb-ripple-init
+            className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
+            style={{
+              backgroundColor: "#9acb3b",
+              border: "none",
+              fontWeight: "bold",
+              borderRadius: "1.5rem",
+            }}
+            onClick={() => {}}
+          >
+            Export Excel{" "}
+            <i
+              class="bi bi-cloud-arrow-up"
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: "bold",
+              }}
+            ></i>
           </button>
         </div>
         <div className={styles.header__tab}>
           <div className={styles.filter__container}>
-            <div className="mb-3 w-100">
-              {/* Search Input Field */}
-              <label htmlFor="endDate" className="form-label">
-                Search...
-              </label>
-              <input
-                type="text"
-                className="form-control w-100"
-                id="startDate"
-                placeholder="Search..."
-              />
-            </div>
-
             {/* Start Date Picker */}
             <div className="mb-3 w-100">
               <label htmlFor="startDate" className="form-label">
@@ -209,6 +256,30 @@ const Dashboard = () => {
                 End Date
               </label>
               <input type="date" className="form-control w-100" id="endDate" />
+            </div>
+
+            {/* Select Input for Checin and checkout */}
+            <div className="mb-3 w-100">
+              <label htmlFor="availability" className="form-label">
+                Status Filter
+              </label>
+              <select className="form-select w-100" id="availability">
+                <option value="available">Check in</option>
+                <option value="notAvailable">Check out</option>
+              </select>
+            </div>
+
+            <div className="mb-3 w-100">
+              {/* Search Input Field */}
+              <label htmlFor="endDate" className="form-label">
+                Search...
+              </label>
+              <input
+                type="text"
+                className="form-control w-100"
+                id="startDate"
+                placeholder="Search..."
+              />
             </div>
 
             {/* Select input for Availability */}
