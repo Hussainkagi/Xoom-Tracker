@@ -1,5 +1,5 @@
 import styles from "./dashboard.module.css";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -11,7 +11,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
+import { Modal } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import apiHelper from "../../utils/apiHelper/apiHelper";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -28,6 +30,31 @@ function CustomTabPanel(props) {
     </div>
   );
 }
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
+const style2 = {
+  position: "absolute",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 800,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 function a11yProps(index) {
   return {
@@ -105,55 +132,29 @@ const theme = createTheme({
   },
 });
 
-function createData(empCode, name, vehicleNum, time, date, location, status) {
-  return { empCode, name, vehicleNum, time, date, location, status };
-}
-const emp = [
-  {
-    code: "XDS45002",
-    name: "Altafh Bin Abdullah",
-  },
-  {
-    code: "XDS002",
-    name: "Mohd. Bin Uzair",
-  },
-];
-
-let locas = ["sharjah warehouse", "abu hail", "jumeira"];
-const rows = [
-  createData(
-    "XDS45001",
-    "Arshid",
-    "DXB123",
-    "11:30 AM",
-    "11/01/2024",
-    "Abu Hail",
-    "Check In"
-  ),
-  createData(
-    "XDS45002",
-    "Ahsan",
-    "DXB453",
-    "12:30 PM",
-    "11/01/2024",
-    "Abu Hail",
-    "Check In"
-  ),
-  createData(
-    "XDS45001",
-    "harshul",
-    "DXB223",
-    "5:30 PM",
-    "11/01/2024",
-    "Abu Hail",
-    "Check Out"
-  ),
-];
-
 const Dashboard = () => {
   const [value, setValue] = useState(0);
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
+
+  // Table Data States
+  const [employeeData, setEmployeeData] = useState([]);
+  const [locationData, setLocationData] = useState([]);
+  const [vehicleData, setVehicleData] = useState([]);
+  const [transactionData, setTransactionData] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [showFullImageModal, setShowFullImageModal] = useState(false);
+  const [fullImage, setFullImage] = useState("");
+
+  const placeholderImage = "https://via.placeholder.com/150";
+
+  useEffect(() => {
+    getTransactionData();
+    getEmployeeData();
+    getLocationData();
+    getVehicleData();
+  }, []);
 
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
@@ -173,32 +174,100 @@ const Dashboard = () => {
     setValue(newValue);
   };
 
+  // *********************************Handle Image Model START***********************************
+  const handleImageClick = (images) => {
+    // Open modal with selected images
+    setSelectedImages(images);
+    setShowImageModal(true);
+  };
+
+  const handleFullImageClick = (url) => {
+    // Open modal for full image view
+    setFullImage(url);
+    setShowFullImageModal(true);
+  };
+
+  function extractGoogleDriveFileId(url) {
+    const regex = /\/d\/(.*?)\/view/;
+    const match = url.match(regex);
+    return match ? match[1] : null; // Returns the ID if found, otherwise null
+  }
+
+  // *********************************Handle Image Model END***********************************
+  //  ***********************************Employee APIs *******************************
+  const getEmployeeData = async () => {
+    let response = await apiHelper.get("/employee");
+
+    setEmployeeData(response.data);
+  };
+
+  //  ***********************************Location APIs *******************************
+  const getLocationData = async () => {
+    let response = await apiHelper.get("/location");
+    setLocationData(response.data);
+  };
+
+  //  ***********************************Vehicle APIs *******************************
+  const getVehicleData = async () => {
+    let response = await apiHelper.get("/vehicle");
+    setVehicleData(response.data);
+  };
+
+  //  ***********************************Transaction APIs *******************************
+  const getTransactionData = async () => {
+    let response = await apiHelper.get("/transaction");
+    setTransactionData(response.data);
+    console.log("Data", response.data);
+  };
+
   return (
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
         <div className="d-flex  flex-column justify-content-end align-items-end mb-2">
-          <button
-            type="button"
-            data-mdb-button-init
-            data-mdb-ripple-init
-            className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-            style={{
-              backgroundColor: "#9acb3b",
-              border: "none",
-              borderRadius: "1.5rem",
-              fontWeight: "bold",
-            }}
-            onClick={handleButtonClick}
-          >
-            Bulk Import{" "}
-            <i
-              className="bi bi-cloud-arrow-down"
+          {value === 0 && (
+            <button
+              type="button"
+              data-mdb-button-init
+              data-mdb-ripple-init
+              className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
               style={{
-                fontSize: "1.5rem",
+                backgroundColor: "#9acb3b",
+                border: "none",
+                borderRadius: "1.5rem",
                 fontWeight: "bold",
               }}
-            ></i>
-          </button>
+              onClick={handleButtonClick}
+            >
+              Bulk Import{" "}
+              <i
+                className="bi bi-cloud-arrow-down"
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: "bold",
+                }}
+              ></i>
+            </button>
+          )}
+          <div className="btn-group" role="group">
+            <button
+              id="btnGroupDrop1"
+              type="button"
+              className="btn btn-secondary dropdown-toggle"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Add
+            </button>
+            <div className="dropdown-menu" aria-labelledby="btnGroupDrop1">
+              <a className="dropdown-item" href="#">
+                Dropdown link
+              </a>
+              <a className="dropdown-item" href="#">
+                Dropdown link
+              </a>
+            </div>
+          </div>
           {/* Hidden file input */}
           <input
             type="file"
@@ -228,7 +297,7 @@ const Dashboard = () => {
           >
             Export Excel{" "}
             <i
-              class="bi bi-cloud-arrow-up"
+              className="bi bi-cloud-arrow-up"
               style={{
                 fontSize: "1.5rem",
                 fontWeight: "bold",
@@ -281,17 +350,6 @@ const Dashboard = () => {
                 placeholder="Search..."
               />
             </div>
-
-            {/* Select input for Availability */}
-            {/* <div className="mb-3 w-100">
-              <label htmlFor="availability" className="form-label">
-                Availability
-              </label>
-              <select className="form-select w-100" id="availability">
-                <option value="available">Available</option>
-                <option value="notAvailable">Not Available</option>
-              </select>
-            </div> */}
           </div>
         </div>
         <div className={styles.tabs}>
@@ -314,43 +372,44 @@ const Dashboard = () => {
           </Box>
           <CustomTabPanel value={value} index={0}>
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <Table sx={{ minWidth: 650 }} aria-label="transaction table">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>
-                      Employee Code
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>
-                      Vehicle number
-                    </TableCell>
-                    <TableCell align="centre">Date</TableCell>
-                    <TableCell align="centre">Time</TableCell>
-                    <TableCell align="centre">Location</TableCell>
-                    <TableCell align="centre">status</TableCell>
+                    <TableCell>Employee Code</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Vehicle Number</TableCell>
+                    <TableCell align="center">Date</TableCell>
+                    <TableCell align="center">Time</TableCell>
+                    <TableCell align="center">Location</TableCell>
+                    <TableCell align="center">Status</TableCell>
+                    <TableCell align="center">Images</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      key={row.name}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {row.empCode}
-                      </TableCell>
-                      <TableCell align="centre">{row.name}</TableCell>
-                      <TableCell align="centre">{row.vehicleNum}</TableCell>
-                      <TableCell align="centre">{row.date}</TableCell>
-                      <TableCell align="centre">{row.time}</TableCell>
-                      <TableCell align="centre">{row.location}</TableCell>
-                      <TableCell align="centre">
+                  {transactionData.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.empCode}</TableCell>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.vehicleNum}</TableCell>
+                      <TableCell align="center">{row.date}</TableCell>
+                      <TableCell align="center">{row.time}</TableCell>
+                      <TableCell align="center">{row.location}</TableCell>
+                      <TableCell align="center">
                         <Chip
                           label={row.status}
                           color={
-                            row.status === "Check In" ? `success` : "error"
+                            row.status === "Check In" ? "success" : "error"
                           }
                         />
+                      </TableCell>
+                      <TableCell align="center">
+                        <i
+                          className="bi bi-eye cursor-pointer"
+                          onClick={() => {
+                            handleImageClick(row.pictures);
+                            console.log("Click", row.pictures);
+                          }}
+                        ></i>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -363,6 +422,7 @@ const Dashboard = () => {
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
+                    <TableCell sx={{ fontWeight: "bold" }}>Sr no.</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Employee Code
                     </TableCell>
@@ -370,18 +430,50 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {emp.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell align="left">{row.code}</TableCell>
-                      <TableCell align="left">{row.name}</TableCell>
-                    </TableRow>
-                  ))}
+                  {employeeData
+                    ? employeeData?.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell align="left">{index + 1}</TableCell>
+                          <TableCell align="left">{row?.code}</TableCell>
+                          <TableCell align="left">{row?.name}</TableCell>
+                        </TableRow>
+                      ))
+                    : "No Data Available"}
                 </TableBody>
               </Table>
             </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
-            Vehicles
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: "bold" }}>Sr no.</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Vehicle No.
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Model</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>From</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Availability Status
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {vehicleData
+                    ? vehicleData?.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell align="left">{index + 1}</TableCell>
+                          <TableCell align="left">{row?.vehicleNo}</TableCell>
+                          <TableCell align="left">{row?.model}</TableCell>
+                          <TableCell align="left">{row?.from}</TableCell>
+                          <TableCell align="left">{row?.status}</TableCell>
+                        </TableRow>
+                      ))
+                    : "No Data Available"}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
             <TableContainer component={Paper}>
@@ -392,21 +484,79 @@ const Dashboard = () => {
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Location Name
                     </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Full Address
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {locas.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell align="left">{index + 1}</TableCell>
-                      <TableCell align="left">{row}</TableCell>
-                    </TableRow>
-                  ))}
+                  {locationData
+                    ? locationData?.map((row, index) => (
+                        <TableRow key={index}>
+                          <TableCell align="left">{index + 1}</TableCell>
+                          <TableCell align="left">{row?.name}</TableCell>
+                          <TableCell align="left">{row?.fullAddress}</TableCell>
+                        </TableRow>
+                      ))
+                    : "No Data Available"}
                 </TableBody>
               </Table>
             </TableContainer>
           </CustomTabPanel>
         </div>
       </div>
+      <Modal
+        open={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          {["back", "front", "left", "right"].map((position) => {
+            const imageObj = selectedImages.find((img) => img.value[position]);
+            console.log("obj", imageObj);
+            const urlid =
+              imageObj && imageObj.value[position].url
+                ? extractGoogleDriveFileId(imageObj.value[position].url)
+                : null;
+            console.log("UR:", urlid);
+            return (
+              <img
+                src={
+                  urlid
+                    ? `https://lh3.googleusercontent.com/d/${urlid}=w1000?authuser=1/view`
+                    : placeholderImage
+                }
+                alt={position}
+                onClick={() => urlid && handleFullImageClick(urlid)}
+                style={{
+                  cursor: "pointer",
+                  width: "150px",
+                  height: "auto",
+                  margin: ".25rem",
+                }}
+              />
+            );
+          })}
+        </Box>
+      </Modal>
+
+      {/* Modal for full image view */}
+      <Modal
+        open={showFullImageModal}
+        onClose={() => setShowFullImageModal(false)}
+      >
+        <Box sx={style2}>
+          <img
+            src={`https://lh3.googleusercontent.com/d/${fullImage}=w1000?authuser=1/view`}
+            alt="full-img"
+            style={{
+              width: "500px",
+              height: "500px",
+            }}
+          />
+        </Box>
+      </Modal>
     </div>
   );
 };
