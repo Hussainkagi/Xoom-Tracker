@@ -11,10 +11,11 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
-import { Modal } from "@mui/material";
+import { Modal, Button, Menu, MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import apiHelper from "../../utils/apiHelper/apiHelper";
 
+let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -136,6 +137,7 @@ const Dashboard = () => {
   const [value, setValue] = useState(0);
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("");
+  const [fileData, setFileData] = useState(null);
 
   // Table Data States
   const [employeeData, setEmployeeData] = useState([]);
@@ -146,6 +148,23 @@ const Dashboard = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showFullImageModal, setShowFullImageModal] = useState(false);
   const [fullImage, setFullImage] = useState("");
+
+  const [modalForm, showModalform] = useState(false);
+  const [manual, setManual] = useState(false);
+
+  // Form Field States
+  const [empCode, setEmpCode] = useState("");
+  const [empName, setEmpName] = useState("");
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const placeholderImage = "https://via.placeholder.com/150";
 
@@ -166,12 +185,24 @@ const Dashboard = () => {
     const file = event.target.files[0];
     if (file) {
       setFileName(file.name);
+      setFileData(file);
       // Process the file as needed
     }
   };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  const handleInputChange = (e) => {
+    const { name } = e.target;
+    console.log("ss");
+    switch (value) {
+      case 1:
+        console.log("ssss");
+        if (name === "empCode") setEmpCode(e.target.value);
+        if (name === "empName") setEmpName(e.target.value);
+    }
   };
 
   // *********************************Handle Image Model START***********************************
@@ -201,6 +232,48 @@ const Dashboard = () => {
     setEmployeeData(response.data);
   };
 
+  const uploadEmployeeData = async (file) => {
+    try {
+      const formData = new FormData();
+      // formData.append("file", file);+
+      if (file) {
+        const isExcelFile =
+          file.type === "application/vnd.ms-excel" ||
+          file.type ===
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        if (isExcelFile && !manual) {
+          formData.append("file", file);
+          const response = await apiHelper.post("/employee/upload", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          getEmployeeData();
+          showModalform(false);
+          console.log(response);
+          alert(response.message || "Upload successful");
+        } else {
+          alert("Oops! Uploaded file was not in required format.");
+        }
+      } else if (manual) {
+        console.log("manual baba");
+        let body = {
+          code: empCode.toUpperCase(),
+          name: empName,
+          status: "active",
+          isDeleted: false,
+        };
+        const response = await apiHelper.post("/employee", body, {
+          headers: { "Content-Type": "application/json" },
+        });
+        showModalform(false);
+        getEmployeeData();
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error.message);
+      alert("Failed to upload file.");
+    }
+  };
+
   //  ***********************************Location APIs *******************************
   const getLocationData = async () => {
     let response = await apiHelper.get("/location");
@@ -213,11 +286,97 @@ const Dashboard = () => {
     setVehicleData(response.data);
   };
 
+  const uploadVehicleData = async (file) => {
+    try {
+      const formData = new FormData();
+      // formData.append("file", file);+
+      console.log("File", file);
+      const isExcelFile =
+        file.type === "application/vnd.ms-excel" ||
+        file.type ===
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+      if (isExcelFile) {
+        formData.append("file", file);
+        const response = await apiHelper.post("/vehicle/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        getVehicleData();
+        console.log(response);
+        alert(response.message || "Upload successful");
+      } else {
+        alert("Oops! Uploaded file was not in required format.");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error.message);
+      alert("Failed to upload file.");
+    }
+  };
+
   //  ***********************************Transaction APIs *******************************
   const getTransactionData = async () => {
     let response = await apiHelper.get("/transaction");
     setTransactionData(response.data);
     console.log("Data", response.data);
+  };
+
+  // ***************************Render modal forms***************************************
+  const renderModalforma = () => {
+    switch (value) {
+      case 1:
+        return (
+          <div className="d-flex flex-column gap-3">
+            <div className="form-group">
+              <label htmlFor="empCode">Employee Code</label>
+              <input
+                type="text"
+                className="form-control"
+                id="empCode"
+                name="empCode"
+                value={empCode}
+                onChange={handleInputChange}
+                placeholder="Enter Employee code"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="inputTwo">Employee Name</label>
+              <input
+                type="text"
+                className="form-control"
+                id="empName"
+                name="empName"
+                value={empName}
+                onChange={handleInputChange}
+                placeholder="Enter Employee name"
+              />
+            </div>
+            <div className="d-flex gap-3">
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ backgroundColor: themeColor }}
+                onClick={() => {
+                  showModalform(false);
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ backgroundColor: themeColor }}
+                onClick={() => {
+                  uploadEmployeeData(fileData);
+                }}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        );
+    }
   };
 
   return (
@@ -248,26 +407,61 @@ const Dashboard = () => {
               ></i>
             </button>
           )}
-          <div className="btn-group" role="group">
-            <button
-              id="btnGroupDrop1"
-              type="button"
-              className="btn btn-secondary dropdown-toggle"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              Add
-            </button>
-            <div className="dropdown-menu" aria-labelledby="btnGroupDrop1">
-              <a className="dropdown-item" href="#">
-                Dropdown link
-              </a>
-              <a className="dropdown-item" href="#">
-                Dropdown link
-              </a>
+          {value !== 0 && (
+            <div>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleClick}
+                sx={{
+                  backgroundColor: "#9acb3b",
+                  borderRadius: "1.5rem",
+                  fontSize: ".95rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  fontWeight: "bold",
+                }}
+              >
+                Import{" "}
+                <i
+                  className="bi bi-cloud-arrow-down"
+                  style={{
+                    fontWeight: "bold",
+                  }}
+                ></i>
+              </Button>
+              <Menu
+                id="simple-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleButtonClick}>
+                  Excel import
+                  <input
+                    type="file"
+                    style={{ display: "none" }}
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                  />
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    showModalform(true);
+                    setManual(true);
+                    setFileData(null);
+                    setFileName("");
+                    handleClose();
+                  }}
+                >
+                  Add manually
+                </MenuItem>
+              </Menu>
             </div>
-          </div>
+          )}
           {/* Hidden file input */}
           <input
             type="file"
@@ -275,11 +469,6 @@ const Dashboard = () => {
             style={{ display: "none" }}
             onChange={handleFileChange}
           />
-          {fileName && (
-            <p style={{ marginTop: "10px", color: "#333" }}>
-              Selected file: <strong>{fileName}</strong>
-            </p>
-          )}
         </div>
         <div className="d-flex  flex-column justify-content-end align-items-end">
           <button
@@ -305,6 +494,33 @@ const Dashboard = () => {
             ></i>
           </button>
         </div>
+        {/* Selected File for import Data */}
+        {fileName && (
+          <div className="d-flex align-items-center gap-5">
+            <p style={{ marginTop: "10px", color: "#333" }}>
+              Selected file: <strong>{fileName}</strong>
+            </p>
+            <button
+              type="button"
+              data-mdb-button-init
+              data-mdb-ripple-init
+              className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
+              style={{
+                backgroundColor: "#9acb3b",
+                border: "none",
+                borderRadius: "1.5rem",
+                fontWeight: "bold",
+                width: "150px",
+                height: "30px",
+              }}
+              onClick={() => {
+                uploadEmployeeData(fileData);
+              }}
+            >
+              Submit
+            </button>
+          </div>
+        )}
         <div className={styles.header__tab}>
           <div className={styles.filter__container}>
             {/* Start Date Picker */}
@@ -556,6 +772,12 @@ const Dashboard = () => {
             }}
           />
         </Box>
+      </Modal>
+
+      {/* Modal For Forms */}
+      {/* Modal for full image view */}
+      <Modal open={modalForm} onClose={() => setShowFullImageModal(false)}>
+        <Box sx={style}>{renderModalforma()}</Box>
       </Modal>
     </div>
   );
