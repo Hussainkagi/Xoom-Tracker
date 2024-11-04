@@ -20,6 +20,12 @@
     gap: 1rem;
   }
 
+  .without__filters{
+    display: flex;
+    width:  100%;
+    justify-content: flex-end;
+  }
+
 
 
   @media (width < 768px)  {

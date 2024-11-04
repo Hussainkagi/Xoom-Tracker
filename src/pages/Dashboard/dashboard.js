@@ -14,6 +14,7 @@ import Chip from "@mui/material/Chip";
 import { Modal, Button, Menu, MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import apiHelper from "../../utils/apiHelper/apiHelper";
+import placeholder from "../../assets/Images/noimage.jpg";
 
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
@@ -152,9 +153,18 @@ const Dashboard = () => {
   const [modalForm, showModalform] = useState(false);
   const [manual, setManual] = useState(false);
 
-  // Form Field States
+  // Employee Form Field States
   const [empCode, setEmpCode] = useState("");
   const [empName, setEmpName] = useState("");
+
+  // Vehicle form field states
+  const [vehicleNo, setvehicleNo] = useState("");
+  const [vehicleModel, setvehicleModel] = useState("");
+  const [vehicleFrom, setVehiclefrom] = useState("");
+
+  // Locstion form states
+  const [locationName, setLocationName] = useState("");
+  const [locationFull, setLocationfull] = useState("");
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -166,8 +176,6 @@ const Dashboard = () => {
     setAnchorEl(null);
   };
 
-  const placeholderImage = "https://via.placeholder.com/150";
-
   useEffect(() => {
     getTransactionData();
     getEmployeeData();
@@ -178,6 +186,7 @@ const Dashboard = () => {
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
     fileInputRef.current.click();
+    setAnchorEl(false);
   };
 
   // Handle file selection
@@ -196,12 +205,20 @@ const Dashboard = () => {
 
   const handleInputChange = (e) => {
     const { name } = e.target;
-    console.log("ss");
+
     switch (value) {
       case 1:
-        console.log("ssss");
         if (name === "empCode") setEmpCode(e.target.value);
         if (name === "empName") setEmpName(e.target.value);
+
+      case 2:
+        if (name === "vehicleno") setvehicleNo(e.target.value);
+        if (name === "vehicleModel") setvehicleModel(e.target.value);
+        if (name === "vehicleFrom") setVehiclefrom(e.target.value);
+
+      case 3:
+        if (name === "locName") setLocationName(e.target.value);
+        if (name === "fulladdress") setLocationfull(e.target.value);
     }
   };
 
@@ -248,8 +265,7 @@ const Dashboard = () => {
             headers: { "Content-Type": "multipart/form-data" },
           });
           getEmployeeData();
-          showModalform(false);
-          console.log(response);
+
           alert(response.message || "Upload successful");
         } else {
           alert("Oops! Uploaded file was not in required format.");
@@ -266,6 +282,9 @@ const Dashboard = () => {
           headers: { "Content-Type": "application/json" },
         });
         showModalform(false);
+        setManual(false);
+        setEmpCode("");
+        setEmpName("");
         getEmployeeData();
       }
     } catch (error) {
@@ -280,6 +299,26 @@ const Dashboard = () => {
     setLocationData(response.data);
   };
 
+  const addLocationData = async () => {
+    try {
+      let body = {
+        name: locationName,
+        fullAddress: locationFull,
+      };
+      const response = await apiHelper.post("/location", body, {
+        headers: { "Content-Type": "application/json" },
+      });
+      showModalform(false);
+      setManual(false);
+      setLocationName("");
+      setLocationfull("");
+      getLocationData();
+    } catch (error) {
+      console.error("Error adding location:", error.message);
+      alert("Failed to add location.");
+    }
+  };
+
   //  ***********************************Vehicle APIs *******************************
   const getVehicleData = async () => {
     let response = await apiHelper.get("/vehicle");
@@ -290,22 +329,40 @@ const Dashboard = () => {
     try {
       const formData = new FormData();
       // formData.append("file", file);+
-      console.log("File", file);
-      const isExcelFile =
-        file.type === "application/vnd.ms-excel" ||
-        file.type ===
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      if (file) {
+        const isExcelFile =
+          file.type === "application/vnd.ms-excel" ||
+          file.type ===
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-      if (isExcelFile) {
-        formData.append("file", file);
-        const response = await apiHelper.post("/vehicle/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+        if (isExcelFile && !manual) {
+          formData.append("file", file);
+          const response = await apiHelper.post("/vehicle/upload", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          getVehicleData();
+
+          alert(response.message || "Upload successful");
+        } else {
+          alert("Oops! Uploaded file was not in required format.");
+        }
+      } else if (manual) {
+        let body = {
+          vehicleNo: vehicleNo,
+          model: vehicleModel,
+          from: vehicleFrom,
+          status: "available",
+          isDeleted: false,
+        };
+        const response = await apiHelper.post("/vehicle", body, {
+          headers: { "Content-Type": "application/json" },
         });
+        showModalform(false);
+        setManual(false);
+        setvehicleNo("");
+        setVehiclefrom("");
+        setvehicleModel("");
         getVehicleData();
-        console.log(response);
-        alert(response.message || "Upload successful");
-      } else {
-        alert("Oops! Uploaded file was not in required format.");
       }
     } catch (error) {
       console.error("Error uploading file:", error.message);
@@ -376,6 +433,126 @@ const Dashboard = () => {
             </div>
           </div>
         );
+
+      case 2:
+        return (
+          <div className="d-flex flex-column gap-3">
+            <div className="form-group">
+              <label htmlFor="empCode">Vehicle No.</label>
+              <input
+                type="text"
+                className="form-control"
+                id="vehicleno"
+                name="vehicleno"
+                value={vehicleNo}
+                onChange={handleInputChange}
+                placeholder="Enter vehicle no."
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="vehiclemodal">Vehicle Model</label>
+              <input
+                type="text"
+                className="form-control"
+                id="vehicleModel"
+                name="vehicleModel"
+                value={vehicleModel}
+                onChange={handleInputChange}
+                placeholder="Enter vehicle model"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="vehiclefrom">Vehicle From</label>
+              <input
+                type="text"
+                className="form-control"
+                id="vehicleFrom"
+                name="vehicleFrom"
+                value={vehicleFrom}
+                onChange={handleInputChange}
+                placeholder="Enter vehicle From"
+              />
+            </div>
+            <div className="d-flex gap-3">
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ backgroundColor: themeColor }}
+                onClick={() => {
+                  showModalform(false);
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ backgroundColor: themeColor }}
+                onClick={() => {
+                  uploadVehicleData(fileData);
+                }}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="d-flex flex-column gap-3">
+            <div className="form-group">
+              <label htmlFor="empCode">Location Name</label>
+              <input
+                type="text"
+                className="form-control"
+                id="locName"
+                name="locName"
+                value={locationName}
+                onChange={handleInputChange}
+                placeholder="Enter cocation name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="inputTwo">Full address</label>
+              <textarea
+                className="form-control"
+                id="fulladdress"
+                name="fulladdress"
+                value={locationFull}
+                onChange={handleInputChange}
+                placeholder="Enter full address"
+                rows="3"
+              ></textarea>
+            </div>
+            <div className="d-flex gap-3">
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ backgroundColor: themeColor }}
+                onClick={() => {
+                  showModalform(false);
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ backgroundColor: themeColor }}
+                onClick={() => {
+                  addLocationData();
+                }}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        );
     }
   };
 
@@ -399,7 +576,7 @@ const Dashboard = () => {
             >
               Bulk Import{" "}
               <i
-                className="bi bi-cloud-arrow-down"
+                className="bi bi-cloud-arrow-up"
                 style={{
                   fontSize: "1.5rem",
                   fontWeight: "bold",
@@ -421,13 +598,15 @@ const Dashboard = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "0.5rem",
+                  height: "40px",
                   fontWeight: "bold",
                 }}
               >
-                Import{" "}
+                Add
                 <i
-                  className="bi bi-cloud-arrow-down"
+                  className="bi bi-plus-circle"
                   style={{
+                    fontSize: "1.5rem",
                     fontWeight: "bold",
                   }}
                 ></i>
@@ -439,15 +618,17 @@ const Dashboard = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleButtonClick}>
-                  Excel import
-                  <input
-                    type="file"
-                    style={{ display: "none" }}
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                  />
-                </MenuItem>
+                {value !== 3 && (
+                  <MenuItem onClick={handleButtonClick}>
+                    Excel import
+                    <input
+                      type="file"
+                      style={{ display: "none" }}
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                    />
+                  </MenuItem>
+                )}
                 <MenuItem
                   onClick={() => {
                     showModalform(true);
@@ -471,28 +652,30 @@ const Dashboard = () => {
           />
         </div>
         <div className="d-flex  flex-column justify-content-end align-items-end">
-          <button
-            type="button"
-            data-mdb-button-init
-            data-mdb-ripple-init
-            className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-            style={{
-              backgroundColor: "#9acb3b",
-              border: "none",
-              fontWeight: "bold",
-              borderRadius: "1.5rem",
-            }}
-            onClick={() => {}}
-          >
-            Export Excel{" "}
-            <i
-              className="bi bi-cloud-arrow-up"
+          {value === 0 && (
+            <button
+              type="button"
+              data-mdb-button-init
+              data-mdb-ripple-init
+              className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
               style={{
-                fontSize: "1.5rem",
+                backgroundColor: "#9acb3b",
+                border: "none",
                 fontWeight: "bold",
+                borderRadius: "1.5rem",
               }}
-            ></i>
-          </button>
+              onClick={() => {}}
+            >
+              Export Excel{" "}
+              <i
+                className="bi bi-download"
+                style={{
+                  fontSize: "1rem",
+                  fontWeight: "bold",
+                }}
+              ></i>
+            </button>
+          )}
         </div>
         {/* Selected File for import Data */}
         {fileName && (
@@ -522,38 +705,47 @@ const Dashboard = () => {
           </div>
         )}
         <div className={styles.header__tab}>
-          <div className={styles.filter__container}>
+          <div
+            className={
+              value === 0 ? styles.filter__container : styles.without__filters
+            }
+          >
             {/* Start Date Picker */}
-            <div className="mb-3 w-100">
-              <label htmlFor="startDate" className="form-label">
-                Start Date
-              </label>
-              <input
-                type="date"
-                className="form-control w-100"
-                id="startDate"
-              />
-            </div>
-
-            {/* End Date Picker */}
-            <div className="mb-3 w-100">
-              <label htmlFor="endDate" className="form-label">
-                End Date
-              </label>
-              <input type="date" className="form-control w-100" id="endDate" />
-            </div>
-
-            {/* Select Input for Checin and checkout */}
-            <div className="mb-3 w-100">
-              <label htmlFor="availability" className="form-label">
-                Status Filter
-              </label>
-              <select className="form-select w-100" id="availability">
-                <option value="available">Check in</option>
-                <option value="notAvailable">Check out</option>
-              </select>
-            </div>
-
+            {value === 0 && (
+              <>
+                <div className="mb-3 w-100">
+                  <label htmlFor="startDate" className="form-label">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control w-100"
+                    id="startDate"
+                  />
+                </div>
+                {/* End Date Picker */}
+                <div className="mb-3 w-100">
+                  <label htmlFor="endDate" className="form-label">
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control w-100"
+                    id="endDate"
+                  />
+                </div>
+                {/* Select Input for Checin and checkout */}
+                <div className="mb-3 w-100">
+                  <label htmlFor="availability" className="form-label">
+                    Status Filter
+                  </label>
+                  <select className="form-select w-100" id="availability">
+                    <option value="available">Check in</option>
+                    <option value="notAvailable">Check out</option>
+                  </select>
+                </div>
+              </>
+            )}
             <div className="mb-3 w-100">
               {/* Search Input Field */}
               <label htmlFor="endDate" className="form-label">
@@ -561,7 +753,7 @@ const Dashboard = () => {
               </label>
               <input
                 type="text"
-                className="form-control w-100"
+                className="form-control"
                 id="startDate"
                 placeholder="Search..."
               />
@@ -741,7 +933,7 @@ const Dashboard = () => {
                 src={
                   urlid
                     ? `https://lh3.googleusercontent.com/d/${urlid}=w1000?authuser=1/view`
-                    : placeholderImage
+                    : placeholder
                 }
                 alt={position}
                 onClick={() => urlid && handleFullImageClick(urlid)}
