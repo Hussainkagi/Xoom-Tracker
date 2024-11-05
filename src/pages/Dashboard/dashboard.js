@@ -16,6 +16,9 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import apiHelper from "../../utils/apiHelper/apiHelper";
 import placeholder from "../../assets/Images/noimage.jpg";
 
+import ButtonLoader from "../../components/Loader/buttonLoader";
+import Splashscreen from "../../components/Splashscreen/splashloader";
+
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -152,6 +155,8 @@ const Dashboard = () => {
 
   const [modalForm, showModalform] = useState(false);
   const [manual, setManual] = useState(false);
+  const [btnLoader, setBtnLoader] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
 
   // Employee Form Field States
   const [empCode, setEmpCode] = useState("");
@@ -177,10 +182,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    getTransactionData();
-    getEmployeeData();
-    getLocationData();
-    getVehicleData();
+    fetchAllData();
   }, []);
 
   // Handle the button click to trigger the file input
@@ -242,6 +244,29 @@ const Dashboard = () => {
   }
 
   // *********************************Handle Image Model END***********************************
+
+  // ************************* Fetch All Data**********************'
+  const fetchAllData = async () => {
+    setShowSplash(true);
+    try {
+      const [transactionRes, vehicleRes, locationRes, employeeRes] =
+        await Promise.all([
+          apiHelper.get("/transaction"),
+          apiHelper.get("/vehicle"),
+          apiHelper.get("/location"),
+          apiHelper.get("/employee"),
+        ]);
+
+      setTransactionData(transactionRes.data);
+      setVehicleData(vehicleRes.data);
+      setLocationData(locationRes.data);
+      setEmployeeData(employeeRes.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setShowSplash(false); // Hide splash loader once all data is fetched
+    }
+  };
   //  ***********************************Employee APIs *******************************
   const getEmployeeData = async () => {
     let response = await apiHelper.get("/employee");
@@ -250,6 +275,8 @@ const Dashboard = () => {
   };
 
   const uploadEmployeeData = async (file) => {
+    setBtnLoader(true);
+    setShowSplash(true);
     try {
       const formData = new FormData();
       // formData.append("file", file);+
@@ -265,9 +292,12 @@ const Dashboard = () => {
             headers: { "Content-Type": "multipart/form-data" },
           });
           getEmployeeData();
+          setBtnLoader(false);
+          setShowSplash(false);
 
           alert(response.message || "Upload successful");
         } else {
+          setShowSplash(false);
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
@@ -283,6 +313,8 @@ const Dashboard = () => {
         });
         showModalform(false);
         setManual(false);
+        setBtnLoader(false);
+        setShowSplash(false);
         setEmpCode("");
         setEmpName("");
         getEmployeeData();
@@ -290,6 +322,8 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error uploading file:", error.message);
       alert("Failed to upload file.");
+      setBtnLoader(false);
+      setShowSplash(false);
     }
   };
 
@@ -300,6 +334,8 @@ const Dashboard = () => {
   };
 
   const addLocationData = async () => {
+    setBtnLoader(true);
+    setShowSplash(true);
     try {
       let body = {
         name: locationName,
@@ -313,9 +349,13 @@ const Dashboard = () => {
       setLocationName("");
       setLocationfull("");
       getLocationData();
+      setBtnLoader(false);
+      setShowSplash(false);
     } catch (error) {
       console.error("Error adding location:", error.message);
       alert("Failed to add location.");
+      setBtnLoader(false);
+      setShowSplash(false);
     }
   };
 
@@ -326,6 +366,8 @@ const Dashboard = () => {
   };
 
   const uploadVehicleData = async (file) => {
+    setBtnLoader(true);
+    setShowSplash(true);
     try {
       const formData = new FormData();
       // formData.append("file", file);+
@@ -341,9 +383,11 @@ const Dashboard = () => {
             headers: { "Content-Type": "multipart/form-data" },
           });
           getVehicleData();
-
+          setBtnLoader(false);
+          setShowSplash(false);
           alert(response.message || "Upload successful");
         } else {
+          setShowSplash(false);
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
@@ -359,6 +403,8 @@ const Dashboard = () => {
         });
         showModalform(false);
         setManual(false);
+        setBtnLoader(false);
+        setShowSplash(false);
         setvehicleNo("");
         setVehiclefrom("");
         setvehicleModel("");
@@ -367,6 +413,8 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Error uploading file:", error.message);
       alert("Failed to upload file.");
+      setBtnLoader(false);
+      setShowSplash(false);
     }
   };
 
@@ -427,8 +475,9 @@ const Dashboard = () => {
                 onClick={() => {
                   uploadEmployeeData(fileData);
                 }}
+                disabled={btnLoader}
               >
-                Submit
+                {!btnLoader ? "Submit" : <ButtonLoader />}
               </Button>
             </div>
           </div>
@@ -493,8 +542,9 @@ const Dashboard = () => {
                 onClick={() => {
                   uploadVehicleData(fileData);
                 }}
+                disabled={btnLoader}
               >
-                Submit
+                {!btnLoader ? "Submit" : <ButtonLoader />}
               </Button>
             </div>
           </div>
@@ -544,11 +594,12 @@ const Dashboard = () => {
                 variant="contained"
                 color="primary"
                 sx={{ backgroundColor: themeColor }}
+                disabled={btnLoader}
                 onClick={() => {
                   addLocationData();
                 }}
               >
-                Submit
+                {!btnLoader ? "Submit" : <ButtonLoader />}
               </Button>
             </div>
           </div>
@@ -582,6 +633,12 @@ const Dashboard = () => {
                   fontWeight: "bold",
                 }}
               ></i>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
             </button>
           )}
           {value !== 0 && (
@@ -644,12 +701,12 @@ const Dashboard = () => {
             </div>
           )}
           {/* Hidden file input */}
-          <input
+          {/* <input
             type="file"
             ref={fileInputRef}
             style={{ display: "none" }}
             onChange={handleFileChange}
-          />
+          /> */}
         </div>
         <div className="d-flex  flex-column justify-content-end align-items-end">
           {value === 0 && (
@@ -710,6 +767,19 @@ const Dashboard = () => {
               value === 0 ? styles.filter__container : styles.without__filters
             }
           >
+            <div className="mb-3 w-100">
+              {/* Search Input Field */}
+              <label htmlFor="endDate" className="form-label">
+                Search...
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="startDate"
+                placeholder="Search..."
+              />
+            </div>
+
             {/* Start Date Picker */}
             {value === 0 && (
               <>
@@ -746,18 +816,6 @@ const Dashboard = () => {
                 </div>
               </>
             )}
-            <div className="mb-3 w-100">
-              {/* Search Input Field */}
-              <label htmlFor="endDate" className="form-label">
-                Search...
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="startDate"
-                placeholder="Search..."
-              />
-            </div>
           </div>
         </div>
         <div className={styles.tabs}>
@@ -948,7 +1006,6 @@ const Dashboard = () => {
           })}
         </Box>
       </Modal>
-
       {/* Modal for full image view */}
       <Modal
         open={showFullImageModal}
@@ -965,12 +1022,12 @@ const Dashboard = () => {
           />
         </Box>
       </Modal>
-
       {/* Modal For Forms */}
-      {/* Modal for full image view */}
       <Modal open={modalForm} onClose={() => setShowFullImageModal(false)}>
         <Box sx={style}>{renderModalforma()}</Box>
       </Modal>
+      {/* Splash Loader */}
+      {showSplash && <Splashscreen />}
     </div>
   );
 };
