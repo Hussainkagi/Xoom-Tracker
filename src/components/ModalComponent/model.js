@@ -1,6 +1,14 @@
 import React from "react";
+import Loader from "../Loader/buttonLoader";
 
-const Modal = ({ title, content, show, handleClose }) => {
+const Modal = ({
+  title,
+  content,
+  show,
+  handleClose,
+  onSubmit,
+  disabled = false,
+}) => {
   return (
     <div
       className={`modal fade ${show ? "show d-block" : ""}`}
@@ -28,8 +36,13 @@ const Modal = ({ title, content, show, handleClose }) => {
             >
               Close
             </button>
-            <button type="button" className="btn btn-primary">
-              Save changes
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={onSubmit}
+              disabled={disabled}
+            >
+              {disabled ? <Loader /> : "Submit"}
             </button>
           </div>
         </div>

@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import apiHelper from "../../utils/apiHelper/apiHelper";
 import Splashscreen from "../../components/Splashscreen/splashloader";
 import { styled } from "@mui/material/styles";
-
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, stepButtonClasses, TextField } from "@mui/material";
+import Toast from "../../components/Toast/toast";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -15,14 +15,18 @@ const Home = () => {
     setFormTitle(type);
     setShowModal(true);
   };
-  const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    resetForm();
+  };
 
   const [employeeCode, setEmployeeCode] = useState("");
+  const [checkout, setCheckout] = useState(false);
   const [name, setName] = useState("");
   const [vehicleNo, setVehicleNo] = useState("");
   const [location, setLocation] = useState("");
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState("10:30 AM");
   const [vehiclePictures, setVehiclePictures] = useState({
     front: null,
     back: null,
@@ -36,14 +40,18 @@ const Home = () => {
     right: null,
   });
   const [comments, setComments] = useState("");
-  const [locations] = useState(["Abuhail", "al-diera", "chandni chowk"]);
-  const [vehicles] = useState(["BMW", "Audi", "Ferrari"]);
-  const [empCode] = useState(["XDS4500", "XDS4501", "XDS4502"]);
-
+  const [displayTime, setDisplayTime] = useState("");
+  const [btnLoader, setBtnLoader] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
   const [employeeData, setEmployeeData] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [vehicleData, setVehicleData] = useState([]);
+  const [toastConfig, setToastConfig] = useState({
+    show: false,
+    title: "",
+    subtitle: "",
+    type: "success",
+  });
 
   // **************************Get APIS**********************************
 
@@ -88,14 +96,74 @@ const Home = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleEmployeeCodeChange = (newCode) => {
-    setEmployeeCode(newCode);
+  const handleSelectInputChange = (input, type) => {
+    if (type === 1) {
+      setEmployeeCode(input);
 
-    const selectedEmployee = employeeData.find((emp) => emp.code === newCode);
+      const selectedEmployee = employeeData.find((emp) => emp.id === input);
 
-    if (selectedEmployee) {
-      setName(selectedEmployee.name);
+      if (selectedEmployee) {
+        setName(selectedEmployee.name);
+      }
+    } else if (type === 2) {
+      setLocation(input);
+    } else if (type === 3) {
+      setVehicleNo(input);
     }
+  };
+
+  const handleTimeChange = (e) => {
+    const selectedTime = e.target.value;
+    setTime(selectedTime);
+    formatTimeWithSuffix(selectedTime);
+  };
+
+  const showToast = (type, title, subtitle) => {
+    setToastConfig({
+      show: true,
+      title,
+      subtitle,
+      type,
+    });
+  };
+
+  const handleCloseToast = () => {
+    setToastConfig((prev) => ({
+      ...prev,
+      show: false,
+    }));
+  };
+
+  const formatTimeWithSuffix = (time) => {
+    const [hour, minute] = time.split(":");
+    const hourNum = parseInt(hour, 10);
+
+    const suffix = hourNum >= 12 ? "PM" : "AM";
+    const displayHour = hourNum % 12 === 0 ? 12 : hourNum % 12;
+
+    setDisplayTime(`${displayHour}:${minute} ${suffix}`);
+  };
+
+  const resetForm = () => {
+    setVehicleNo("");
+    setEmployeeCode("");
+    setName("");
+    setDate("");
+    setTime("");
+    setLocation("");
+    setVehiclePictures({
+      front: null,
+      back: null,
+      left: null,
+      right: null,
+    });
+    setVehiclePreviews({
+      front: null,
+      back: null,
+      left: null,
+      right: null,
+    });
+    setComments("");
   };
 
   const CustomAutocomplete = styled(Autocomplete)({
@@ -120,65 +188,115 @@ const Home = () => {
   });
 
   // Form submission handler
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = {
-      vehicleNo,
-      employeeCode,
-      name,
-      date,
-      time,
-      location,
-      vehiclePictures,
-      comments,
-    };
+    setBtnLoader(true);
+    // Create a new FormData instance
+    const formData = new FormData();
+    formData.append("vehicle", vehicleNo);
+    formData.append("employee", employeeCode);
+    formData.append("date", date);
+    formData.append("time", displayTime);
+    formData.append("location", location);
+    formData.append("comments", comments);
+    formData.append("action", !checkout ? "entry" : "exit");
+
+    // if (vehiclePictures.back)
+    //   formData.append("vehiclePictures[back]", vehiclePictures.back);
+    // if (vehiclePictures.front)
+    //   formData.append("vehiclePictures[front]", vehiclePictures.front);
+    // if (vehiclePictures.left)
+    //   formData.append("vehiclePictures[left]", vehiclePictures.left);
+    // if (vehiclePictures.right)
+    //   formData.append("vehiclePictures[right]", vehiclePictures.right);
+
+    try {
+      const response = await apiHelper.post("/transaction", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (response.success === true) {
+        showToast(
+          "success",
+          "Success",
+          checkout ? "Check out SuccessFull" : "Check in SuccessFull"
+        );
+        resetForm();
+        setShowModal(false);
+        setBtnLoader(false);
+      } else {
+        showToast(
+          "error",
+          "Error",
+          !checkout
+            ? "vehicle already checked in"
+            : "vehicle already  checkedout"
+        );
+        setBtnLoader(false);
+      }
+      console.log("Response:", response);
+    } catch (err) {
+      showToast("error", "Error", "Something went wrong!");
+      console.error("Error submitting form:", err);
+    }
+    setBtnLoader(false);
     console.log("Form Data:", formData);
   };
 
   const formContent = (
-    <form onSubmit={handleSubmit}>
+    <form>
       {/* Vehicle No Dropdown */}
       <div className="mb-3">
         <label htmlFor="vehicleNo" className="form-label">
           Vehicle No.
         </label>
-        <select
-          className="form-select"
-          id="vehicleNo"
-          value={vehicleNo}
-          onChange={(e) => setVehicleNo(e.target.value)}
-        >
-          <option>Select a vehicle</option>
-          {vehicles.map((vehicle, index) => (
-            <option key={index} value={vehicle}>
-              {vehicle}
-            </option>
-          ))}
-        </select>
+        {vehicleData && (
+          <CustomAutocomplete
+            id="vehicleno"
+            options={vehicleData}
+            value={
+              vehicleData.find((vehicle) => vehicle.id === vehicleNo) || null
+            }
+            onChange={(event, newValue) =>
+              handleSelectInputChange(newValue ? newValue.id : "", 3)
+            }
+            getOptionLabel={(option) => option.vehicleNo}
+            isOptionEqualToValue={(option, value) => option.code === value.code}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select a vehicle no."
+                variant="outlined"
+                placeholder="Search Vehicle no."
+              />
+            )}
+          />
+        )}
       </div>
       {/* Employee Code */}
       <div className="mb-3">
         <label htmlFor="employeeCode" className="form-label">
           Employee Code
         </label>
-        <CustomAutocomplete
-          id="employeeCode"
-          options={employeeData}
-          value={employeeData.find((emp) => emp.code === employeeCode) || null}
-          onChange={(event, newValue) =>
-            handleEmployeeCodeChange(newValue ? newValue.code : "")
-          }
-          getOptionLabel={(option) => option.code}
-          isOptionEqualToValue={(option, value) => option.code === value.code}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Select an employee"
-              variant="outlined"
-              placeholder="Search employees"
-            />
-          )}
-        />
+        {employeeData && (
+          <CustomAutocomplete
+            id="employeeCode"
+            options={employeeData}
+            value={employeeData.find((emp) => emp.id === employeeCode) || null}
+            onChange={(event, newValue) =>
+              handleSelectInputChange(newValue ? newValue.id : "", 1)
+            }
+            getOptionLabel={(option) => option.code}
+            isOptionEqualToValue={(option, value) => option.code === value.code}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select an employee"
+                variant="outlined"
+                placeholder="Search employees"
+              />
+            )}
+          />
+        )}
       </div>
       {/* Name (Automatically fetched based on Employee Code) */}
       <div className="mb-3">
@@ -217,7 +335,7 @@ const Home = () => {
             className="form-control"
             id="time"
             value={time}
-            onChange={(e) => setTime(e.target.value)}
+            onChange={handleTimeChange}
           />
         </div>
       </div>
@@ -226,19 +344,26 @@ const Home = () => {
         <label htmlFor="location" className="form-label">
           Location
         </label>
-        <select
-          className="form-select"
-          id="location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        >
-          <option>Select a location</option>
-          {locations.map((location, index) => (
-            <option key={index} value={location}>
-              {location}
-            </option>
-          ))}
-        </select>
+        {locationData && (
+          <CustomAutocomplete
+            id="location"
+            options={locationData}
+            value={locationData.find((loc) => loc.id === location) || null}
+            onChange={(event, newValue) =>
+              handleSelectInputChange(newValue ? newValue.id : "", 2)
+            }
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.code === value.code}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select a location"
+                variant="outlined"
+                placeholder="Search location"
+              />
+            )}
+          />
+        )}
       </div>
 
       {/* Upload Vehicle Pictures (Four sides) */}
@@ -330,10 +455,6 @@ const Home = () => {
           onChange={(e) => setComments(e.target.value)}
         ></textarea>
       </div>
-
-      <button type="submit" className="btn btn-primary">
-        Submit
-      </button>
     </form>
   );
 
@@ -348,14 +469,20 @@ const Home = () => {
             backgroundColor: "#9acb3b",
             border: "none",
           }}
-          onClick={() => handleShowModal("Check In")}
+          onClick={() => {
+            setCheckout(false);
+            handleShowModal("Check In");
+          }}
         >
           <i className="bi bi-arrow-bar-left"></i>Check In
         </button>
         <button
           type="button"
           className={`btn btn-primary btn-lg ${styles.button__checkin}`}
-          onClick={() => handleShowModal("Check Out")}
+          onClick={() => {
+            setCheckout(true);
+            handleShowModal("Check Out");
+          }}
           style={{
             backgroundColor: "red",
             border: "none",
@@ -369,9 +496,20 @@ const Home = () => {
         content={formContent}
         show={showModal}
         handleClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        disabled={btnLoader}
       />
 
       {showSplash && <Splashscreen />}
+      {
+        <Toast
+          open={toastConfig.show}
+          title={toastConfig.title}
+          subtitle={toastConfig.subtitle}
+          type={toastConfig.type}
+          onClose={handleCloseToast}
+        />
+      }
     </div>
   );
 };

@@ -136,7 +136,6 @@ const theme = createTheme({
     },
   },
 });
-
 const Dashboard = () => {
   const [value, setValue] = useState(0);
   const fileInputRef = useRef(null);
@@ -616,129 +615,162 @@ const Dashboard = () => {
   return (
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
-        <div className="d-flex  flex-column justify-content-end align-items-end mb-2">
-          {value === 0 && (
-            <button
-              type="button"
-              data-mdb-button-init
-              data-mdb-ripple-init
-              className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-              style={{
-                backgroundColor: "#9acb3b",
-                border: "none",
-                borderRadius: "1.5rem",
-                fontWeight: "bold",
-              }}
-              onClick={handleButtonClick}
-            >
-              Bulk Import{" "}
-              <i
-                className="bi bi-cloud-arrow-up"
+        <div className="d-flex justify-content-end align-items-center gap-2">
+          <div className="d-flex  flex-column justify-content-end align-items-end mb-2">
+            {value === 0 && (
+              <button
+                type="button"
+                className="btn btn-primary mt-2 btn-sm d-flex justify-content-center align-items-center gap-2"
                 style={{
-                  fontSize: "1.5rem",
-                  fontWeight: "bold",
-                }}
-              ></i>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              />
-            </button>
-          )}
-          {value !== 0 && (
-            <div>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleClick}
-                sx={{
                   backgroundColor: "#9acb3b",
+                  border: "none",
                   borderRadius: "1.5rem",
-                  fontSize: ".95rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.5rem",
-                  height: "40px",
                   fontWeight: "bold",
                 }}
+                onClick={handleButtonClick}
               >
-                Add
+                Bulk Import{" "}
                 <i
-                  className="bi bi-plus-circle"
+                  className="bi bi-cloud-arrow-up"
                   style={{
                     fontSize: "1.5rem",
                     fontWeight: "bold",
                   }}
                 ></i>
-              </Button>
-              <Menu
-                id="simple-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                {value !== 3 && (
-                  <MenuItem onClick={handleButtonClick}>
-                    Excel import
-                    <input
-                      type="file"
-                      style={{ display: "none" }}
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                    />
-                  </MenuItem>
-                )}
-                <MenuItem
-                  onClick={() => {
-                    showModalform(true);
-                    setManual(true);
-                    setFileData(null);
-                    setFileName("");
-                    handleClose();
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+              </button>
+            )}
+            {value !== 0 && (
+              <div>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleClick}
+                  sx={{
+                    backgroundColor: "#9acb3b",
+                    borderRadius: "1.5rem",
+                    fontSize: ".95rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    height: "40px",
+                    fontWeight: "bold",
                   }}
                 >
-                  Add manually
-                </MenuItem>
-              </Menu>
-            </div>
-          )}
-          {/* Hidden file input */}
-          {/* <input
+                  Add
+                  <i
+                    className="bi bi-plus-circle"
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: "bold",
+                    }}
+                  ></i>
+                </Button>
+                <Menu
+                  id="simple-menu"
+                  anchorEl={anchorEl}
+                  keepMounted
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  {value !== 3 && (
+                    <MenuItem onClick={handleButtonClick}>
+                      Excel import
+                      <input
+                        type="file"
+                        style={{ display: "none" }}
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                      />
+                    </MenuItem>
+                  )}
+                  <MenuItem
+                    onClick={() => {
+                      showModalform(true);
+                      setManual(true);
+                      setFileData(null);
+                      setFileName("");
+                      handleClose();
+                    }}
+                  >
+                    Add manually
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
+            {/* Hidden file input */}
+            {/* <input
             type="file"
+
+              <i
+                  className="bi bi-download"
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                  }}
+                ></i>
+
             ref={fileInputRef}
             style={{ display: "none" }}
             onChange={handleFileChange}
           /> */}
-        </div>
-        <div className="d-flex  flex-column justify-content-end align-items-end">
-          {value === 0 && (
-            <button
-              type="button"
-              data-mdb-button-init
-              data-mdb-ripple-init
-              className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-              style={{
-                backgroundColor: "#9acb3b",
-                border: "none",
-                fontWeight: "bold",
-                borderRadius: "1.5rem",
-              }}
-              onClick={() => {}}
-            >
-              Export Excel{" "}
-              <i
-                className="bi bi-download"
+          </div>
+          <div className="d-flex  gap-2 justify-content-end align-items-end">
+            {
+              <button
+                type="button"
+                data-mdb-button-init
+                data-mdb-ripple-init
+                className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
                 style={{
-                  fontSize: "1rem",
+                  backgroundColor: "#9acb3b",
+                  border: "none",
+                  borderRadius: "1.5rem",
                   fontWeight: "bold",
                 }}
-              ></i>
-            </button>
-          )}
+                onClick={() => {}}
+              >
+                Excel Export{" "}
+                <i
+                  className="bi bi-download"
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: "bold",
+                  }}
+                ></i>
+              </button>
+            }
+            {value === 2 && (
+              <button
+                type="button"
+                data-mdb-button-init
+                data-mdb-ripple-init
+                className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
+                style={{
+                  backgroundColor: "#9acb3b",
+                  border: "none",
+                  borderRadius: "1.5rem",
+                  fontWeight: "bold",
+                }}
+                onClick={() => {}}
+              >
+                Transaction Allocation{" "}
+                <i
+                  className="bi bi-arrow-left-right"
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: "bold",
+                  }}
+                ></i>
+              </button>
+            )}
+          </div>
         </div>
         {/* Selected File for import Data */}
         {fileName && (
@@ -858,20 +890,22 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {transactionData.map((row) => (
+                  {transactionData?.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell>{row.empCode}</TableCell>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.vehicleNum}</TableCell>
+                      <TableCell>{row?.employee?.code}</TableCell>
+                      <TableCell>{row?.employee?.name}</TableCell>
+                      <TableCell>{row?.vehicle?.vehicleNo}</TableCell>
                       <TableCell align="center">{row.date}</TableCell>
                       <TableCell align="center">{row.time}</TableCell>
-                      <TableCell align="center">{row.location}</TableCell>
+                      <TableCell align="center">
+                        {row?.location?.name}
+                      </TableCell>
                       <TableCell align="center">
                         <Chip
-                          label={row.status}
-                          color={
-                            row.status === "Check In" ? "success" : "error"
+                          label={
+                            row.action === "entry" ? "Check in" : "Check out"
                           }
+                          color={row.action === "entry" ? "success" : "error"}
                         />
                       </TableCell>
                       <TableCell align="center">
@@ -939,7 +973,18 @@ const Dashboard = () => {
                           <TableCell align="left">{row?.vehicleNo}</TableCell>
                           <TableCell align="left">{row?.model}</TableCell>
                           <TableCell align="left">{row?.from}</TableCell>
-                          <TableCell align="left">{row?.status}</TableCell>
+                          <TableCell align="left">
+                            <Chip
+                              label={
+                                row?.status === "occupied"
+                                  ? "available"
+                                  : "occupied"
+                              }
+                              color={
+                                row?.status === "occupied" ? "success" : "error"
+                              }
+                            />
+                          </TableCell>
                         </TableRow>
                       ))
                     : "No Data Available"}
@@ -985,11 +1030,11 @@ const Dashboard = () => {
       >
         <Box sx={style}>
           {["back", "front", "left", "right"].map((position) => {
-            const imageObj = selectedImages.find((img) => img.value[position]);
+            const imageObj = selectedImages?.find((img) => img.value[position]);
             console.log("obj", imageObj);
             const urlid =
-              imageObj && imageObj.value[position].url
-                ? extractGoogleDriveFileId(imageObj.value[position].url)
+              imageObj && imageObj?.value[position]?.url
+                ? extractGoogleDriveFileId(imageObj?.value[position]?.url)
                 : null;
             console.log("UR:", urlid);
             return (
