@@ -1,6 +1,11 @@
 import styles from "./home.module.css";
 import Modal from "../../components/ModalComponent/model";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import apiHelper from "../../utils/apiHelper/apiHelper";
+import Splashscreen from "../../components/Splashscreen/splashloader";
+import { styled } from "@mui/material/styles";
+
+import { Autocomplete, TextField } from "@mui/material";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
@@ -35,16 +40,33 @@ const Home = () => {
   const [vehicles] = useState(["BMW", "Audi", "Ferrari"]);
   const [empCode] = useState(["XDS4500", "XDS4501", "XDS4502"]);
 
-  // Simulating fetching name based on employee code
-  const handleEmployeeCodeChange = (e) => {
-    const code = e.target.value;
-    setEmployeeCode(code);
-    if (code === "XDS4500") {
-      setName("John Doe");
-    } else if (code === "XDS4501") {
-      setName("Jane Smith");
-    } else {
-      setName("");
+  const [showSplash, setShowSplash] = useState(false);
+  const [employeeData, setEmployeeData] = useState([]);
+  const [locationData, setLocationData] = useState([]);
+  const [vehicleData, setVehicleData] = useState([]);
+
+  // **************************Get APIS**********************************
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+  const fetchAllData = async () => {
+    setShowSplash(true);
+    try {
+      const [vehicleRes, locationRes, employeeRes] = await Promise.all([
+        apiHelper.get("/vehicle"),
+        apiHelper.get("/location"),
+        apiHelper.get("/employee"),
+      ]);
+
+      setVehicleData(vehicleRes.data);
+      setLocationData(locationRes.data);
+      setEmployeeData(employeeRes.data);
+      console.log("EMP", employeeRes.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setShowSplash(false); // Hide splash loader once all data is fetched
     }
   };
 
@@ -65,6 +87,37 @@ const Home = () => {
     };
     reader.readAsDataURL(file);
   };
+
+  const handleEmployeeCodeChange = (newCode) => {
+    setEmployeeCode(newCode);
+
+    const selectedEmployee = employeeData.find((emp) => emp.code === newCode);
+
+    if (selectedEmployee) {
+      setName(selectedEmployee.name);
+    }
+  };
+
+  const CustomAutocomplete = styled(Autocomplete)({
+    "& .MuiAutocomplete-endAdornment": {
+      display: "none",
+    },
+    "& .MuiInputBase-root": {
+      height: "40px",
+      padding: "0 8px",
+    },
+    "& .MuiInputLabel-root": {
+      color: "#000",
+      top: "50%",
+      transform: "translate(0, -50%)",
+      left: "8px",
+    },
+    "& .MuiInputLabel-shrink": {
+      top: 0,
+      transform: "translate(0, -50%) scale(.75)",
+      left: "14px",
+    },
+  });
 
   // Form submission handler
   const handleSubmit = (e) => {
@@ -108,19 +161,24 @@ const Home = () => {
         <label htmlFor="employeeCode" className="form-label">
           Employee Code
         </label>
-        <select
-          className="form-select"
+        <CustomAutocomplete
           id="employeeCode"
-          value={employeeCode}
-          onChange={handleEmployeeCodeChange}
-        >
-          <option>Select an employee</option>
-          {empCode.map((code, index) => (
-            <option key={index} value={code}>
-              {code}
-            </option>
-          ))}
-        </select>
+          options={employeeData}
+          value={employeeData.find((emp) => emp.code === employeeCode) || null}
+          onChange={(event, newValue) =>
+            handleEmployeeCodeChange(newValue ? newValue.code : "")
+          }
+          getOptionLabel={(option) => option.code}
+          isOptionEqualToValue={(option, value) => option.code === value.code}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Select an employee"
+              variant="outlined"
+              placeholder="Search employees"
+            />
+          )}
+        />
       </div>
       {/* Name (Automatically fetched based on Employee Code) */}
       <div className="mb-3">
@@ -312,6 +370,8 @@ const Home = () => {
         show={showModal}
         handleClose={handleCloseModal}
       />
+
+      {showSplash && <Splashscreen />}
     </div>
   );
 };

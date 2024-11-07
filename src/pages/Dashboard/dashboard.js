@@ -275,8 +275,6 @@ const Dashboard = () => {
   };
 
   const uploadEmployeeData = async (file) => {
-    setBtnLoader(true);
-    setShowSplash(true);
     try {
       const formData = new FormData();
       // formData.append("file", file);+
@@ -287,6 +285,8 @@ const Dashboard = () => {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         if (isExcelFile && !manual) {
+          setBtnLoader(true);
+          setShowSplash(true);
           formData.append("file", file);
           const response = await apiHelper.post("/employee/upload", formData, {
             headers: { "Content-Type": "multipart/form-data" },
@@ -298,16 +298,19 @@ const Dashboard = () => {
           alert(response.message || "Upload successful");
         } else {
           setShowSplash(false);
+          setBtnLoader(false);
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
-        console.log("manual baba");
+        setBtnLoader(true);
+        setShowSplash(true);
         let body = {
           code: empCode.toUpperCase(),
           name: empName,
           status: "active",
           isDeleted: false,
         };
+
         const response = await apiHelper.post("/employee", body, {
           headers: { "Content-Type": "application/json" },
         });
@@ -366,8 +369,6 @@ const Dashboard = () => {
   };
 
   const uploadVehicleData = async (file) => {
-    setBtnLoader(true);
-    setShowSplash(true);
     try {
       const formData = new FormData();
       // formData.append("file", file);+
@@ -378,6 +379,8 @@ const Dashboard = () => {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         if (isExcelFile && !manual) {
+          setBtnLoader(true);
+          setShowSplash(true);
           formData.append("file", file);
           const response = await apiHelper.post("/vehicle/upload", formData, {
             headers: { "Content-Type": "multipart/form-data" },
@@ -388,9 +391,12 @@ const Dashboard = () => {
           alert(response.message || "Upload successful");
         } else {
           setShowSplash(false);
+          setBtnLoader(false);
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
+        setBtnLoader(true);
+        setShowSplash(true);
         let body = {
           vehicleNo: vehicleNo,
           model: vehicleModel,

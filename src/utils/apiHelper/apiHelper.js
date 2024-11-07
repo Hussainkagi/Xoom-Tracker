@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an axios instance with default configuration
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
+  baseURL: "https://xoom-assets-tracker-backend.onrender.com/",
   headers: {
     "Content-Type": "application/json",
   },
