@@ -34,9 +34,7 @@ function App() {
             {/* Redirect to login if not authenticated */}
             <Route
               path="/login"
-              element={
-                !isAuthenticated ? <Login /> : <Navigate to="/dashboard" />
-              }
+              element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
             />
             {/* Public home route */}
             <Route path="/" element={<Home />} />

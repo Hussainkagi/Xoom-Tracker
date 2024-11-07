@@ -23,7 +23,7 @@ const Login = () => {
     if (email === validEmail && password === validPassword) {
       // Redirect to dashboard if credentials are correct
       localStorage.setItem("adminKey", "admin123");
-      navigate("/dashboard");
+      navigate("/");
       window.location.reload();
     } else {
       // Show error message if credentials are incorrect
@@ -114,7 +114,7 @@ const Login = () => {
       </div>
       <div className="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
         <div className="text-white mb-3 mb-md-0">
-          Copyright © 2020. All rights reserved by XOOM DELIVERY.
+          Copyright © 2024. All rights reserved by XOOM DELIVERY.
         </div>
 
         <div>
