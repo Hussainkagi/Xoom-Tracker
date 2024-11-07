@@ -1,6 +1,36 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./login.css";
 import logo from "../../assets/logo.jpeg";
+
 const Login = () => {
+  // State for email, password, and error message
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Hardcoded credentials
+    const validEmail = "xoom@admin.com";
+    const validPassword = "xoom123";
+
+    // Validate credentials
+    if (email === validEmail && password === validPassword) {
+      // Redirect to dashboard if credentials are correct
+      localStorage.setItem("adminKey", "admin123");
+      navigate("/dashboard");
+      window.location.reload();
+    } else {
+      // Show error message if credentials are incorrect
+      setError("Invalid credentials");
+    }
+  };
+
   return (
     <section className="vh-100">
       <div className="container-fluid h-custom">
@@ -9,15 +39,17 @@ const Login = () => {
             <img src={logo} className="img-fluid" alt="Sample image" />
           </div>
           <div className="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div data-mdb-input-init className="form-outline mb-4">
                 <input
                   type="email"
                   id="form3Example3"
                   className="form-control form-control-lg"
                   placeholder="Enter a valid email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
-                <label className="form-label" for="form3Example3">
+                <label className="form-label" htmlFor="form3Example3">
                   Email address
                 </label>
               </div>
@@ -28,8 +60,10 @@ const Login = () => {
                   id="form3Example4"
                   className="form-control form-control-lg"
                   placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
-                <label className="form-label" for="form3Example4">
+                <label className="form-label" htmlFor="form3Example4">
                   Password
                 </label>
               </div>
@@ -42,7 +76,7 @@ const Login = () => {
                     value=""
                     id="form2Example3"
                   />
-                  <label className="form-check-label" for="form2Example3">
+                  <label className="form-check-label" htmlFor="form2Example3">
                     Remember me
                   </label>
                 </div>
@@ -51,9 +85,12 @@ const Login = () => {
                 </a>
               </div>
 
+              {/* Display error message if credentials are incorrect */}
+              {error && <p className="text-danger text-center">{error}</p>}
+
               <div className="text-center text-lg-start mt-4 pt-2">
                 <button
-                  type="button"
+                  type="submit"
                   data-mdb-button-init
                   data-mdb-ripple-init
                   className="btn btn-primary btn-lg"
@@ -78,7 +115,6 @@ const Login = () => {
       <div className="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
         <div className="text-white mb-3 mb-md-0">
           Copyright © 2020. All rights reserved by XOOM DELIVERY.
-          {/* <img src={logo} className="img-fluid" alt="Sample image" /> */}
         </div>
 
         <div>

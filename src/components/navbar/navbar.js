@@ -2,6 +2,10 @@ import React from "react";
 import logo from "../../assets/logo.jpeg";
 import styles from "./navbar.module.css";
 function navbar() {
+  const logout = () => {
+    localStorage.removeItem("adminKey");
+    window.location.reload();
+  };
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
@@ -33,6 +37,11 @@ function navbar() {
                 href="/dashboard"
               >
                 Dashboard
+              </a>
+            </li>
+            <li className="nav-item" onClick={logout}>
+              <a className="nav-link active" aria-current="page" href="#">
+                Logout
               </a>
             </li>
           </ul>

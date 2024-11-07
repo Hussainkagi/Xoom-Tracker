@@ -616,7 +616,7 @@ const Dashboard = () => {
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
         <div className="d-flex justify-content-end align-items-center gap-2">
-          <div className="d-flex  flex-column justify-content-end align-items-end mb-2">
+          <div className="d-flex   justify-content-end align-items-end mb-2 gap-2">
             {value === 0 && (
               <button
                 type="button"
@@ -704,72 +704,57 @@ const Dashboard = () => {
                 </Menu>
               </div>
             )}
-            {/* Hidden file input */}
-            {/* <input
-            type="file"
 
-              <i
-                  className="bi bi-download"
+            <div className="d-flex  gap-2 justify-content-end align-items-end">
+              {
+                <button
+                  type="button"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
                   style={{
-                    fontSize: "1rem",
+                    backgroundColor: "#9acb3b",
+                    border: "none",
+                    borderRadius: "1.5rem",
                     fontWeight: "bold",
                   }}
-                ></i>
-
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          /> */}
-          </div>
-          <div className="d-flex  gap-2 justify-content-end align-items-end">
-            {
-              <button
-                type="button"
-                data-mdb-button-init
-                data-mdb-ripple-init
-                className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-                style={{
-                  backgroundColor: "#9acb3b",
-                  border: "none",
-                  borderRadius: "1.5rem",
-                  fontWeight: "bold",
-                }}
-                onClick={() => {}}
-              >
-                Excel Export{" "}
-                <i
-                  className="bi bi-download"
+                  onClick={() => {}}
+                >
+                  Excel Export{" "}
+                  <i
+                    className="bi bi-download"
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: "bold",
+                    }}
+                  ></i>
+                </button>
+              }
+              {value === 2 && (
+                <button
+                  type="button"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
                   style={{
-                    fontSize: "1.5rem",
+                    backgroundColor: "#9acb3b",
+                    border: "none",
+                    borderRadius: "1.5rem",
                     fontWeight: "bold",
                   }}
-                ></i>
-              </button>
-            }
-            {value === 2 && (
-              <button
-                type="button"
-                data-mdb-button-init
-                data-mdb-ripple-init
-                className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-                style={{
-                  backgroundColor: "#9acb3b",
-                  border: "none",
-                  borderRadius: "1.5rem",
-                  fontWeight: "bold",
-                }}
-                onClick={() => {}}
-              >
-                Transaction Allocation{" "}
-                <i
-                  className="bi bi-arrow-left-right"
-                  style={{
-                    fontSize: "1.5rem",
-                    fontWeight: "bold",
-                  }}
-                ></i>
-              </button>
-            )}
+                  onClick={() => {}}
+                >
+                  Transaction Allocation{" "}
+                  <i
+                    className="bi bi-arrow-left-right"
+                    style={{
+                      fontSize: "1.5rem",
+                      fontWeight: "bold",
+                    }}
+                  ></i>
+                </button>
+              )}
+            </div>
           </div>
         </div>
         {/* Selected File for import Data */}
