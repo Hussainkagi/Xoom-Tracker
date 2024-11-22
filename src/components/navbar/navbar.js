@@ -39,8 +39,13 @@ function navbar() {
                 Dashboard
               </a>
             </li>
-            <li className="nav-item" onClick={logout}>
-              <a className="nav-link active" aria-current="page" href="#">
+            <li className="nav-item">
+              <a
+                className="nav-link active"
+                aria-current="page"
+                href="#"
+                onClick={logout}
+              >
                 Logout
               </a>
             </li>
