@@ -1,0 +1,17 @@
+.parent__container {
+  padding: 1.5rem 2.5rem;
+}
+
+.chart__parent {
+  width: 22rem;
+  height: 22rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .chart__parent {
+    width: 15rem;
+    height: 15rem;
+    margin: 0 auto;
+  }
+}

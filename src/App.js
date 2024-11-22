@@ -9,19 +9,20 @@ import Navbar from "./components/navbar/navbar";
 import Login from "./pages/Login/login";
 import Home from "./pages/Home/home";
 import Dashboard from "./pages/Dashboard/dashboard";
+import Overview from "./pages/Overview/overview";
 import "./App.css";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   // Check if 'adminKey' is present in localStorage
   useEffect(() => {
-    const adminKey = localStorage.getItem("adminKey");
-    if (adminKey) {
-      setIsAuthenticated(true); // Set authenticated if the key exists
-    } else {
-      setIsAuthenticated(false); // If no key, user is not authenticated
-    }
+    // const adminKey = localStorage.getItem("adminKey");
+    // if (adminKey) {
+    //   setIsAuthenticated(true); // Set authenticated if the key exists
+    // } else {
+    //   setIsAuthenticated(false); // If no key, user is not authenticated
+    // }
   }, []);
 
   return (
@@ -46,6 +47,10 @@ function App() {
               element={
                 isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
               }
+            />
+            <Route
+              path="/overview"
+              element={true ? <Overview /> : <Navigate to="/login" />}
             />
           </Routes>
         </div>
