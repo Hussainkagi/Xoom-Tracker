@@ -856,6 +856,7 @@ const Dashboard = () => {
                 <Tab label="Drivers" {...a11yProps(1)} />
                 <Tab label="Vehicles" {...a11yProps(2)} />
                 <Tab label="Locations" {...a11yProps(3)} />
+                <Tab label="Add Subfields" {...a11yProps(4)} />
               </Tabs>
             </ThemeProvider>
           </Box>
@@ -1004,6 +1005,136 @@ const Dashboard = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={4}>
+            <div className="accordion mb-2" id="accordionExample">
+              <div className="accordion-item">
+                <h2 className="accordion-header" id="headingOne">
+                  <button
+                    className="accordion-button"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseOne"
+                    aria-expanded="true"
+                    aria-controls="collapseOne"
+                  >
+                    Add Aggregator
+                  </button>
+                </h2>
+                <div
+                  id="collapseOne"
+                  className="accordion-collapse collapse show"
+                  aria-labelledby="headingOne"
+                >
+                  <div className="accordion-body">
+                    {/* Add Button */}
+                    <div className="mb-3">
+                      <button
+                        className="btn text-white"
+                        style={{ backgroundColor: "#9acb3b" }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {/* Table */}
+                    <table className="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Name</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>1</td>
+                          <td>Amazon</td>
+                          <td>
+                            <button className="btn btn-sm btn-danger">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>2</td>
+                          <td>Noon</td>
+                          <td>
+                            <button className="btn btn-sm btn-danger">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ****************Add Vehicle Type**************** */}
+            <div className="accordion mb-2" id="accordionExample2">
+              <div className="accordion-item">
+                <h2 className="accordion-header" id="headingTwo">
+                  <button
+                    className="accordion-button"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapseTwo"
+                    aria-expanded="true"
+                    aria-controls="collapseTwo"
+                  >
+                    Add Vehicle Type
+                  </button>
+                </h2>
+                <div
+                  id="collapseTwo"
+                  className="accordion-collapse collapse show"
+                  aria-labelledby="headingTwo"
+                >
+                  <div className="accordion-body">
+                    {/* Add Button */}
+                    <div className="mb-3">
+                      <button
+                        className="btn text-white"
+                        style={{ backgroundColor: "#9acb3b" }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {/* Table */}
+                    <table className="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Type</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>1</td>
+                          <td>Bike Electronic</td>
+                          <td>
+                            <button className="btn btn-sm btn-danger">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>2</td>
+                          <td>Car Petrol</td>
+                          <td>
+                            <button className="btn btn-sm btn-danger">
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
           </CustomTabPanel>
         </div>
       </div>

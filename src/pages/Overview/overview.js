@@ -248,7 +248,33 @@ function Overview() {
         </div>
 
         <div className="row">
-          <div className="col-md-12">
+          <div className="col-md-6">
+            <div className="card bg-light shadow-sm">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5 className="card-title">Transaction</h5>
+                  {/* Select dropdown for category */}
+                  <select
+                    className="form-select w-auto"
+                    value={category}
+                    onChange={handleCategoryChange}
+                  >
+                    <option value="Day">Categorise by Days</option>
+                    <option value="Month">Categorise by Months</option>
+                    <option value="Year">Categorise by Years</option>
+                  </select>
+                </div>
+                {/* Render Bar chart */}
+                <div>
+                  <Bar
+                    data={barChartData[category]}
+                    options={barChartOptions}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6">
             <div className="card bg-light shadow-sm">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">

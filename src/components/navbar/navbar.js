@@ -1,11 +1,13 @@
 import React from "react";
 import logo from "../../assets/logo.jpeg";
 import styles from "./navbar.module.css";
-function navbar() {
+
+function Navbar() {
   const logout = () => {
     localStorage.removeItem("adminKey");
     window.location.reload();
   };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
@@ -43,6 +45,19 @@ function navbar() {
               <a
                 className="nav-link active"
                 aria-current="page"
+                href="/overview"
+              >
+                Overview
+              </a>
+            </li>
+          </ul>
+
+          {/* Logout Button Aligned to the End */}
+          <ul className="navbar-nav ms-auto">
+            <li className="nav-item">
+              <a
+                className="nav-link active"
+                aria-current="page"
                 href="#"
                 onClick={logout}
               >
@@ -56,4 +71,4 @@ function navbar() {
   );
 }
 
-export default navbar;
+export default Navbar;
