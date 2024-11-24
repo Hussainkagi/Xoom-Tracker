@@ -3,3 +3,26 @@
   height: 2.25rem;
   border-radius: .5rem;
 }
+.icon{ 
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.exit__model {
+  /* d-flex flex-column justiy-content-center align-items-center */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.btn__box{
+  display: flex;
+  gap: 20px;
+}
+
+
+@media (max-width: 768px) {
+.btn__box{
+flex-direction: column;
+}
+}

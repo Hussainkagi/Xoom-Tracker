@@ -26,6 +26,21 @@
     justify-content: flex-end;
   }
 
+  .btn_box{
+    background-color: #dc3545;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+  }
+
+  .btn_box:hover{
+    background-color: #bb2d3b;
+  }
+
 
 
   @media (width < 768px)  {

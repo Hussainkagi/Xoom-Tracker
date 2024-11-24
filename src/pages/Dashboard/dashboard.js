@@ -1007,130 +1007,223 @@ const Dashboard = () => {
             </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={4}>
-            <div className="accordion mb-2" id="accordionExample">
-              <div className="accordion-item">
-                <h2 className="accordion-header" id="headingOne">
-                  <button
-                    className="accordion-button"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseOne"
-                    aria-expanded="true"
-                    aria-controls="collapseOne"
-                  >
-                    Add Aggregator
-                  </button>
-                </h2>
-                <div
-                  id="collapseOne"
-                  className="accordion-collapse collapse show"
-                  aria-labelledby="headingOne"
-                >
-                  <div className="accordion-body">
-                    {/* Add Button */}
-                    <div className="mb-3">
+            <div className="row">
+              <div className="col-md-6">
+                <div className="accordion mb-2" id="accordionExample">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header" id="headingOne">
                       <button
-                        className="btn text-white"
-                        style={{ backgroundColor: "#9acb3b" }}
+                        className="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseOne"
+                        aria-expanded="true"
+                        aria-controls="collapseOne"
                       >
-                        Add
+                        Add Aggregator
                       </button>
+                    </h2>
+                    <div
+                      id="collapseOne"
+                      className="accordion-collapse collapse show"
+                      aria-labelledby="headingOne"
+                    >
+                      <div className="accordion-body">
+                        {/* Add Button */}
+                        <div className="mb-3">
+                          <button
+                            className="btn text-white"
+                            style={{ backgroundColor: "#9acb3b" }}
+                          >
+                            Add
+                          </button>
+                        </div>
+                        {/* Table */}
+                        <table className="table table-striped table-bordered">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Name</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>Amazon</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>Noon</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                    {/* Table */}
-                    <table className="table table-striped table-bordered">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Name</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>1</td>
-                          <td>Amazon</td>
-                          <td>
-                            <button className="btn btn-sm btn-danger">
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>2</td>
-                          <td>Noon</td>
-                          <td>
-                            <button className="btn btn-sm btn-danger">
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-6">
+                {/* ****************Add Vehicle Type**************** */}
+                <div className="accordion mb-2" id="accordionExample2">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header" id="headingTwo">
+                      <button
+                        className="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseTwo"
+                        aria-expanded="true"
+                        aria-controls="collapseTwo"
+                      >
+                        Add Category
+                      </button>
+                    </h2>
+                    <div
+                      id="collapseTwo"
+                      className="accordion-collapse collapse show"
+                      aria-labelledby="headingTwo"
+                    >
+                      <div className="accordion-body">
+                        {/* Add Button */}
+                        <div className="mb-3">
+                          <button
+                            className="btn text-white"
+                            style={{ backgroundColor: "#9acb3b" }}
+                          >
+                            Add
+                          </button>
+                        </div>
+                        {/* Table */}
+                        <table className="table table-striped table-bordered">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Type</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>Bike Electronic</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>Car Petrol</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* ****************Add Vehicle Type**************** */}
-            <div className="accordion mb-2" id="accordionExample2">
-              <div className="accordion-item">
-                <h2 className="accordion-header" id="headingTwo">
-                  <button
-                    className="accordion-button"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseTwo"
-                    aria-expanded="true"
-                    aria-controls="collapseTwo"
-                  >
-                    Add Vehicle Type
-                  </button>
-                </h2>
-                <div
-                  id="collapseTwo"
-                  className="accordion-collapse collapse show"
-                  aria-labelledby="headingTwo"
-                >
-                  <div className="accordion-body">
-                    {/* Add Button */}
-                    <div className="mb-3">
+            <div className="row">
+              <div className="col-md-6">
+                <div className="accordion mb-2" id="accordionExample3">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header" id="headingThree">
                       <button
-                        className="btn text-white"
-                        style={{ backgroundColor: "#9acb3b" }}
+                        className="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseThree"
+                        aria-expanded="true"
+                        aria-controls="collapseThree"
                       >
-                        Add
+                        Add Emirates
                       </button>
+                    </h2>
+                    <div
+                      id="collapseThree"
+                      className="accordion-collapse collapse show"
+                      aria-labelledby="headingThree"
+                    >
+                      <div className="accordion-body">
+                        {/* Add Button */}
+                        <div className="mb-3">
+                          <button
+                            className="btn text-white"
+                            style={{ backgroundColor: "#9acb3b" }}
+                            onClick={() => {
+                              alert("Bhaggg reeee!!!");
+                            }}
+                          >
+                            Add
+                          </button>
+                        </div>
+                        {/* Table */}
+                        <table className="table table-striped table-bordered">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Name</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>Dubai</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>Ajman</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                    {/* Table */}
-                    <table className="table table-striped table-bordered">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Type</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>1</td>
-                          <td>Bike Electronic</td>
-                          <td>
-                            <button className="btn btn-sm btn-danger">
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>2</td>
-                          <td>Car Petrol</td>
-                          <td>
-                            <button className="btn btn-sm btn-danger">
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
                   </div>
                 </div>
               </div>
