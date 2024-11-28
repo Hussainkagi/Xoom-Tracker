@@ -857,6 +857,7 @@ const Dashboard = () => {
                 <Tab label="Vehicles" {...a11yProps(2)} />
                 <Tab label="Locations" {...a11yProps(3)} />
                 <Tab label="Add Subfields" {...a11yProps(4)} />
+                <Tab label="Reports" {...a11yProps(5)} />
               </Tabs>
             </ThemeProvider>
           </Box>
@@ -1211,6 +1212,80 @@ const Dashboard = () => {
                             <tr>
                               <td>2</td>
                               <td>Ajman</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="accordion mb-2" id="accordionExample4">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header" id="headingFour">
+                      <button
+                        className="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseFour"
+                        aria-expanded="true"
+                        aria-controls="collapseFour"
+                      >
+                        Add Model
+                      </button>
+                    </h2>
+                    <div
+                      id="collapseFour"
+                      className="accordion-collapse collapse show"
+                      aria-labelledby="headingFour"
+                    >
+                      <div className="accordion-body">
+                        {/* Add Button */}
+                        <div className="mb-3">
+                          <button
+                            className="btn text-white"
+                            style={{ backgroundColor: "#9acb3b" }}
+                            onClick={() => {
+                              alert("Bhaggg reeee!!!");
+                            }}
+                          >
+                            Add
+                          </button>
+                        </div>
+                        {/* Table */}
+                        <table className="table table-striped table-bordered">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Name</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>Bajal pulsar</td>
+                              <td>
+                                <div className={styles.btn_box}>
+                                  <i
+                                    className="bi bi-trash"
+                                    style={{ color: "#fff" }}
+                                  ></i>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>Honda buro</td>
                               <td>
                                 <div className={styles.btn_box}>
                                   <i
