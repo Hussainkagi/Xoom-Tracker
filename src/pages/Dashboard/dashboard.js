@@ -15,9 +15,11 @@ import { Modal, Button, Menu, MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import apiHelper from "../../utils/apiHelper/apiHelper";
 import placeholder from "../../assets/Images/noimage.jpg";
-
+import * as XLSX from "xlsx";
 import ButtonLoader from "../../components/Loader/buttonLoader";
 import Splashscreen from "../../components/Splashscreen/splashloader";
+
+import FileLoader from "../../components/FileUploadLoader/loader";
 
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
@@ -139,6 +141,7 @@ const theme = createTheme({
 const Dashboard = () => {
   const [value, setValue] = useState(0);
   const fileInputRef = useRef(null);
+  const transactionFileInput = useRef(null);
   const [fileName, setFileName] = useState("");
   const [fileData, setFileData] = useState(null);
 
@@ -151,6 +154,8 @@ const Dashboard = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showFullImageModal, setShowFullImageModal] = useState(false);
   const [fullImage, setFullImage] = useState("");
+  const [transactionModal, setTransactionModal] = useState(false);
+  const [showFileLoader, setFileLoader] = useState(false);
 
   const [modalForm, showModalform] = useState(false);
   const [manual, setManual] = useState(false);
@@ -169,6 +174,12 @@ const Dashboard = () => {
   // Locstion form states
   const [locationName, setLocationName] = useState("");
   const [locationFull, setLocationfull] = useState("");
+
+  //Transaction Allocation Flow States
+  const [TafileData, setTaFileData] = useState(null);
+  const [count, setCount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [transactionBtn, setTransactionBtn] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -223,6 +234,52 @@ const Dashboard = () => {
     }
   };
 
+  const handleFileUploadClick = () => {
+    transactionFileInput.current.click();
+  };
+
+  // Handle file upload and Excel processing
+  const handleFileUpload = (event) => {
+    setFileLoader(true);
+    setTimeout(() => {
+      setFileLoader(false);
+    }, 3000);
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+
+        // Assuming the first sheet is the one with data
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Process the data to count rows and calculate total amount
+        if (sheetData.length > 1) {
+          const rows = sheetData.slice(1); // Skip header
+          const amountIndex = sheetData[0].indexOf("amount"); // Find "amount" column index
+
+          if (amountIndex !== -1) {
+            const total = rows.reduce(
+              (sum, row) => sum + (parseFloat(row[amountIndex]) || 0),
+              0
+            );
+            setCount(rows.length);
+            setTotalAmount(total.toFixed(2));
+            setTransactionBtn(false); // Enable the submit button
+          } else {
+            alert("The uploaded file does not have a column named 'amount'.");
+          }
+        } else {
+          alert("The uploaded file seems to be empty.");
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+      setTaFileData(file); // Save the file data
+    }
+  };
   // *********************************Handle Image Model START***********************************
   const handleImageClick = (images) => {
     // Open modal with selected images
@@ -612,6 +669,82 @@ const Dashboard = () => {
     }
   };
 
+  const transactionAllocationForm = () => {
+    return (
+      <div>
+        <p className="text-center">Add your documents here.</p>
+        <div
+          className="d-flex flex-column justify-content-center align-items-center border border-dashed rounded p-4"
+          style={{
+            height: "150px",
+            backgroundColor: "#f8f9fa",
+            cursor: "pointer",
+          }}
+          onClick={handleFileUploadClick}
+        >
+          <div
+            className="d-flex justify-content-center align-items-center p-3"
+            style={{
+              height: "50px",
+              width: "50px",
+              borderRadius: "50%",
+              backgroundColor: "#e9ecef",
+            }}
+          >
+            <i className="bi bi-upload" style={{ fontSize: "18px" }}></i>
+          </div>
+          <p className="text-muted mt-2">Upload your file here</p>
+          <p className="text-muted" style={{ fontSize: "12px" }}>
+            5MB max per file
+          </p>
+        </div>
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          ref={transactionFileInput}
+          style={{ display: "none" }}
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
+        />
+        <div>
+          {count > 0 && totalAmount > 0 && (
+            <div className="mt-3 text-center text-success">
+              Provided file has <strong>{count}</strong> entries with a total
+              amount of <strong>{totalAmount} AED</strong>. Kindly verify and
+              submit.
+            </div>
+          )}
+        </div>
+        <div className="mt-3">
+          <div className="d-flex gap-3">
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ backgroundColor: themeColor }}
+              onClick={() => {
+                setTransactionModal(false);
+              }}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ backgroundColor: themeColor }}
+              onClick={() => {
+                uploadVehicleData(fileData);
+              }}
+              disabled={transactionBtn}
+            >
+              {"Submit"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
@@ -742,7 +875,9 @@ const Dashboard = () => {
                     borderRadius: "1.5rem",
                     fontWeight: "bold",
                   }}
-                  onClick={() => {}}
+                  onClick={() => {
+                    setTransactionModal(true);
+                  }}
                 >
                   Transaction Allocation{" "}
                   <i
@@ -1361,8 +1496,15 @@ const Dashboard = () => {
       <Modal open={modalForm} onClose={() => setShowFullImageModal(false)}>
         <Box sx={style}>{renderModalforma()}</Box>
       </Modal>
+
+      {/* Modal For Transaction Allocation */}
+      <Modal open={transactionModal} onClose={() => setTransactionModal(false)}>
+        <Box sx={style}>{transactionAllocationForm()}</Box>
+      </Modal>
       {/* Splash Loader */}
       {showSplash && <Splashscreen />}
+
+      {showFileLoader && <FileLoader />}
     </div>
   );
 };
