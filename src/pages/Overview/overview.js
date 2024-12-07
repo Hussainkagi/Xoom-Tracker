@@ -7,16 +7,20 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  LineElement,
+  PointElement,
 } from "chart.js";
-import { Bar, Pie } from "react-chartjs-2";
+import { Bar, Pie, Line } from "react-chartjs-2";
 import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./overview.module.css";
 
 ChartJS.register(
   ArcElement,
+  PointElement,
   BarElement,
   CategoryScale,
   LinearScale,
+  LineElement,
   Tooltip,
   Legend
 );
@@ -117,6 +121,130 @@ function Overview() {
     },
   };
 
+  const lineChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+      },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Months",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Entries",
+        },
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const lineChartData = {
+    labels: ["January", "February", "March", "April", "May", "June"], // Example labels
+    datasets: [
+      {
+        label: "Check-In",
+        data: [12, 19, 3, 5, 2, 3],
+        borderColor: "green",
+        backgroundColor: "rgba(0, 255, 0, 0.1)",
+        tension: 0, // Smooth curve
+      },
+      {
+        label: "Check-Out",
+        data: [5, 15, 8, 10, 7, 4],
+        borderColor: "red",
+        backgroundColor: "rgba(255, 0, 0, 0.1)",
+        tension: 0, // Smooth curve
+      },
+    ],
+  };
+
+  const getChartData = () => {
+    switch (category) {
+      case "Day":
+        return {
+          labels: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ],
+          datasets: [
+            {
+              label: "Check-In",
+              data: [3, 8, 6, 4, 5, 2, 7],
+              borderColor: "green",
+              backgroundColor: "rgba(0, 255, 0, 0.1)",
+              tension: 0,
+            },
+            {
+              label: "Check-Out",
+              data: [4, 6, 5, 8, 3, 6, 2],
+              borderColor: "red",
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+              tension: 0,
+            },
+          ],
+        };
+      case "Month":
+        return {
+          labels: ["January", "February", "March", "April", "May", "June"],
+          datasets: [
+            {
+              label: "Check-In",
+              data: [12, 19, 3, 5, 2, 3],
+              borderColor: "green",
+              backgroundColor: "rgba(0, 255, 0, 0.1)",
+              tension: 0,
+            },
+            {
+              label: "Check-Out",
+              data: [5, 15, 8, 10, 7, 4],
+              borderColor: "red",
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+              tension: 0,
+            },
+          ],
+        };
+      case "Year":
+        return {
+          labels: ["2020", "2021", "2022", "2023", "2024"],
+          datasets: [
+            {
+              label: "Check-In",
+              data: [200, 300, 250, 400, 350],
+              borderColor: "green",
+              backgroundColor: "rgba(0, 255, 0, 0.1)",
+              tension: 0,
+            },
+            {
+              label: "Check-Out",
+              data: [180, 280, 240, 380, 320],
+              borderColor: "red",
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+              tension: 0,
+            },
+          ],
+        };
+      default:
+        return {};
+    }
+  };
+
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
   };
@@ -129,8 +257,45 @@ function Overview() {
             <div className="card bg-light shadow-sm">
               <div className="card-body text-center">
                 <h5 className="card-title">Vehicle by Aggregator</h5>
-                <div className={styles.chart__parent}>
-                  <Pie data={pieChartData} options={pieChartOptions} />
+                <div className="d-flex">
+                  <div className={styles.chart__parent}>
+                    <Pie data={pieChartData} options={pieChartOptions} />
+                  </div>
+                  <div>
+                    <div>
+                      <ul style={{ listStyleType: "none", padding: 0 }}>
+                        {pieChartData.labels.map((label, index) => (
+                          <li
+                            key={label}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            {/* Color indicator */}
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: "15px",
+                                height: "15px",
+                                backgroundColor:
+                                  pieChartData.datasets[0].backgroundColor[
+                                    index
+                                  ],
+                                marginRight: "10px",
+                              }}
+                            ></span>
+                            {/* Label and Value */}
+                            <span>
+                              {label}: {pieChartData.datasets[0].data[index]}{" "}
+                              AED
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -140,8 +305,45 @@ function Overview() {
             <div className="card bg-light shadow-sm">
               <div className="card-body text-center">
                 <h5 className="card-title">Vehicle by Aggregator</h5>
-                <div className={styles.chart__parent}>
-                  <Pie data={pieChartData} options={pieChartOptions} />
+                <div className="d-flex">
+                  <div className={styles.chart__parent}>
+                    <Pie data={pieChartData} options={pieChartOptions} />
+                  </div>
+                  <div>
+                    <div>
+                      <ul style={{ listStyleType: "none", padding: 0 }}>
+                        {pieChartData.labels.map((label, index) => (
+                          <li
+                            key={label}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            {/* Color indicator */}
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: "15px",
+                                height: "15px",
+                                backgroundColor:
+                                  pieChartData.datasets[0].backgroundColor[
+                                    index
+                                  ],
+                                marginRight: "10px",
+                              }}
+                            ></span>
+                            {/* Label and Value */}
+                            <span>
+                              {label}: {pieChartData.datasets[0].data[index]}{" "}
+                              AED
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -266,10 +468,7 @@ function Overview() {
                 </div>
                 {/* Render Bar chart */}
                 <div>
-                  <Bar
-                    data={barChartData[category]}
-                    options={barChartOptions}
-                  />
+                  <Line data={getChartData()} options={lineChartOptions} />
                 </div>
               </div>
             </div>
