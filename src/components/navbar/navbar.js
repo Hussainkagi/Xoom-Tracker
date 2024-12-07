@@ -73,6 +73,11 @@ function Navbar() {
                 Overview
               </a>
             </li>
+            <li className="nav-item">
+              <a className="nav-link active" aria-current="page" href="/users">
+                Users
+              </a>
+            </li>
           </ul>
 
           {/* Logout Button Aligned to the End */}

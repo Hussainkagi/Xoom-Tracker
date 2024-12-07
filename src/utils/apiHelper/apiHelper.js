@@ -76,6 +76,19 @@ const apiHelper = {
       return handleApiError(error);
     }
   },
+  patch: async (endpoint, data, headers = {}) => {
+    try {
+      const response = await api.patch(endpoint, data, {
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
 
   del: async (endpoint, headers = {}, data = {}) => {
     try {

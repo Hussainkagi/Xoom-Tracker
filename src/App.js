@@ -11,6 +11,7 @@ import Home from "./pages/Home/home";
 import Dashboard from "./pages/Dashboard/dashboard";
 import Overview from "./pages/Overview/overview";
 import "./App.css";
+import UserPage from "./pages/Users/users";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -51,6 +52,10 @@ function App() {
             <Route
               path="/overview"
               element={true ? <Overview /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/users"
+              element={true ? <UserPage /> : <Navigate to="/login" />}
             />
           </Routes>
         </div>

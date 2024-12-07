@@ -17,7 +17,9 @@ const SplashLoader = () => {
       }}
     >
       <div className="loader">
-        <label>Relax while we analyse your file...</label>
+        <label className="text-flash">
+          Relax while we analyse your file...
+        </label>
         <div className="loading"></div>
       </div>
     </div>
