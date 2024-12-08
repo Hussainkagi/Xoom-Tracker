@@ -20,6 +20,7 @@ import ButtonLoader from "../../components/Loader/buttonLoader";
 import Splashscreen from "../../components/Splashscreen/splashloader";
 
 import FileLoader from "../../components/FileUploadLoader/loader";
+import Toast from "../../components/Toast/toast";
 
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
@@ -182,6 +183,23 @@ const Dashboard = () => {
   const [transactionBtn, setTransactionBtn] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [toastConfig, setToastConfig] = useState({
+    show: false,
+    title: "",
+    subtitle: "",
+    type: "success",
+  });
+  const [subfields, setSubfields] = useState({
+    aggregator: [],
+  });
+
+  const [allLeaders, setAllLoaders] = useState({
+    aggregatorLoader: false,
+  });
+
+  const [inputSubFields, setInputSubFields] = useState({
+    ownedByName: "",
+  });
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -194,6 +212,26 @@ const Dashboard = () => {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  //Handle Multiple States Function
+  const handleLoaderState = (key, value) => {
+    setAllLoaders((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
+  const handleSubFieldState = (key, value) => {
+    setSubfields((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
+  const handleSubFieldInputState = (key, value) => {
+    setInputSubFields((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
 
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
@@ -209,6 +247,13 @@ const Dashboard = () => {
       setFileData(file);
       // Process the file as needed
     }
+  };
+
+  const handleCloseToast = () => {
+    setToastConfig((prev) => ({
+      ...prev,
+      show: false,
+    }));
   };
 
   const handleChange = (event, newValue) => {
@@ -300,6 +345,8 @@ const Dashboard = () => {
   }
 
   // *********************************Handle Image Model END***********************************
+
+  //******************************APIS STARTS******************************** */
 
   // ************************* Fetch All Data**********************'
   const fetchAllData = async () => {
@@ -486,6 +533,14 @@ const Dashboard = () => {
     setTransactionData(response.data);
     console.log("Data", response.data);
   };
+
+  // *************************Aggregatore API's****************************************
+  const createAggregator = async () => {
+    try {
+    } catch (err) {}
+  };
+
+  //******************************APIS ENDS******************************** */
 
   // ***************************Render modal forms***************************************
   const renderModalforma = () => {
@@ -1505,6 +1560,16 @@ const Dashboard = () => {
       {showSplash && <Splashscreen />}
 
       {showFileLoader && <FileLoader />}
+
+      {
+        <Toast
+          open={toastConfig.show}
+          title={toastConfig.title}
+          subtitle={toastConfig.subtitle}
+          type={toastConfig.type}
+          onClose={handleCloseToast}
+        />
+      }
     </div>
   );
 };

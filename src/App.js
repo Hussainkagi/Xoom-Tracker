@@ -14,48 +14,51 @@ import "./App.css";
 import UserPage from "./pages/Users/users";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-
-  // Check if 'adminKey' is present in localStorage
-  useEffect(() => {
-    // const adminKey = localStorage.getItem("adminKey");
-    // if (adminKey) {
-    //   setIsAuthenticated(true); // Set authenticated if the key exists
-    // } else {
-    //   setIsAuthenticated(false); // If no key, user is not authenticated
-    // }
-  }, []);
+  // Check if 'accessToken' is in localStorage
+  const isAuthenticated = localStorage.getItem("token") !== null;
 
   return (
     <Router>
       <div>
-        {isAuthenticated && <Navbar />}{" "}
-        {/* Show Navbar only if authenticated */}
+        {/* Only show Navbar if authenticated */}
+        {isAuthenticated && <Navbar />}
+
         <div className="content-wrapper">
           <Routes>
-            {/* Redirect to login if not authenticated */}
+            {/* Login Route */}
             <Route
               path="/login"
               element={
                 !isAuthenticated ? <Login /> : <Navigate to="/dashboard" />
               }
             />
-            {/* Public home route */}
-            <Route path="/" element={<Home />} />
-            {/* Dashboard route */}
+
+            {/* Home Route (Public) */}
+            <Route
+              path="/"
+              element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
+            />
+
+            {/* Dashboard Route */}
             <Route
               path="/dashboard"
               element={
                 isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
               }
             />
+
+            {/* Protected Routes */}
             <Route
               path="/overview"
-              element={true ? <Overview /> : <Navigate to="/login" />}
+              element={
+                isAuthenticated ? <Overview /> : <Navigate to="/login" />
+              }
             />
             <Route
               path="/users"
-              element={true ? <UserPage /> : <Navigate to="/login" />}
+              element={
+                isAuthenticated ? <UserPage /> : <Navigate to="/login" />
+              }
             />
           </Routes>
         </div>

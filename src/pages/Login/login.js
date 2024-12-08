@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 import logo from "../../assets/logo.jpeg";
+import apiHelper from "../../utils/apiHelper/apiHelper";
 
 const Login = () => {
   // State for email, password, and error message
@@ -12,22 +13,24 @@ const Login = () => {
   const navigate = useNavigate();
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Hardcoded credentials
-    const validEmail = "xoom@admin.com";
-    const validPassword = "xoom123";
-
-    // Validate credentials
-    if (email === validEmail && password === validPassword) {
-      // Redirect to dashboard if credentials are correct
-      localStorage.setItem("adminKey", "admin123");
-      navigate("/");
-      window.location.reload();
-    } else {
-      // Show error message if credentials are incorrect
-      setError("Invalid credentials");
+    let body = {
+      email: email,
+      password: password,
+    };
+    console.log("body", body);
+    try {
+      let res = await apiHelper.post("/auth/login", body, {});
+      if (res?.accessToken) {
+        localStorage.setItem("token", res.accessToken);
+        navigate("/");
+        window.location.reload();
+      } else {
+        setError("Invalid credentials");
+      }
+    } catch (error) {
+      window.alert("Something went wrong");
     }
   };
 

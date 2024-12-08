@@ -2,11 +2,16 @@ import React, { useState } from "react";
 import logo from "../../assets/logo.jpeg";
 import styles from "./navbar.module.css";
 import { Box, Modal, useMediaQuery } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
+  // Check for mobile screen size
   const isMobile = useMediaQuery("(max-width:600px)");
+
+  // Style for the modal box, responsive design
   const style = {
     position: "absolute",
     top: "50%",
@@ -18,17 +23,25 @@ function Navbar() {
     boxShadow: 24,
     p: 4,
   };
-  const logout = () => {
-    localStorage.removeItem("adminKey");
-    window.location.reload();
-  };
 
+  // Show logout modal
   const handleLogoutClick = () => {
-    setShowModal(true); // Show the modal when logout is clicked
+    setShowModal(true);
   };
 
+  // Close logout modal
   const handleCloseModal = () => {
-    setShowModal(false); // Hide the modal
+    setShowModal(false);
+  };
+
+  // Logout user and redirect to login page
+  const logout = () => {
+    // Remove the token from localStorage
+    localStorage.removeItem("token");
+
+    // Redirect to login page
+    navigate("/login");
+    window.location.reload();
   };
 
   return (
@@ -94,15 +107,26 @@ function Navbar() {
             </li>
           </ul>
         </div>
-        {/* Bootstrap Modal */}
-        <Modal open={showModal} onClose={() => handleCloseModal()}>
+
+        {/* Logout Confirmation Modal */}
+        <Modal open={showModal} onClose={handleCloseModal}>
           <Box sx={style}>
             <div className={styles.exit__model}>
               <i className={`bi bi-exclamation-circle ${styles.icon}`}></i>
-              <h4>Are you sure!</h4>
+              <h4>Are you sure you want to logout?</h4>
               <div className={styles.btn__box}>
-                <button className="btn btn-primary">Cancel</button>
-                <button className="btn btn-danger">Logout</button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleCloseModal} // Close the modal
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={logout} // Perform logout and navigate
+                >
+                  Logout
+                </button>
               </div>
             </div>
           </Box>

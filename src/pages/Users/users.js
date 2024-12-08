@@ -3,6 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css"; // Ensure Bootstrap Icons are included
 import styles from "./users.module.css";
 import apiHelper from "../../utils/apiHelper/apiHelper";
+import DataLoader from "../../components/DataLoader/loader";
+import Toast from "../../components/Toast/toast";
 
 let token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Ilhvb21AdGVzdC5jb20iLCJzdWIiOiIyMzFmY2ExZS04ZWY1LTQ4NzAtYjQ3Yy1lYjY1NTljMWIyNWIiLCJyb2xlIjoiT3duZXIiLCJpYXQiOjE3MzM1OTMwNzYsImV4cCI6MTczMzc2NTg3Nn0.hEkJsbFKCYHbYImHI9jj4xkMGp6QAOqeN4bQ-XGeQto";
@@ -21,6 +23,15 @@ const UserPage = () => {
     password: "",
     type: "",
   });
+  const [loader, setLoader] = useState(false);
+  const [btnLoader, setBtnLoader] = useState(false);
+  const [toastConfig, setToastConfig] = useState({
+    show: false,
+    title: "",
+    subtitle: "",
+    type: "success",
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     getUsers();
@@ -31,6 +42,21 @@ const UserPage = () => {
       ...prevState,
       [key]: value,
     }));
+  };
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formState.first.trim()) errors.first = "First name is required.";
+    if (!formState.last.trim()) errors.last = "Last name is required.";
+    if (!formState.userid.trim()) errors.userid = "User ID is required.";
+    if (!isEditing && !formState.password.trim())
+      errors.password = "Password is required for creating a user.";
+    if (!formState.type.trim()) errors.type = "User type is required.";
+
+    console.log("error", errors);
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleOpenUpdateModal = (user = null) => {
@@ -48,17 +74,33 @@ const UserPage = () => {
     handleFormState("last", "");
     handleFormState("userid", "");
     handleFormState("type", "");
-    handleFormState("pasdword", "");
+    handleFormState("password", "");
     setUpdateId("");
   };
 
   const handleCloseModal = () => {
     setSelectedUser(null);
     setShowModal(false);
+    clearFields();
+  };
+  const handleCloseToast = () => {
+    setToastConfig((prev) => ({
+      ...prev,
+      show: false,
+    }));
+  };
+  const showToast = (type, title, subtitle) => {
+    setToastConfig({
+      show: true,
+      title,
+      subtitle,
+      type,
+    });
   };
 
   const handleOpenDeletePopup = (user) => {
     setUserToDelete(user);
+
     setShowDeletePopup(true);
   };
 
@@ -67,29 +109,10 @@ const UserPage = () => {
     setShowDeletePopup(false);
   };
 
-  const handleSaveUser = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const userData = {
-      id: isEditing ? selectedUser.id : users.length + 1,
-      name: formData.get("name"),
-      xdsNumber: formData.get("xdsNumber"),
-      userType: formData.get("userType"),
-    };
-
-    if (isEditing) {
-      setUsers(
-        users.map((user) => (user.id === selectedUser.id ? userData : user))
-      );
-    } else {
-      setUsers([...users, userData]);
-    }
-
-    handleCloseModal();
-  };
-
   // ************************API's START************************
   const createUsers = async () => {
+    if (!validateForm()) return;
+    setBtnLoader(true);
     let body = {
       firstName: formState.first,
       lastName: formState.last,
@@ -97,61 +120,110 @@ const UserPage = () => {
       password: formState.password,
       role: formState.type,
     };
+    let authToken = localStorage.getItem("token");
 
     let headers = {
-      Authorization: "Bearer " + token,
+      Authorization: "Bearer " + authToken,
     };
 
     try {
       let response = await apiHelper.post("/users", body, headers);
-      getUsers();
+      if (response.success) {
+        setTimeout(() => {
+          setBtnLoader(false);
+          setShowModal(false);
+          clearFields();
+          getUsers();
+        }, 800);
+      } else {
+        setBtnLoader(false);
+        // setShowModal(false);
+        showToast("error", "Error", response.message);
+      }
     } catch (err) {
-      console.error("Error creating users:", err);
+      showToast("error", "Error", "Something went wrong");
+      setBtnLoader(false);
     }
   };
 
   const getUsers = async () => {
+    setLoader(true);
+    let authToken = localStorage.getItem("token");
     let headers = {
-      Authorization: "Bearer " + token,
+      Authorization: "Bearer " + authToken,
     };
-
     try {
       let response = await apiHelper.get("/users", {}, headers);
-
+      setTimeout(() => {
+        setLoader(false);
+      }, 1000);
+      // setLoader(false);
       setUsers(response?.data);
 
       console.log("users", response);
     } catch (err) {
+      setLoader(false);
       console.error("Error creating users:", err);
     }
   };
 
   const updateUsers = async () => {
+    if (!validateForm()) return;
+    setBtnLoader(true);
     let body = {
       password: formState.password,
       // email: formState.userid,
       role: formState.type,
     };
+    let authToken = localStorage.getItem("token");
     let headers = {
-      Authorization: "Bearer " + token,
+      Authorization: "Bearer " + authToken,
     };
 
     try {
       let response = await apiHelper.patch(`/users/${updateId}`, body, headers);
-      getUsers();
-      console.log("users", response);
+      if (response.success) {
+        setTimeout(() => {
+          setBtnLoader(false);
+          setShowModal(false);
+          clearFields();
+          getUsers();
+        }, 800);
+      } else {
+        setBtnLoader(false);
+        // setShowModal(false);
+        showToast("error", "Error", response.message);
+      }
     } catch (err) {
       console.error("Error updating users:", err);
     }
   };
 
   const deleteUser = async () => {
+    setBtnLoader(true);
+    let authToken = localStorage.getItem("token");
     let headers = {
-      Authorization: "Bearer " + token,
+      Authorization: "Bearer " + authToken,
     };
     try {
-      let response = await apiHelper.del(`/users/${updateId}`, headers, {});
-      getUsers();
+      let response = await apiHelper.del(
+        `/users/${userToDelete?.id}`,
+        headers,
+        {}
+      );
+      if (response.success) {
+        setTimeout(() => {
+          setBtnLoader(false);
+          setShowDeletePopup(false);
+          clearFields();
+          getUsers();
+        }, 800);
+      } else {
+        setBtnLoader(false);
+        // setShowModal(false);
+        showToast("error", "Error", response.message);
+      }
+
       console.log("users", response);
     } catch (err) {
       console.error("Error deleting users:", err);
@@ -166,51 +238,60 @@ const UserPage = () => {
       {/* Add User Button */}
       <button
         className={`btn btn-primary mb-3 ${styles.add__btn}`}
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          setIsEditing(false);
+          setShowModal(true);
+        }}
       >
         <i className="bi bi-plus-circle me-2"></i> Add User
       </button>
 
       {/* User Table */}
-      <table className="table table-bordered">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>User Name</th>
-            <th>Id</th>
-            <th>User Type</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users?.length > 0 ? (
-            users.map((user, index) => (
-              <tr key={user?.id}>
-                <td>{index + 1}</td>
-                <td>{`${user?.firstName} ${user?.lastName}`}</td>
-                <td>{user?.email}</td>
-                <td>{user?.role}</td>
-                <td>
-                  <button
-                    className="btn btn-sm btn-warning me-2"
-                    onClick={() => handleOpenUpdateModal(user)}
-                  >
-                    <i className="bi bi-pencil-square"></i>
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => handleOpenDeletePopup(user)}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <span>No Data Found!</span>
-          )}
-        </tbody>
-      </table>
+      {!loader ? (
+        <table className="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User Name</th>
+              <th>Id</th>
+              <th>User Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users?.length > 0 ? (
+              users.map((user, index) => (
+                <tr key={user?.id}>
+                  <td>{index + 1}</td>
+                  <td>{`${user?.firstName} ${user?.lastName}`}</td>
+                  <td>{user?.email}</td>
+                  <td>{user?.role}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-warning me-2"
+                      onClick={() => handleOpenUpdateModal(user)}
+                    >
+                      <i className="bi bi-pencil-square"></i>
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleOpenDeletePopup(user)}
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <span>No Data Found!</span>
+            )}
+          </tbody>
+        </table>
+      ) : (
+        <div className={styles.loader__box}>
+          <DataLoader />
+        </div>
+      )}
 
       {/* Modal for Add/Edit User */}
       {showModal && (
@@ -244,7 +325,13 @@ const UserPage = () => {
                     required
                     value={formState.first}
                     onChange={(e) => handleFormState("first", e.target.value)}
+                    disabled={isEditing}
                   />
+                  {formErrors.first && (
+                    <div className={styles.invalid__text}>
+                      {formErrors.first}
+                    </div>
+                  )}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="last-name" className="form-label">
@@ -259,7 +346,13 @@ const UserPage = () => {
                     required
                     value={formState.last}
                     onChange={(e) => handleFormState("last", e.target.value)}
+                    disabled={isEditing}
                   />
+                  {formErrors.last && (
+                    <div className={styles.invalid__text}>
+                      {formErrors.last}
+                    </div>
+                  )}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="userid" className="form-label">
@@ -275,6 +368,11 @@ const UserPage = () => {
                     onChange={(e) => handleFormState("userid", e.target.value)}
                     required
                   />
+                  {formErrors.userid && (
+                    <div className={styles.invalid__text}>
+                      {formErrors.userid}
+                    </div>
+                  )}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="password" className="form-label">
@@ -291,6 +389,11 @@ const UserPage = () => {
                       handleFormState("password", e.target.value)
                     }
                   />
+                  {formErrors.password && (
+                    <div className={styles.invalid__text}>
+                      {formErrors.password}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -309,10 +412,13 @@ const UserPage = () => {
                       Select User Type
                     </option>
                     <option value="Viewer">Viewer</option>
-                    <option value="Admin">Admin</option>
+                    <option value="Owner">Super user</option>
                     <option value="Editor">Editor</option>
                   </select>
                 </div>
+                {formErrors.type && (
+                  <div className={styles.invalid__text}>{formErrors.type}</div>
+                )}
               </div>
               <div className="modal-footer">
                 <button
@@ -324,10 +430,19 @@ const UserPage = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="btn btn-primary d-flex justify-content-center align-items-center"
+                  disabled={btnLoader}
                   onClick={isEditing ? updateUsers : createUsers}
                 >
-                  Save
+                  {!btnLoader ? (
+                    isEditing ? (
+                      "update user"
+                    ) : (
+                      "Add User"
+                    )
+                  ) : (
+                    <DataLoader size="sm" />
+                  )}
                 </button>
               </div>
               {/* </form> */}
@@ -364,14 +479,28 @@ const UserPage = () => {
                 >
                   Cancel
                 </button>
-                <button className="btn btn-danger" onClick={deleteUser}>
-                  Delete
+                <button
+                  className="btn btn-danger"
+                  onClick={deleteUser}
+                  disabled={btnLoader}
+                >
+                  {!btnLoader ? "Delete" : <DataLoader size="sm" />}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {
+        <Toast
+          open={toastConfig.show}
+          title={toastConfig.title}
+          subtitle={toastConfig.subtitle}
+          type={toastConfig.type}
+          onClose={handleCloseToast}
+        />
+      }
     </div>
   );
 };
