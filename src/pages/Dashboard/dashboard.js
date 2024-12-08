@@ -182,6 +182,8 @@ const Dashboard = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [transactionBtn, setTransactionBtn] = useState(true);
 
+  const [activeModal, setActiveModal] = useState(null);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [toastConfig, setToastConfig] = useState({
     show: false,
@@ -190,15 +192,16 @@ const Dashboard = () => {
     type: "success",
   });
   const [subfields, setSubfields] = useState({
+    modelindex: 0,
     aggregator: [],
   });
 
-  const [allLeaders, setAllLoaders] = useState({
+  const [allLoaders, setAllLoaders] = useState({
     aggregatorLoader: false,
   });
 
   const [inputSubFields, setInputSubFields] = useState({
-    ownedByName: "",
+    aggregator: "",
   });
 
   const handleClick = (event) => {
@@ -536,7 +539,11 @@ const Dashboard = () => {
 
   // *************************Aggregatore API's****************************************
   const createAggregator = async () => {
+    let body = {
+      name: "",
+    };
     try {
+      apiHelper.post("/aggregator");
     } catch (err) {}
   };
 
@@ -723,6 +730,74 @@ const Dashboard = () => {
         );
     }
   };
+
+  //Aggregator Form
+
+  const AggregatorModalContent = () => (
+    <div>
+      <div className="d-flex flex-column gap-3">
+        <div className="form-group">
+          <label htmlFor="empCode">Aggregator name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="owned"
+            name="aggregator"
+            value={inputSubFields.aggregator}
+            onChange={(e) =>
+              handleSubFieldInputState("aggregator", e.target.value)
+            }
+            placeholder="Enter aggregator name"
+          />
+        </div>
+
+        <div className="d-flex gap-3">
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            onClick={() => setActiveModal(null)}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            disabled={allLoaders.aggregatorLoader}
+            onClick={() => {}}
+          >
+            {!allLoaders.aggregatorLoader ? "Submit" : <ButtonLoader />}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Category Form
+  const CategoryModalContent = () => (
+    <div>
+      <h2>Add Category</h2>
+      {/* Add form fields specific to Category */}
+    </div>
+  );
+
+  // Category Form
+  const OwnedByModalContent = () => (
+    <div>
+      <h2>Add Owned by</h2>
+      {/* Add form fields specific to Category */}
+    </div>
+  );
+
+  // Model Form
+  const ModelModalContent = () => (
+    <div>
+      <h2>Add Model</h2>
+      {/* Add form fields specific to Category */}
+    </div>
+  );
 
   const transactionAllocationForm = () => {
     return (
@@ -1225,6 +1300,7 @@ const Dashboard = () => {
                           <button
                             className="btn text-white"
                             style={{ backgroundColor: "#9acb3b" }}
+                            onClick={() => setActiveModal("aggregator")}
                           >
                             Add
                           </button>
@@ -1297,6 +1373,7 @@ const Dashboard = () => {
                           <button
                             className="btn text-white"
                             style={{ backgroundColor: "#9acb3b" }}
+                            onClick={() => setActiveModal("category")}
                           >
                             Add
                           </button>
@@ -1356,7 +1433,7 @@ const Dashboard = () => {
                         aria-expanded="true"
                         aria-controls="collapseThree"
                       >
-                        Add Emirates
+                        Add Owned by
                       </button>
                     </h2>
                     <div
@@ -1370,9 +1447,7 @@ const Dashboard = () => {
                           <button
                             className="btn text-white"
                             style={{ backgroundColor: "#9acb3b" }}
-                            onClick={() => {
-                              alert("Bhaggg reeee!!!");
-                            }}
+                            onClick={() => setActiveModal("ownedBy")}
                           >
                             Add
                           </button>
@@ -1444,9 +1519,7 @@ const Dashboard = () => {
                           <button
                             className="btn text-white"
                             style={{ backgroundColor: "#9acb3b" }}
-                            onClick={() => {
-                              alert("Bhaggg reeee!!!");
-                            }}
+                            onClick={() => setActiveModal("model")}
                           >
                             Add
                           </button>
@@ -1548,7 +1621,7 @@ const Dashboard = () => {
         </Box>
       </Modal>
       {/* Modal For Forms */}
-      <Modal open={modalForm} onClose={() => setShowFullImageModal(false)}>
+      <Modal open={modalForm}>
         <Box sx={style}>{renderModalforma()}</Box>
       </Modal>
 
@@ -1560,6 +1633,15 @@ const Dashboard = () => {
       {showSplash && <Splashscreen />}
 
       {showFileLoader && <FileLoader />}
+
+      <Modal open={activeModal !== null}>
+        <Box sx={style}>
+          {activeModal === "aggregator" && <AggregatorModalContent />}
+          {activeModal === "category" && <CategoryModalContent />}
+          {activeModal === "ownedBy" && <OwnedByModalContent />}
+          {activeModal === "model" && <ModelModalContent />}
+        </Box>
+      </Modal>
 
       {
         <Toast
