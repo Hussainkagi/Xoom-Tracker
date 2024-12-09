@@ -202,6 +202,10 @@ const Dashboard = () => {
 
   const [inputSubFields, setInputSubFields] = useState({
     aggregator: "",
+    category: "",
+    fuel: "",
+    ownedby: "",
+    model: "",
   });
 
   const handleClick = (event) => {
@@ -778,24 +782,139 @@ const Dashboard = () => {
   // Category Form
   const CategoryModalContent = () => (
     <div>
-      <h2>Add Category</h2>
-      {/* Add form fields specific to Category */}
+      <div className="d-flex flex-column gap-3">
+        <div className="form-group">
+          <label htmlFor="empCode">Category name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="category"
+            name="category"
+            value={inputSubFields.aggregator}
+            onChange={(e) =>
+              handleSubFieldInputState("category", e.target.value)
+            }
+            placeholder="Enter category name"
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="fuel">Vehicle fuel type</label>
+
+          <select
+            className="form-select w-100"
+            id="availability"
+            onChange={(e) => handleSubFieldInputState("fuel", e.target.value)}
+          >
+            <option value="electric">Electric</option>
+            <option value="isc">isc</option>
+          </select>
+        </div>
+
+        <div className="d-flex gap-3">
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            onClick={() => setActiveModal(null)}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            disabled={allLoaders.aggregatorLoader}
+            onClick={() => {}}
+          >
+            {!allLoaders.aggregatorLoader ? "Submit" : <ButtonLoader />}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 
   // Category Form
   const OwnedByModalContent = () => (
     <div>
-      <h2>Add Owned by</h2>
-      {/* Add form fields specific to Category */}
+      <div className="d-flex flex-column gap-3">
+        <div className="form-group">
+          <label htmlFor="empCode">Owner name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="ownedby"
+            name="ownedby"
+            value={inputSubFields.aggregator}
+            onChange={(e) =>
+              handleSubFieldInputState("ownedby", e.target.value)
+            }
+            placeholder="Enter Owner name"
+          />
+        </div>
+
+        <div className="d-flex gap-3">
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            onClick={() => setActiveModal(null)}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            disabled={allLoaders.aggregatorLoader}
+            onClick={() => {}}
+          >
+            {!allLoaders.aggregatorLoader ? "Submit" : <ButtonLoader />}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 
   // Model Form
   const ModelModalContent = () => (
     <div>
-      <h2>Add Model</h2>
-      {/* Add form fields specific to Category */}
+      <div className="d-flex flex-column gap-3">
+        <div className="form-group">
+          <label htmlFor="empCode"> Vehicle Model</label>
+          <input
+            type="text"
+            className="form-control"
+            id="model"
+            name="model"
+            value={inputSubFields.aggregator}
+            onChange={(e) => handleSubFieldInputState("model", e.target.value)}
+            placeholder="Enter vehicle model"
+          />
+        </div>
+
+        <div className="d-flex gap-3">
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            onClick={() => setActiveModal(null)}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ backgroundColor: themeColor }}
+            disabled={allLoaders.aggregatorLoader}
+            onClick={() => {}}
+          >
+            {!allLoaders.aggregatorLoader ? "Submit" : <ButtonLoader />}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 
