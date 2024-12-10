@@ -12,10 +12,11 @@ import Dashboard from "./pages/Dashboard/dashboard";
 import Overview from "./pages/Overview/overview";
 import "./App.css";
 import UserPage from "./pages/Users/users";
+import Subfields from "./pages/Subfields/fields";
 
 function App() {
   // Check if 'accessToken' is in localStorage
-  const isAuthenticated = localStorage.getItem("token") !== null;
+  const isAuthenticated = true;
 
   return (
     <Router>
@@ -58,6 +59,12 @@ function App() {
               path="/users"
               element={
                 isAuthenticated ? <UserPage /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/subfields"
+              element={
+                isAuthenticated ? <Subfields /> : <Navigate to="/login" />
               }
             />
           </Routes>

@@ -91,6 +91,15 @@ function Navbar() {
                 Users
               </a>
             </li>
+            <li className="nav-item">
+              <a
+                className="nav-link active"
+                aria-current="page"
+                href="/subfields"
+              >
+                Subfields
+              </a>
+            </li>
           </ul>
 
           {/* Logout Button Aligned to the End */}
