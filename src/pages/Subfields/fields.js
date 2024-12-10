@@ -2,17 +2,34 @@ import React, { useEffect, useState } from "react";
 import styles from "./fields.module.css";
 import apiHelper from "../../utils/apiHelper/apiHelper";
 import DataLoader from "../../components/DataLoader/loader";
+import Splashscreen from "../../components/Splashscreen/splashloader";
+import { Modal, Box } from "@mui/material";
+import Toast from "../../components/Toast/toast";
 
 function Fields() {
   const [activeModal, setActiveModal] = useState(null);
   const [formData, setFormData] = useState({});
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState({ id: null, type: "" });
   const [apiData, setApiData] = useState({
     aggregators: [],
     categories: [],
     ownedBy: [],
     models: [],
   });
-  const [dataLoader, setdataLoader] = useState(false);
+  const [dataLoader, setdataLoader] = useState({
+    aggLoader: false,
+    catLoader: false,
+    ownedLoader: false,
+    modelLoader: false,
+  });
+  const [splashloader, setSplashLoader] = useState(false);
+  const [toastConfig, setToastConfig] = useState({
+    show: false,
+    title: "",
+    subtitle: "",
+    type: "success",
+  });
 
   useEffect(() => {
     fetchAllData();
@@ -27,6 +44,11 @@ function Fields() {
     }));
   };
 
+  const handleDeleteClick = (id, type) => {
+    setDeleteTarget({ id, type });
+    setShowDeletePopup(true);
+  };
+
   const handleApiData = (key, value) => {
     setApiData((prevState) => ({
       ...prevState,
@@ -34,10 +56,51 @@ function Fields() {
     }));
   };
 
-  const [aggregatorData, setAggregatorData] = useState([
-    { id: 1, name: "Aggregator 1" },
-    { id: 2, name: "Aggregator 2" },
-  ]);
+  const handleLoaderData = (key, value) => {
+    setdataLoader((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
+  const handleCloseToast = () => {
+    setToastConfig((prev) => ({
+      ...prev,
+      show: false,
+    }));
+  };
+
+  const showToast = (type, title, subtitle) => {
+    setToastConfig({
+      show: true,
+      title,
+      subtitle,
+      type,
+    });
+  };
+
+  const confirmDelete = () => {
+    console.log("Are you sure you want to delete", deleteTarget);
+    const { id, type } = deleteTarget;
+
+    switch (type) {
+      case "aggregator":
+        deleteAggregator(id);
+        break;
+      case "ownedBy":
+        deleteOwnedBy(id);
+        break;
+      case "category":
+        deleteVehicleType(id);
+        break;
+      case "model":
+        deleteModel(id);
+        break;
+      default:
+        break;
+    }
+    setShowDeletePopup(false);
+    setDeleteTarget({ id: null, type: "" });
+  };
 
   // Modal forms configuration
   const modalConfig = {
@@ -49,7 +112,12 @@ function Fields() {
       title: "Add Category",
       fields: [
         { label: "Type", name: "categoryName", type: "text" },
-        { label: "Fuel", name: "fuel", type: "text" },
+        {
+          label: "Fuel",
+          name: "fuel",
+          type: "select",
+          options: ["Petrol", "ICE"], // Add dropdown options here
+        },
       ],
     },
     ownedBy: {
@@ -77,7 +145,17 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.post("/aggregator", body, headers);
-    } catch (err) {}
+      if (res.success) {
+        setFormData({});
+        getAggregate();
+        showToast("success", "Success", "Aggregator created successfully!");
+      } else {
+        showToast("error", "Error", res?.message);
+      }
+    } catch (err) {
+      console.log("ee", err);
+      showToast("error", "Error", "Something went wrong!!");
+    }
   };
 
   const createOwnedBy = async () => {
@@ -92,6 +170,8 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.post("/owned-by", body, headers);
+      getOwnedBy();
+      setFormData({});
     } catch (err) {}
   };
 
@@ -107,6 +187,8 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.post("/model", body, headers);
+      getModel();
+      setFormData({});
     } catch (err) {}
   };
 
@@ -123,6 +205,8 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.post("/vehicle-type", body, headers);
+      getCategory();
+      setFormData({});
     } catch (err) {}
   };
 
@@ -140,6 +224,7 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.del(`/aggregator/${id}`, headers, {});
+      getAggregate();
     } catch (err) {}
   };
 
@@ -157,6 +242,7 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.del(`/owned-by/${id}`, headers, {});
+      getOwnedBy();
     } catch (err) {}
   };
 
@@ -174,6 +260,7 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.del(`/model/${id}`, headers, {});
+      getModel();
     } catch (err) {}
   };
 
@@ -191,13 +278,13 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.del(`/vehicle-type/${id}`, headers, {});
+      getCategory();
     } catch (err) {}
   };
 
   //Get APIS
   const fetchAllData = async () => {
-    // setShowSplash(true);
-    setdataLoader(true);
+    setSplashLoader(true);
     let authToken = localStorage.getItem("token");
 
     let headers = {
@@ -215,16 +302,17 @@ function Fields() {
       handleApiData("ownedBy", ownedBy?.data);
       handleApiData("models", model?.data);
       handleApiData("categories", vehicleType?.data);
-      setdataLoader(true);
+      setTimeout(() => {
+        setSplashLoader(false);
+      }, 1000);
     } catch (error) {
       console.error("Error fetching data:", error);
-    } finally {
-      //   setShowSplash(false); // Hide splash loader once all data is fetched
+      setSplashLoader(false);
     }
   };
 
   const getAggregate = async () => {
-    setdataLoader(true);
+    handleLoaderData("aggLoader", true);
     let authToken = localStorage.getItem("token");
     let headers = {
       Authorization: "Bearer " + authToken,
@@ -232,28 +320,32 @@ function Fields() {
     try {
       let res = await apiHelper.get("/aggregator", {}, headers);
       handleApiData("aggregators", res?.data);
-      setdataLoader(false);
+      setTimeout(() => {
+        handleLoaderData("aggLoader", false);
+      }, 1000);
     } catch (error) {
-      setdataLoader(false);
+      handleLoaderData("aggLoader", false);
     }
   };
 
   const getOwnedBy = async () => {
-    setdataLoader(true);
+    handleLoaderData("ownedLoader", true);
     let authToken = localStorage.getItem("token");
     let headers = {
       Authorization: "Bearer " + authToken,
     };
     try {
-      let res = await apiHelper.get("/ownedBy", {}, headers);
+      let res = await apiHelper.get("/owned-by", {}, headers);
       handleApiData("ownedBy", res?.data);
-      setdataLoader(false);
+      setTimeout(() => {
+        handleLoaderData("ownedLoader", false);
+      }, 1000);
     } catch (error) {
-      setdataLoader(false);
+      handleLoaderData("ownedLoader", false);
     }
   };
   const getCategory = async () => {
-    setdataLoader(true);
+    handleLoaderData("catLoader", true);
     let authToken = localStorage.getItem("token");
     let headers = {
       Authorization: "Bearer " + authToken,
@@ -261,23 +353,27 @@ function Fields() {
     try {
       let res = await apiHelper.get("/vehicle-type", {}, headers);
       handleApiData("categories", res?.data);
-      setdataLoader(false);
+      setTimeout(() => {
+        handleLoaderData("catLoader", false);
+      }, 1000);
     } catch (error) {
-      setdataLoader(false);
+      handleLoaderData("catLoader", false);
     }
   };
   const getModel = async () => {
-    setdataLoader(true);
+    handleLoaderData("modelLoader", true);
     let authToken = localStorage.getItem("token");
     let headers = {
       Authorization: "Bearer " + authToken,
     };
     try {
-      let res = await apiHelper.get("/models", {}, headers);
+      let res = await apiHelper.get("/model", {}, headers);
       handleApiData("models", res?.data);
-      setdataLoader(false);
+      setTimeout(() => {
+        handleLoaderData("modelLoader", false);
+      }, 1000);
     } catch (error) {
-      setdataLoader(false);
+      handleLoaderData("modelLoader", false);
     }
   };
 
@@ -303,116 +399,140 @@ function Fields() {
   };
 
   const renderAggregatorTable = () =>
-    dataLoader ? (
+    dataLoader?.aggLoader ? (
       <DataLoader />
     ) : (
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {aggregatorData.map((row) => (
-            <tr key={row.id}>
-              <td>{row.id}</td>
-              <td>{row.name}</td>
-              <td>
-                <div className={styles.btn_box}>
-                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-                </div>
-              </td>
+      <div style={{ maxHeight: "180px", overflowY: "auto" }}>
+        <table className="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {apiData?.aggregators?.map((row, index) => (
+              <tr key={row.id}>
+                <td>{index + 1}</td>
+                <td>{row.name}</td>
+                <td>
+                  <div className={styles.btn_box}>
+                    <i
+                      className="bi bi-trash"
+                      style={{ color: "#fff" }}
+                      onClick={() => handleDeleteClick(row.id, "aggregator")}
+                    ></i>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   const renderOwnedByTable = () =>
-    dataLoader ? (
+    dataLoader?.ownedLoader ? (
       <DataLoader />
     ) : (
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {apiData?.ownedBy.map((row) => (
-            <tr key={row.id}>
-              <td>{row.id}</td>
-              <td>{row.name}</td>
-              <td>
-                <div className={styles.btn_box}>
-                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-                </div>
-              </td>
+      <div style={{ maxHeight: "180px", overflowY: "auto" }}>
+        <table className="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {apiData?.ownedBy.map((row, index) => (
+              <tr key={row.id}>
+                <td>{index + 1}</td>
+                <td>{row.name}</td>
+                <td>
+                  <div className={styles.btn_box}>
+                    <i
+                      className="bi bi-trash"
+                      style={{ color: "#fff" }}
+                      onClick={() => handleDeleteClick(row.id, "ownedBy")}
+                    ></i>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   const renderCategoryTable = () =>
-    dataLoader ? (
+    dataLoader?.catLoader ? (
       <DataLoader />
     ) : (
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Fuel type</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {apiData?.categories.map((row) => (
-            <tr key={row.id}>
-              <td>{row.id}</td>
-              <td>{row.name}</td>
-              <td>{row.fuel}</td>
-
-              <td>
-                <div className={styles.btn_box}>
-                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-                </div>
-              </td>
+      <div style={{ maxHeight: "180px", overflowY: "auto" }}>
+        <table className="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Fuel type</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {apiData?.categories.map((row, index) => (
+              <tr key={row.id}>
+                <td>{index + 1}</td>
+                <td>{row.name}</td>
+                <td>{row.fuel}</td>
+
+                <td>
+                  <div className={styles.btn_box}>
+                    <i
+                      className="bi bi-trash"
+                      style={{ color: "#fff" }}
+                      onClick={() => handleDeleteClick(row.id, "category")}
+                    ></i>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   const renderModelTable = () =>
-    dataLoader ? (
+    dataLoader?.modelLoader ? (
       <DataLoader />
     ) : (
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {apiData?.models.map((row) => (
-            <tr key={row.id}>
-              <td>{row.id}</td>
-              <td>{row.name}</td>
-
-              <td>
-                <div className={styles.btn_box}>
-                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-                </div>
-              </td>
+      <div style={{ maxHeight: "180px", overflowY: "auto" }}>
+        <table className="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {apiData?.models?.map((row, index) => (
+              <tr key={row.id}>
+                <td>{index + 1}</td>
+                <td>{row?.brand}</td>
+
+                <td>
+                  <div className={styles.btn_box}>
+                    <i
+                      className="bi bi-trash"
+                      style={{ color: "#fff" }}
+                      onClick={() => handleDeleteClick(row.id, "model")}
+                    ></i>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
 
   return (
@@ -430,7 +550,7 @@ function Fields() {
           <div className="col-md-6">
             <Accordion
               title="Add Category"
-              table={renderAggregatorTable}
+              table={renderCategoryTable}
               onAddClick={() => setActiveModal("category")}
             />
           </div>
@@ -439,20 +559,20 @@ function Fields() {
           <div className="col-md-6">
             <Accordion
               title="Add Owned By"
-              table={renderAggregatorTable}
+              table={renderOwnedByTable}
               onAddClick={() => setActiveModal("ownedBy")}
             />
           </div>
           <div className="col-md-6">
             <Accordion
               title="Add Model"
-              table={renderAggregatorTable}
+              table={renderModelTable}
               onAddClick={() => setActiveModal("model")}
             />
           </div>
         </div>
       </div>
-
+      {splashloader && <Splashscreen />}
       {/* Modal */}
       {activeModal && (
         <div className="modal show d-block" tabIndex="-1" role="dialog">
@@ -473,13 +593,29 @@ function Fields() {
                   {modalConfig[activeModal].fields.map((field) => (
                     <div className="mb-3" key={field.name}>
                       <label className="form-label">{field.label}</label>
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        className="form-control"
-                        value={formData[field.name] || ""}
-                        onChange={handleChange}
-                      />
+                      {field.type === "select" ? (
+                        <select
+                          name={field.name}
+                          className="form-control"
+                          value={formData[field.name] || ""}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select {field.label}</option>
+                          {field.options.map((option, idx) => (
+                            <option key={idx} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={field.type}
+                          name={field.name}
+                          className="form-control"
+                          value={formData[field.name] || ""}
+                          onChange={handleChange}
+                        />
+                      )}
                     </div>
                   ))}
                 </form>
@@ -507,6 +643,45 @@ function Fields() {
           </div>
         </div>
       )}
+      <Modal open={showDeletePopup} onClose={() => setShowDeletePopup(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 300,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+            textAlign: "center",
+          }}
+        >
+          <h5>Are you sure you want to delete this item?</h5>
+          <div className="d-flex justify-content-center gap-3 mt-3">
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowDeletePopup(false)}
+            >
+              Cancel
+            </button>
+            <button className="btn btn-danger" onClick={confirmDelete}>
+              Delete
+            </button>
+          </div>
+        </Box>
+      </Modal>
+
+      {
+        <Toast
+          open={toastConfig.show}
+          title={toastConfig.title}
+          subtitle={toastConfig.subtitle}
+          type={toastConfig.type}
+          onClose={handleCloseToast}
+        />
+      }
     </div>
   );
 }

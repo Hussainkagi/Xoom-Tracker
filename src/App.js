@@ -16,7 +16,7 @@ import Subfields from "./pages/Subfields/fields";
 
 function App() {
   // Check if 'accessToken' is in localStorage
-  const isAuthenticated = true;
+  const isAuthenticated = localStorage.getItem("token") !== null;
 
   return (
     <Router>
