@@ -320,13 +320,18 @@ const Dashboard = () => {
   // ************************* Fetch All Data**********************'
   const fetchAllData = async () => {
     setShowSplash(true);
+    let authToken = localStorage.getItem("token");
+
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
     try {
       const [transactionRes, vehicleRes, locationRes, employeeRes] =
         await Promise.all([
-          apiHelper.get("/transaction"),
-          apiHelper.get("/vehicle"),
-          apiHelper.get("/location"),
-          apiHelper.get("/employee"),
+          apiHelper.get("/transaction", {}, headers),
+          apiHelper.get("/vehicle", {}, headers),
+          apiHelper.get("/location", {}, headers),
+          apiHelper.get("/employee", {}, headers),
         ]);
 
       setTransactionData(transactionRes.data);
@@ -1098,29 +1103,58 @@ const Dashboard = () => {
                       Vehicle No.
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Model</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>From</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Owned By</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Emirates</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Category</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Aggregator
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Chasis No.
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Chasis No.
+                    </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Availability Status
                     </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {vehicleData
+                  {vehicleData.length > 0
                     ? vehicleData?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">{row?.vehicleNo}</TableCell>
-                          <TableCell align="left">{row?.model}</TableCell>
-                          <TableCell align="left">{row?.from}</TableCell>
+                          <TableCell align="left">
+                            {row?.model?.brand}
+                          </TableCell>
+                          <TableCell align="left">
+                            {row?.ownedBy?.name}
+                          </TableCell>
+                          <TableCell align="left">{row?.emirates}</TableCell>
+                          <TableCell align="left">{`${row?.vehicleType?.name} ${row?.vehicleType?.fuel}`}</TableCell>
+                          <TableCell align="left">
+                            {row?.aggregator?.name}
+                          </TableCell>
+                          <TableCell align="left">
+                            {row?.chasisNumber}
+                          </TableCell>
+                          <TableCell align="left">
+                            {row?.registrationExpiry}
+                          </TableCell>
+
                           <TableCell align="left">
                             <Chip
                               label={
-                                row?.status === "occupied"
+                                row?.status === "available"
                                   ? "available"
                                   : "occupied"
                               }
                               color={
-                                row?.status === "occupied" ? "success" : "error"
+                                row?.status === "available"
+                                  ? "success"
+                                  : "error"
                               }
                             />
                           </TableCell>
