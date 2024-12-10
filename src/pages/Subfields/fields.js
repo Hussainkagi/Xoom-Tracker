@@ -69,10 +69,14 @@ function Fields() {
     let body = {
       name: formData?.aggregatorName,
     };
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
 
     console.log("body", body);
     try {
-      let res = await apiHelper.post("/aggregator");
+      let res = await apiHelper.post("/aggregator", body, headers);
     } catch (err) {}
   };
 
@@ -80,10 +84,14 @@ function Fields() {
     let body = {
       name: formData?.ownedByName,
     };
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
 
     console.log("body", body);
     try {
-      let res = await apiHelper.post("/owned-by");
+      let res = await apiHelper.post("/owned-by", body, headers);
     } catch (err) {}
   };
 
@@ -91,10 +99,14 @@ function Fields() {
     let body = {
       brand: formData?.modelName,
     };
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
 
     console.log("body", body);
     try {
-      let res = await apiHelper.post("/model");
+      let res = await apiHelper.post("/model", body, headers);
     } catch (err) {}
   };
 
@@ -103,10 +115,82 @@ function Fields() {
       name: formData?.categoryName,
       fuel: formData?.fuel,
     };
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
 
     console.log("body", body);
     try {
-      let res = await apiHelper.post("/vehicle-type");
+      let res = await apiHelper.post("/vehicle-type", body, headers);
+    } catch (err) {}
+  };
+
+  //Delete APIS
+  const deleteAggregator = async (id) => {
+    let body = {
+      name: formData?.aggregatorName,
+    };
+    let authToken = localStorage.getItem("token");
+
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+
+    console.log("body", body);
+    try {
+      let res = await apiHelper.del(`/aggregator/${id}`, headers, {});
+    } catch (err) {}
+  };
+
+  const deleteOwnedBy = async (id) => {
+    let body = {
+      name: formData?.ownedByName,
+    };
+
+    let authToken = localStorage.getItem("token");
+
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+
+    console.log("body", body);
+    try {
+      let res = await apiHelper.del(`/owned-by/${id}`, headers, {});
+    } catch (err) {}
+  };
+
+  const deleteModel = async (id) => {
+    let body = {
+      brand: formData?.modelName,
+    };
+
+    let authToken = localStorage.getItem("token");
+
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+
+    console.log("body", body);
+    try {
+      let res = await apiHelper.del(`/model/${id}`, headers, {});
+    } catch (err) {}
+  };
+
+  const deleteVehicleType = async (id) => {
+    let body = {
+      name: formData?.categoryName,
+      fuel: formData?.fuel,
+    };
+    let authToken = localStorage.getItem("token");
+
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+
+    console.log("body", body);
+    try {
+      let res = await apiHelper.del(`/vehicle-type/${id}`, headers, {});
     } catch (err) {}
   };
 
@@ -114,12 +198,17 @@ function Fields() {
   const fetchAllData = async () => {
     // setShowSplash(true);
     setdataLoader(true);
+    let authToken = localStorage.getItem("token");
+
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
     try {
       const [aggregator, ownedBy, model, vehicleType] = await Promise.all([
-        apiHelper.get("/aggregator"),
-        apiHelper.get("/owned-by"),
-        apiHelper.get("/model"),
-        apiHelper.get("/vehicle-type"),
+        apiHelper.get("/aggregator", {}, headers),
+        apiHelper.get("/owned-by", {}, headers),
+        apiHelper.get("/model", {}, headers),
+        apiHelper.get("/vehicle-type", {}, headers),
       ]);
 
       handleApiData("aggregators", aggregator?.data);
@@ -131,6 +220,64 @@ function Fields() {
       console.error("Error fetching data:", error);
     } finally {
       //   setShowSplash(false); // Hide splash loader once all data is fetched
+    }
+  };
+
+  const getAggregate = async () => {
+    setdataLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      let res = await apiHelper.get("/aggregator", {}, headers);
+      handleApiData("aggregators", res?.data);
+      setdataLoader(false);
+    } catch (error) {
+      setdataLoader(false);
+    }
+  };
+
+  const getOwnedBy = async () => {
+    setdataLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      let res = await apiHelper.get("/ownedBy", {}, headers);
+      handleApiData("ownedBy", res?.data);
+      setdataLoader(false);
+    } catch (error) {
+      setdataLoader(false);
+    }
+  };
+  const getCategory = async () => {
+    setdataLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      let res = await apiHelper.get("/vehicle-type", {}, headers);
+      handleApiData("categories", res?.data);
+      setdataLoader(false);
+    } catch (error) {
+      setdataLoader(false);
+    }
+  };
+  const getModel = async () => {
+    setdataLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      let res = await apiHelper.get("/models", {}, headers);
+      handleApiData("models", res?.data);
+      setdataLoader(false);
+    } catch (error) {
+      setdataLoader(false);
     }
   };
 
@@ -155,106 +302,118 @@ function Fields() {
     }
   };
 
-  const renderAggregatorTable = () => (
-    <table className="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {aggregatorData.map((row) => (
-          <tr key={row.id}>
-            <td>{row.id}</td>
-            <td>{row.name}</td>
-            <td>
-              <div className={styles.btn_box}>
-                <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-              </div>
-            </td>
+  const renderAggregatorTable = () =>
+    dataLoader ? (
+      <DataLoader />
+    ) : (
+      <table className="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-  const renderOwnedByTable = () => (
-    <table className="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {apiData?.ownedBy.map((row) => (
-          <tr key={row.id}>
-            <td>{row.id}</td>
-            <td>{row.name}</td>
-            <td>
-              <div className={styles.btn_box}>
-                <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-              </div>
-            </td>
+        </thead>
+        <tbody>
+          {aggregatorData.map((row) => (
+            <tr key={row.id}>
+              <td>{row.id}</td>
+              <td>{row.name}</td>
+              <td>
+                <div className={styles.btn_box}>
+                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  const renderOwnedByTable = () =>
+    dataLoader ? (
+      <DataLoader />
+    ) : (
+      <table className="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-  const renderCategoryTable = () => (
-    <table className="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Fuel type</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {apiData?.categories.map((row) => (
-          <tr key={row.id}>
-            <td>{row.id}</td>
-            <td>{row.name}</td>
-            <td>{row.fuel}</td>
+        </thead>
+        <tbody>
+          {apiData?.ownedBy.map((row) => (
+            <tr key={row.id}>
+              <td>{row.id}</td>
+              <td>{row.name}</td>
+              <td>
+                <div className={styles.btn_box}>
+                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  const renderCategoryTable = () =>
+    dataLoader ? (
+      <DataLoader />
+    ) : (
+      <table className="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Fuel type</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {apiData?.categories.map((row) => (
+            <tr key={row.id}>
+              <td>{row.id}</td>
+              <td>{row.name}</td>
+              <td>{row.fuel}</td>
 
-            <td>
-              <div className={styles.btn_box}>
-                <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-              </div>
-            </td>
+              <td>
+                <div className={styles.btn_box}>
+                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  const renderModelTable = () =>
+    dataLoader ? (
+      <DataLoader />
+    ) : (
+      <table className="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-  const renderModelTable = () => (
-    <table className="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {apiData?.models.map((row) => (
-          <tr key={row.id}>
-            <td>{row.id}</td>
-            <td>{row.name}</td>
+        </thead>
+        <tbody>
+          {apiData?.models.map((row) => (
+            <tr key={row.id}>
+              <td>{row.id}</td>
+              <td>{row.name}</td>
 
-            <td>
-              <div className={styles.btn_box}>
-                <i className="bi bi-trash" style={{ color: "#fff" }}></i>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+              <td>
+                <div className={styles.btn_box}>
+                  <i className="bi bi-trash" style={{ color: "#fff" }}></i>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
 
   return (
     <div className={styles.main__container}>
