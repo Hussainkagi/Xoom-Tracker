@@ -48,6 +48,14 @@ const style = {
   border: "2px solid #000",
   boxShadow: 24,
   p: 4,
+  maxHeight: "90vh",
+  overflow: "hidden",
+};
+
+const scrollableStyle = {
+  maxHeight: "70vh",
+  overflowY: "auto",
+  paddingRight: "8px",
 };
 const style2 = {
   position: "absolute",
@@ -182,6 +190,33 @@ const Dashboard = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [transactionBtn, setTransactionBtn] = useState(true);
 
+  const [apiData, setApiData] = useState({
+    aggregators: [],
+    categories: [],
+    ownedBy: [],
+    models: [],
+  });
+  const [vehicleInputs, setVehicleInputs] = useState({
+    aggregator: "",
+    vehicleType: "",
+    ownedby: "",
+    model: "",
+    expDate: "",
+    emirates: "",
+    vehicleNo: "",
+    chasisNo: "",
+    code: "",
+  });
+  const Emirates = [
+    "AbuDhabi",
+    "Dubai",
+    "Sharjah",
+    "Ajman",
+    "Fujairah",
+    "RasAlKhaimah",
+    "UmmAlQuwain",
+  ];
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [toastConfig, setToastConfig] = useState({
     show: false,
@@ -189,6 +224,10 @@ const Dashboard = () => {
     subtitle: "",
     type: "success",
   });
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -198,9 +237,29 @@ const Dashboard = () => {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    fetchAllData();
-  }, []);
+  const handleApiData = (key, value) => {
+    setApiData((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
+
+  const handleInputFields = (key, value) => {
+    setVehicleInputs((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
+
+  const handleDateChange = (e) => {
+    const inputDate = e.target.value;
+    if (inputDate) {
+      const [year, month, day] = inputDate.split("-");
+      handleInputFields("expDate", `${day}-${month}-${year}`);
+    } else {
+      handleInputFields("expDate", "");
+    }
+  };
 
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
@@ -224,6 +283,23 @@ const Dashboard = () => {
       show: false,
     }));
   };
+  const showToast = (type, title, subtitle) => {
+    setToastConfig({
+      show: true,
+      title,
+      subtitle,
+      type,
+    });
+  };
+
+  const handleSelectChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "aggregators") handleInputFields("aggregator", value);
+    if (name === "categories") handleInputFields("vehicleType", value);
+    if (name === "ownedBy") handleInputFields("ownedby", value);
+    if (name === "models") handleInputFields("model", value);
+    if (name === "emirates") handleInputFields("emirates", value);
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -238,9 +314,10 @@ const Dashboard = () => {
         if (name === "empName") setEmpName(e.target.value);
 
       case 2:
-        if (name === "vehicleno") setvehicleNo(e.target.value);
-        if (name === "vehicleModel") setvehicleModel(e.target.value);
-        if (name === "vehicleFrom") setVehiclefrom(e.target.value);
+        if (name === "vehicleno")
+          handleInputFields("vehicleNo", e.target.value);
+        if (name === "chasisNo") handleInputFields("chasisNo", e.target.value);
+        if (name === "vehicleCode") handleInputFields("code", e.target.value);
 
       case 3:
         if (name === "locName") setLocationName(e.target.value);
@@ -326,24 +403,42 @@ const Dashboard = () => {
       Authorization: "Bearer " + authToken,
     };
     try {
-      const [transactionRes, vehicleRes, locationRes, employeeRes] =
-        await Promise.all([
-          apiHelper.get("/transaction", {}, headers),
-          apiHelper.get("/vehicle", {}, headers),
-          apiHelper.get("/location", {}, headers),
-          apiHelper.get("/employee", {}, headers),
-        ]);
+      const [
+        transactionRes,
+        vehicleRes,
+        locationRes,
+        employeeRes,
+        aggregator,
+        ownedBy,
+        model,
+        vehicleType,
+      ] = await Promise.all([
+        apiHelper.get("/transaction", {}, headers),
+        apiHelper.get("/vehicle", {}, headers),
+        apiHelper.get("/location", {}, headers),
+        apiHelper.get("/employee", {}, headers),
+        apiHelper.get("/aggregator", {}, headers),
+        apiHelper.get("/owned-by", {}, headers),
+        apiHelper.get("/model", {}, headers),
+        apiHelper.get("/vehicle-type", {}, headers),
+      ]);
 
       setTransactionData(transactionRes.data);
       setVehicleData(vehicleRes.data);
       setLocationData(locationRes.data);
       setEmployeeData(employeeRes.data);
+      handleApiData("aggregators", aggregator?.data);
+      handleApiData("ownedBy", ownedBy?.data);
+      handleApiData("models", model?.data);
+      handleApiData("categories", vehicleType?.data);
+      setTimeout(() => {
+        setShowSplash(false);
+      }, 1000);
     } catch (error) {
       console.error("Error fetching data:", error);
-    } finally {
-      setShowSplash(false); // Hide splash loader once all data is fetched
     }
   };
+
   //  ***********************************Employee APIs *******************************
   const getEmployeeData = async () => {
     let response = await apiHelper.get("/employee");
@@ -474,24 +569,36 @@ const Dashboard = () => {
       } else if (manual) {
         setBtnLoader(true);
         setShowSplash(true);
+        console.log("Vehicle Data Manually", vehicleInputs);
         let body = {
-          vehicleNo: vehicleNo,
-          model: vehicleModel,
-          from: vehicleFrom,
+          vehicleNo: vehicleInputs?.vehicleNo,
+          code: vehicleInputs?.code,
+          modelId: vehicleInputs?.model,
+          vehicleTypeId: vehicleInputs?.vehicleType,
+          ownedById: vehicleInputs?.ownedby,
+          aggregatorId: vehicleInputs?.aggregator,
+          registrationExpiry: vehicleInputs?.expDate,
+          emirates: vehicleInputs?.emirates,
+          chasisNumber: vehicleInputs?.chasisNo,
           status: "available",
           isDeleted: false,
         };
         const response = await apiHelper.post("/vehicle", body, {
           headers: { "Content-Type": "application/json" },
         });
-        showModalform(false);
-        setManual(false);
-        setBtnLoader(false);
-        setShowSplash(false);
-        setvehicleNo("");
-        setVehiclefrom("");
-        setvehicleModel("");
-        getVehicleData();
+
+        if (response?.success) {
+          showModalform(false);
+          setManual(false);
+          setBtnLoader(false);
+          setShowSplash(false);
+
+          getVehicleData();
+
+          showToast("success", "Success", "Vehicle created successfully!");
+        } else {
+          showToast("error", "Error", response.message);
+        }
       }
     } catch (error) {
       console.error("Error uploading file:", error.message);
@@ -572,42 +679,141 @@ const Dashboard = () => {
         return (
           <div className="d-flex flex-column gap-3">
             <div className="form-group">
-              <label htmlFor="empCode">Vehicle No.</label>
+              <label htmlFor="vehicleNo">Vehicle No.</label>
               <input
                 type="text"
                 className="form-control"
                 id="vehicleno"
                 name="vehicleno"
-                value={vehicleNo}
+                value={vehicleInputs?.vehicleNo}
                 onChange={handleInputChange}
                 placeholder="Enter vehicle no."
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="chasisNo">Chasis No.</label>
+              <input
+                type="text"
+                className="form-control"
+                id="chasisNo"
+                name="chasisNo"
+                value={vehicleInputs?.chasisNo}
+                onChange={handleInputChange}
+                placeholder="Enter chasis no."
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="Code">Plate Code</label>
+              <input
+                type="text"
+                className="form-control"
+                id="vehicleCode"
+                name="vehicleCode"
+                value={vehicleInputs?.code}
+                onChange={handleInputChange}
+                placeholder="Enter vehicle no."
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="aggregators">Aggregator</label>
+              <select
+                className="form-control"
+                id="aggregators"
+                name="aggregators"
+                value={vehicleInputs?.aggregator}
+                onChange={handleSelectChange}
+              >
+                <option value="">Select an aggregator</option>
+                {apiData.aggregators.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="form-group">
-              <label htmlFor="vehiclemodal">Vehicle Model</label>
-              <input
-                type="text"
+              <label htmlFor="categories">Category</label>
+              <select
                 className="form-control"
-                id="vehicleModel"
-                name="vehicleModel"
-                value={vehicleModel}
-                onChange={handleInputChange}
-                placeholder="Enter vehicle model"
-              />
+                id="categories"
+                name="categories"
+                value={vehicleInputs?.vehicleType}
+                onChange={handleSelectChange}
+              >
+                <option value="">Select a category</option>
+                {apiData.categories.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {`${item.name} ${item.fuel}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="ownedBy">Owned By</label>
+              <select
+                className="form-control"
+                id="ownedBy"
+                name="ownedBy"
+                value={vehicleInputs?.ownedby}
+                onChange={handleSelectChange}
+              >
+                <option value="">Select owner</option>
+                {apiData.ownedBy.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="models">Model</label>
+              <select
+                className="form-control"
+                id="models"
+                name="models"
+                value={vehicleInputs?.model}
+                onChange={handleSelectChange}
+              >
+                <option value="">Select a model</option>
+                {apiData.models.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.brand}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group">
-              <label htmlFor="vehiclefrom">Vehicle From</label>
-              <input
-                type="text"
+              <label htmlFor="emirates">Emirates</label>
+              <select
                 className="form-control"
-                id="vehicleFrom"
-                name="vehicleFrom"
-                value={vehicleFrom}
-                onChange={handleInputChange}
-                placeholder="Enter vehicle From"
+                id="emirates"
+                name="emirates"
+                value={vehicleInputs?.emirates}
+                onChange={handleSelectChange}
+              >
+                <option value="">Select emirates</option>
+                {Emirates.map((item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="expDate" className="form-label">
+                Expiry Date
+              </label>
+              <input
+                type="date"
+                className="form-control w-100"
+                id="expiryDate"
+                onChange={handleDateChange}
               />
             </div>
+
             <div className="d-flex gap-3">
               <Button
                 variant="contained"
@@ -1247,19 +1453,19 @@ const Dashboard = () => {
         </Box>
       </Modal>
       {/* Modal For Forms */}
-      <Modal open={modalForm}>
-        <Box sx={style}>{renderModalforma()}</Box>
+      <Modal open={modalForm} onClose={() => showModalform(false)}>
+        <Box sx={style}>
+          {/* Modal Content */}
+          <Box sx={scrollableStyle}>{renderModalforma()}</Box>
+        </Box>
       </Modal>
-
       {/* Modal For Transaction Allocation */}
       <Modal open={transactionModal} onClose={() => setTransactionModal(false)}>
         <Box sx={style}>{transactionAllocationForm()}</Box>
       </Modal>
       {/* Splash Loader */}
       {showSplash && <Splashscreen />}
-
       {showFileLoader && <FileLoader />}
-
       {
         <Toast
           open={toastConfig.show}

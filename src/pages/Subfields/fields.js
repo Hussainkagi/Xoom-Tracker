@@ -116,7 +116,7 @@ function Fields() {
           label: "Fuel",
           name: "fuel",
           type: "select",
-          options: ["Petrol", "ICE"], // Add dropdown options here
+          options: ["Electric", "ICE", "Hybrid"], // Add dropdown options here
         },
       ],
     },

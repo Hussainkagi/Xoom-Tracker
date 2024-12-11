@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   BarElement,
@@ -14,6 +14,7 @@ import { Bar, Pie, Line } from "react-chartjs-2";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Splashscreen from "../../components/Splashscreen/splashloader";
 import styles from "./overview.module.css";
+import apiHelper from "../../utils/apiHelper/apiHelper";
 
 ChartJS.register(
   ArcElement,
@@ -57,6 +58,10 @@ function Overview() {
   //   ],
   // };
 
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
   const pieChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -73,7 +78,7 @@ function Overview() {
           size: 12,
           weight: "bold",
         },
-        formatter: (value) => `${value} AED`, // Add "AED" to numbers
+        formatter: (value) => `${value} `, // Add "AED" to numbers
       },
     },
   };
@@ -285,10 +290,10 @@ function Overview() {
     };
     try {
       const [aggregator, ownedBy, model, vehicleType] = await Promise.all([
-        apiHelper.get("/aggregator", {}, headers),
-        apiHelper.get("/owner-count", {}, headers),
-        apiHelper.get("/model-count", {}, headers),
-        apiHelper.get("/vehicle-type-count", {}, headers),
+        apiHelper.get("/vehicle/aggregator-count", {}, headers),
+        apiHelper.get("/vehicle/owner-count", {}, headers),
+        apiHelper.get("/vehicle/model-count", {}, headers),
+        apiHelper.get("/vehicle/vehicle-type-count", {}, headers),
       ]);
 
       handleApiData("aggregators", aggregator?.data);
@@ -312,6 +317,7 @@ function Overview() {
     const labels = aggregatorData.map((item) => item.aggregatorName);
     const data = aggregatorData.map((item) => parseInt(item.vehicleCount, 10));
 
+    console.log("Labels", labels);
     setPieChartData({
       labels,
       datasets: [
@@ -364,7 +370,6 @@ function Overview() {
                             {/* Label and Value */}
                             <span>
                               {label}: {pieChartData.datasets[0].data[index]}{" "}
-                              AED
                             </span>
                           </li>
                         ))}
@@ -412,7 +417,6 @@ function Overview() {
                             {/* Label and Value */}
                             <span>
                               {label}: {pieChartData.datasets[0].data[index]}{" "}
-                              AED
                             </span>
                           </li>
                         ))}
@@ -435,24 +439,19 @@ function Overview() {
                     <tr>
                       <th>Model</th>
                       <th>Count</th>
-                      <th>Status</th>
+                      <th>Free</th>
+                      <th>occupied</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Bajaj pulsar</td>
-                      <td>20</td>
-                      <td>
-                        <span className="badge bg-warning">Occupied</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Honda EV</td>
-                      <td>20</td>
-                      <td>
-                        <span className="badge bg-success">Free</span>
-                      </td>
-                    </tr>
+                    {apiData?.models?.map((data, index) => (
+                      <tr key={index}>
+                        <td>{data?.modelBrand}</td>
+                        <td>{data?.vehicleCount}</td>
+                        <td>{data?.available}</td>
+                        <td>{data?.occupied}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
                 <h5>Total Vehicle : 35</h5>
@@ -472,17 +471,19 @@ function Overview() {
                     <tr>
                       <th>Owned by</th>
                       <th>Count</th>
+                      <th>Free</th>
+                      <th>Occupied</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Easy lease</td>
-                      <td>20</td>
-                    </tr>
-                    <tr>
-                      <td>Xoom delivery</td>
-                      <td>15</td>
-                    </tr>
+                    {apiData?.ownedBy?.map((data, index) => (
+                      <tr key={index}>
+                        <td>{data?.ownerName}</td>
+                        <td>{data?.vehicleCount}</td>
+                        <td>{data?.available}</td>
+                        <td>{data?.occupied}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
                 <h5>Total Vehicle : 35</h5>
@@ -502,17 +503,19 @@ function Overview() {
                     <tr>
                       <th>Type</th>
                       <th>Count</th>
+                      <th>Free</th>
+                      <th>Occupied</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Bike electric</td>
-                      <td>20</td>
-                    </tr>
-                    <tr>
-                      <td>Van Petrol</td>
-                      <td>15</td>
-                    </tr>
+                    {apiData?.ownedBy?.map((data, index) => (
+                      <tr key={index}>
+                        <td>{data?.vehicleTypeName}</td>
+                        <td>{data?.vehicleCount}</td>
+                        <td>{data?.available}</td>
+                        <td>{data?.occupied}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
                 <h5>Total Vehicle : 35</h5>
