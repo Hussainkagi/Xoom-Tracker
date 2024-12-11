@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Splashscreen from "../../components/Splashscreen/splashloader";
 import styles from "./overview.module.css";
 
 ChartJS.register(
@@ -27,16 +28,34 @@ ChartJS.register(
 
 function Overview() {
   const [category, setCategory] = useState("Month");
-  const pieChartData = {
-    labels: ["Amazon", "Noon", "Careem"],
+  const [splashloader, setSplashLoader] = useState(false);
+  const [apiData, setApiData] = useState({
+    aggregators: [],
+    vehicleType: [],
+    ownedBy: [],
+    models: [],
+  });
+
+  const [pieChartData, setPieChartData] = useState({
+    labels: [],
     datasets: [
       {
-        data: [2500, 1500, 1000], // Dummy data for available balance breakdown
-        backgroundColor: ["#007bff", "#ffc107", "#00eb79"], // Colors for the segments
-        hoverBackgroundColor: ["#0056b3", "#d39e00", "#1e7e34"], // Hover colors
+        data: [],
+        backgroundColor: ["#007bff", "#ffc107", "#00eb79"], // Add more colors if needed
+        hoverBackgroundColor: ["#0056b3", "#d39e00", "#1e7e34"], // Add more hover colors if needed
       },
     ],
-  };
+  });
+  // const pieChartData = {
+  //   labels: ["Amazon", "Noon", "Careem"],
+  //   datasets: [
+  //     {
+  //       data: [2500, 1500, 1000], // Dummy data for available balance breakdown
+  //       backgroundColor: ["#007bff", "#ffc107", "#00eb79"], // Colors for the segments
+  //       hoverBackgroundColor: ["#0056b3", "#d39e00", "#1e7e34"], // Hover colors
+  //     },
+  //   ],
+  // };
 
   const pieChartOptions = {
     responsive: true,
@@ -247,6 +266,62 @@ function Overview() {
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value);
+  };
+
+  const handleApiData = (key, value) => {
+    setApiData((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
+
+  // *************************Fetch Api's****************************
+  const fetchAllData = async () => {
+    setSplashLoader(true);
+    let authToken = localStorage.getItem("token");
+
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      const [aggregator, ownedBy, model, vehicleType] = await Promise.all([
+        apiHelper.get("/aggregator", {}, headers),
+        apiHelper.get("/owner-count", {}, headers),
+        apiHelper.get("/model-count", {}, headers),
+        apiHelper.get("/vehicle-type-count", {}, headers),
+      ]);
+
+      handleApiData("aggregators", aggregator?.data);
+      handleApiData("ownedBy", ownedBy?.data);
+      handleApiData("models", model?.data);
+      handleApiData("vehicleType", vehicleType?.data);
+
+      //Set Chart Data
+      setAggregatorPieChartData(aggregator?.data);
+
+      setTimeout(() => {
+        setSplashLoader(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setSplashLoader(false);
+    }
+  };
+
+  const setAggregatorPieChartData = (aggregatorData) => {
+    const labels = aggregatorData.map((item) => item.aggregatorName);
+    const data = aggregatorData.map((item) => parseInt(item.vehicleCount, 10));
+
+    setPieChartData({
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: ["#007bff", "#ffc107", "#00eb79"], // Adjust colors if needed
+          hoverBackgroundColor: ["#0056b3", "#d39e00", "#1e7e34"], // Adjust hover colors
+        },
+      ],
+    });
   };
 
   return (
@@ -501,6 +576,7 @@ function Overview() {
           </div>
         </div>
       </div>
+      {splashloader && <Splashscreen />}
     </div>
   );
 }
