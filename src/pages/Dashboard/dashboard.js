@@ -202,6 +202,7 @@ const Dashboard = () => {
     chasisNo: "",
     code: "",
     isEditing: false,
+    editId: "",
   });
   const Emirates = [
     "AbuDhabi",
@@ -295,6 +296,7 @@ const Dashboard = () => {
     const formattedExpiryDate = formatDate(data?.registrationExpiry);
     console.log("ddd", formattedExpiryDate);
     handleInputFields("expDate", formattedExpiryDate);
+    handleInputFields("editId", data?.id);
   };
 
   const clearFields = () => {
@@ -639,6 +641,26 @@ const Dashboard = () => {
       setBtnLoader(false);
       setShowSplash(false);
     }
+  };
+
+  const updateVehicle = async () => {
+    let body = {
+      modelId: vehicleInputs?.model,
+      vehicleTypeId: vehicleInputs?.vehicleType,
+      ownedById: vehicleInputs?.ownedby,
+      aggregatorId: vehicleInputs?.aggregator,
+      registrationExpiry: vehicleInputs?.expDate,
+      emirates: vehicleInputs?.emirates,
+      status: "available",
+      isDeleted: false,
+    };
+    try {
+      let response = await apiHelper.patch(
+        `/vehicle/${vehicleInputs?.editId}`,
+        body,
+        header
+      );
+    } catch (err) {}
   };
 
   //  ***********************************Transaction APIs *******************************
