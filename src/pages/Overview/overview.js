@@ -508,7 +508,7 @@ function Overview() {
                     </tr>
                   </thead>
                   <tbody>
-                    {apiData?.ownedBy?.map((data, index) => (
+                    {apiData?.vehicleType?.map((data, index) => (
                       <tr key={index}>
                         <td>{data?.vehicleTypeName}</td>
                         <td>{data?.vehicleCount}</td>

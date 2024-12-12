@@ -175,11 +175,6 @@ const Dashboard = () => {
   const [empCode, setEmpCode] = useState("");
   const [empName, setEmpName] = useState("");
 
-  // Vehicle form field states
-  const [vehicleNo, setvehicleNo] = useState("");
-  const [vehicleModel, setvehicleModel] = useState("");
-  const [vehicleFrom, setVehiclefrom] = useState("");
-
   // Locstion form states
   const [locationName, setLocationName] = useState("");
   const [locationFull, setLocationfull] = useState("");
@@ -206,6 +201,7 @@ const Dashboard = () => {
     vehicleNo: "",
     chasisNo: "",
     code: "",
+    isEditing: false,
   });
   const Emirates = [
     "AbuDhabi",
@@ -275,6 +271,43 @@ const Dashboard = () => {
       setFileData(file);
       // Process the file as needed
     }
+  };
+  const formatDate = (date) => {
+    if (date) {
+      const [day, month, year] = date.split("-");
+      return `${year}-${month}-${day}`;
+    }
+    return "";
+  };
+
+  const editVehicleModal = (data) => {
+    showModalform(true);
+    handleInputFields("isEditing", true);
+    handleInputFields("aggregator", data?.aggregator?.id);
+    handleInputFields("vehicleType", data?.vehicleType?.id);
+    handleInputFields("ownedby", data?.ownedBy?.id);
+    handleInputFields("model", data?.model?.id);
+    handleInputFields("emirates", data?.emirates);
+
+    handleInputFields("vehicleNo", data?.vehicleNo);
+    handleInputFields("chasisNo", data?.chasisNumber);
+    handleInputFields("code", data?.code);
+    const formattedExpiryDate = formatDate(data?.registrationExpiry);
+    console.log("ddd", formattedExpiryDate);
+    handleInputFields("expDate", formattedExpiryDate);
+  };
+
+  const clearFields = () => {
+    handleInputFields("isEditing", false);
+    handleInputFields("aggregator", "");
+    handleInputFields("vehicleType", "");
+    handleInputFields("ownedby", "");
+    handleInputFields("model", "");
+    handleInputFields("emirates", "");
+    handleInputFields("expDate", "");
+    handleInputFields("vehicleNo", "");
+    handleInputFields("chasisNo", "");
+    handleInputFields("code", "");
   };
 
   const handleCloseToast = () => {
@@ -682,6 +715,7 @@ const Dashboard = () => {
               <label htmlFor="vehicleNo">Vehicle No.</label>
               <input
                 type="text"
+                disabled={vehicleInputs?.isEditing}
                 className="form-control"
                 id="vehicleno"
                 name="vehicleno"
@@ -693,6 +727,7 @@ const Dashboard = () => {
             <div className="form-group">
               <label htmlFor="chasisNo">Chasis No.</label>
               <input
+                disabled={vehicleInputs?.isEditing}
                 type="text"
                 className="form-control"
                 id="chasisNo"
@@ -810,6 +845,7 @@ const Dashboard = () => {
                 type="date"
                 className="form-control w-100"
                 id="expiryDate"
+                value={vehicleInputs?.expDate}
                 onChange={handleDateChange}
               />
             </div>
@@ -821,6 +857,7 @@ const Dashboard = () => {
                 sx={{ backgroundColor: themeColor }}
                 onClick={() => {
                   showModalform(false);
+                  clearFields();
                 }}
               >
                 Cancel
@@ -1319,11 +1356,13 @@ const Dashboard = () => {
                       Chasis No.
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
-                      Chasis No.
+                      Expiry Date
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Availability Status
                     </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Edit</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Delete</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1363,6 +1402,28 @@ const Dashboard = () => {
                                   : "error"
                               }
                             />
+                          </TableCell>
+                          <TableCell>
+                            <td>
+                              <div className={styles.btn_box}>
+                                <i
+                                  className="bi bi-pencil-square"
+                                  style={{ color: "#fff" }}
+                                  onClick={() => editVehicleModal(row)}
+                                ></i>
+                              </div>
+                            </td>
+                          </TableCell>
+                          <TableCell>
+                            <td>
+                              <div className={styles.btn_box_del}>
+                                <i
+                                  className="bi bi-trash"
+                                  style={{ color: "#fff" }}
+                                  onClick={() => {}}
+                                ></i>
+                              </div>
+                            </td>
                           </TableCell>
                         </TableRow>
                       ))
@@ -1453,7 +1514,13 @@ const Dashboard = () => {
         </Box>
       </Modal>
       {/* Modal For Forms */}
-      <Modal open={modalForm} onClose={() => showModalform(false)}>
+      <Modal
+        open={modalForm}
+        onClose={() => {
+          showModalform(false);
+          clearFields();
+        }}
+      >
         <Box sx={style}>
           {/* Modal Content */}
           <Box sx={scrollableStyle}>{renderModalforma()}</Box>

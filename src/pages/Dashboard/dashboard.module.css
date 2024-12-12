@@ -27,6 +27,16 @@
   }
 
   .btn_box{
+    background-color: green;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+  }
+  .btn_box_del{
     background-color: #dc3545;
     display: flex;
     justify-content: center;
@@ -37,9 +47,7 @@
     cursor: pointer;
   }
 
-  .btn_box:hover{
-    background-color: #bb2d3b;
-  }
+ 
 
 
 
