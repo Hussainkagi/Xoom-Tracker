@@ -134,6 +134,10 @@ function Fields() {
 
   //Post APIS
   const createAggregator = async () => {
+    if (!formData?.aggregatorName) {
+      showToast("error", "Error", "All fields are required");
+      return;
+    }
     let body = {
       name: formData?.aggregatorName,
     };
@@ -159,6 +163,10 @@ function Fields() {
   };
 
   const createOwnedBy = async () => {
+    if (!formData?.ownedByName) {
+      showToast("error", "Error", "All fields are required");
+      return;
+    }
     let body = {
       name: formData?.ownedByName,
     };
@@ -176,6 +184,11 @@ function Fields() {
   };
 
   const createModel = async () => {
+    if (!formData?.modelName) {
+      showToast("error", "Error", "All fields are required");
+      return;
+    }
+
     let body = {
       brand: formData?.modelName,
     };
@@ -193,6 +206,10 @@ function Fields() {
   };
 
   const createVehicleType = async () => {
+    if (!formData?.categoryName && formData?.fuel) {
+      showToast("error", "Error", "All fields are required");
+      return;
+    }
     let body = {
       name: formData?.categoryName,
       fuel: formData?.fuel,

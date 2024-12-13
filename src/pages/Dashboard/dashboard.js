@@ -184,6 +184,7 @@ const Dashboard = () => {
   const [count, setCount] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [transactionBtn, setTransactionBtn] = useState(true);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   const [apiData, setApiData] = useState({
     aggregators: [],
@@ -258,6 +259,11 @@ const Dashboard = () => {
     }
   };
 
+  const handleDeleteClick = (id) => {
+    handleInputFields("editId", id);
+    setShowDeletePopup(true);
+  };
+
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
     fileInputRef.current.click();
@@ -310,6 +316,24 @@ const Dashboard = () => {
     handleInputFields("vehicleNo", "");
     handleInputFields("chasisNo", "");
     handleInputFields("code", "");
+  };
+
+  const checkVehicleFields = () => {
+    if (
+      !vehicleInputs.aggregator ||
+      !vehicleInputs.vehicleType ||
+      !vehicleInputs.ownedby ||
+      !vehicleInputs.model ||
+      !vehicleInputs.emirates ||
+      !vehicleInputs.vehicleNo ||
+      !vehicleInputs.chasisNo ||
+      !vehicleInputs.code ||
+      !vehicleInputs.expDate
+    ) {
+      showToast("error", "Error", "All fields are required");
+      return false;
+    }
+    return true;
   };
 
   const handleCloseToast = () => {
@@ -602,9 +626,15 @@ const Dashboard = () => {
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
+        if (!checkVehicleFields()) {
+          return;
+        }
         setBtnLoader(true);
         setShowSplash(true);
-        console.log("Vehicle Data Manually", vehicleInputs);
+        let authToken = localStorage.getItem("token");
+        let headers = {
+          Authorization: "Bearer " + authToken,
+        };
         let body = {
           vehicleNo: vehicleInputs?.vehicleNo,
           code: vehicleInputs?.code,
@@ -618,25 +648,31 @@ const Dashboard = () => {
           status: "available",
           isDeleted: false,
         };
-        const response = await apiHelper.post("/vehicle", body, {
-          headers: { "Content-Type": "application/json" },
-        });
 
-        if (response?.success) {
-          showModalform(false);
-          setManual(false);
-          setBtnLoader(false);
-          setShowSplash(false);
+        try {
+          const response = await apiHelper.post("/vehicle", body, {
+            headers,
+          });
+          if (response?.success) {
+            setTimeout(() => {
+              showModalform(false);
+              setManual(false);
+              setBtnLoader(false);
+              setShowSplash(false);
+              clearFields();
 
-          getVehicleData();
+              getVehicleData();
+            }, 800);
 
-          showToast("success", "Success", "Vehicle created successfully!");
-        } else {
-          showToast("error", "Error", response.message);
+            showToast("success", "Success", "Vehicle created successfully!");
+          } else {
+            showToast("error", "Error", response.message);
+          }
+        } catch (err) {
+          alert("something went wrong");
         }
       }
     } catch (error) {
-      console.error("Error uploading file:", error.message);
       alert("Failed to upload file.");
       setBtnLoader(false);
       setShowSplash(false);
@@ -644,6 +680,14 @@ const Dashboard = () => {
   };
 
   const updateVehicle = async () => {
+    if (!checkVehicleFields()) {
+      return;
+    }
+    setBtnLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
     let body = {
       modelId: vehicleInputs?.model,
       vehicleTypeId: vehicleInputs?.vehicleType,
@@ -658,8 +702,41 @@ const Dashboard = () => {
       let response = await apiHelper.patch(
         `/vehicle/${vehicleInputs?.editId}`,
         body,
-        header
+        headers
       );
+      if (response?.success) {
+        setTimeout(() => {
+          showModalform(false);
+          setBtnLoader(false);
+          clearFields();
+          handleInputFields("isEditing", false);
+          getVehicleData();
+        }, 800);
+
+        showToast("success", "Success", "Vehicle updated successfully!");
+      } else {
+        showToast("error", "Error", response.message);
+      }
+    } catch (err) {
+      alert("something went wrong");
+    }
+  };
+
+  const deleteVehicle = async (id) => {
+    setBtnLoader(true);
+    try {
+      let response = await apiHelper.del(`vehicle/${id}`);
+      if (response.success) {
+        setTimeout(() => {
+          getVehicleData();
+          setBtnLoader(false);
+          setShowDeletePopup(false);
+          showToast("success", "Success", "Vehicle deleted successfully!");
+          handleInputFields("editId", "");
+        }, 800);
+      } else {
+        showToast("error", "Error", response.message);
+      }
     } catch (err) {}
   };
 
@@ -890,11 +967,21 @@ const Dashboard = () => {
                 color="primary"
                 sx={{ backgroundColor: themeColor }}
                 onClick={() => {
-                  uploadVehicleData(fileData);
+                  vehicleInputs?.isEditing
+                    ? updateVehicle()
+                    : uploadVehicleData(fileData);
                 }}
                 disabled={btnLoader}
               >
-                {!btnLoader ? "Submit" : <ButtonLoader />}
+                {!btnLoader ? (
+                  vehicleInputs?.isEditing ? (
+                    "Update"
+                  ) : (
+                    "Submit"
+                  )
+                ) : (
+                  <ButtonLoader />
+                )}
               </Button>
             </div>
           </div>
@@ -1020,9 +1107,7 @@ const Dashboard = () => {
               variant="contained"
               color="primary"
               sx={{ backgroundColor: themeColor }}
-              onClick={() => {
-                uploadVehicleData(fileData);
-              }}
+              onClick={() => {}}
               disabled={transactionBtn}
             >
               {"Submit"}
@@ -1442,7 +1527,9 @@ const Dashboard = () => {
                                 <i
                                   className="bi bi-trash"
                                   style={{ color: "#fff" }}
-                                  onClick={() => {}}
+                                  onClick={() => {
+                                    handleDeleteClick(row?._id);
+                                  }}
                                 ></i>
                               </div>
                             </td>
@@ -1564,6 +1651,41 @@ const Dashboard = () => {
           onClose={handleCloseToast}
         />
       }
+      <Modal open={showDeletePopup} onClose={() => setShowDeletePopup(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 300,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+            textAlign: "center",
+          }}
+        >
+          <h5>Are you sure you want to delete this item?</h5>
+          <div className="d-flex justify-content-center gap-3 mt-3">
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowDeletePopup(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-danger"
+              onClick={() => {
+                deleteVehicle(vehicleInputs?.editId);
+              }}
+              disabled={btnLoader}
+            >
+              Delete
+            </button>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };
