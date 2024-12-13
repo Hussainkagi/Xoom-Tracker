@@ -21,6 +21,7 @@ import Splashscreen from "../../components/Splashscreen/splashloader";
 
 import FileLoader from "../../components/FileUploadLoader/loader";
 import Toast from "../../components/Toast/toast";
+import { EditLocation } from "@mui/icons-material";
 
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
@@ -185,7 +186,7 @@ const Dashboard = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [transactionBtn, setTransactionBtn] = useState(true);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
-
+  const [date, setDate] = useState("");
   const [apiData, setApiData] = useState({
     aggregators: [],
     categories: [],
@@ -251,6 +252,8 @@ const Dashboard = () => {
 
   const handleDateChange = (e) => {
     const inputDate = e.target.value;
+    setDate(inputDate);
+    console.log("date", e.target.value);
     if (inputDate) {
       const [year, month, day] = inputDate.split("-");
       handleInputFields("expDate", `${day}-${month}-${year}`);
@@ -287,6 +290,10 @@ const Dashboard = () => {
     return "";
   };
 
+  const editLocationModal = () => {
+    showModalform(true);
+  };
+
   const editVehicleModal = (data) => {
     showModalform(true);
     handleInputFields("isEditing", true);
@@ -300,7 +307,7 @@ const Dashboard = () => {
     handleInputFields("chasisNo", data?.chasisNumber);
     handleInputFields("code", data?.code);
     const formattedExpiryDate = formatDate(data?.registrationExpiry);
-    console.log("ddd", formattedExpiryDate);
+    setDate(formattedExpiryDate);
     handleInputFields("expDate", formattedExpiryDate);
     handleInputFields("editId", data?.id);
   };
@@ -406,7 +413,7 @@ const Dashboard = () => {
         const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
         // Process the data to count rows and calculate total amount
-        if (sheetData.length > 1) {
+        if (sheetData?.length > 1) {
           const rows = sheetData.slice(1); // Skip header
           const amountIndex = sheetData[0].indexOf("amount"); // Find "amount" column index
 
@@ -415,7 +422,7 @@ const Dashboard = () => {
               (sum, row) => sum + (parseFloat(row[amountIndex]) || 0),
               0
             );
-            setCount(rows.length);
+            setCount(rows?.length);
             setTotalAmount(total.toFixed(2));
             setTransactionBtn(false); // Enable the submit button
           } else {
@@ -563,39 +570,53 @@ const Dashboard = () => {
 
   //  ***********************************Location APIs *******************************
   const getLocationData = async () => {
-    let response = await apiHelper.get("/location");
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    let response = await apiHelper.get("/location", {}, headers);
     setLocationData(response.data);
   };
 
   const addLocationData = async () => {
     setBtnLoader(true);
-    setShowSplash(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
     try {
       let body = {
         name: locationName,
         fullAddress: locationFull,
       };
-      const response = await apiHelper.post("/location", body, {
-        headers: { "Content-Type": "application/json" },
-      });
-      showModalform(false);
-      setManual(false);
-      setLocationName("");
-      setLocationfull("");
-      getLocationData();
-      setBtnLoader(false);
-      setShowSplash(false);
+      const response = await apiHelper.post("/location", body, headers);
+      if (response?.success) {
+        setTimeout(() => {
+          showModalform(false);
+          setManual(false);
+          setLocationName("");
+          setLocationfull("");
+          getLocationData();
+          setBtnLoader(false);
+        }, 800);
+
+        showToast("success", "Success", "Vehicle created successfully!");
+      } else {
+        showToast("error", "Error", response.message);
+      }
     } catch (error) {
-      console.error("Error adding location:", error.message);
       alert("Failed to add location.");
       setBtnLoader(false);
-      setShowSplash(false);
     }
   };
 
   //  ***********************************Vehicle APIs *******************************
   const getVehicleData = async () => {
-    let response = await apiHelper.get("/vehicle");
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    let response = await apiHelper.get("/vehicle", {}, headers);
     setVehicleData(response.data);
   };
 
@@ -650,9 +671,7 @@ const Dashboard = () => {
         };
 
         try {
-          const response = await apiHelper.post("/vehicle", body, {
-            headers,
-          });
+          const response = await apiHelper.post("/vehicle", body, headers);
           if (response?.success) {
             setTimeout(() => {
               showModalform(false);
@@ -670,6 +689,8 @@ const Dashboard = () => {
           }
         } catch (err) {
           alert("something went wrong");
+          setBtnLoader(false);
+          setShowSplash(false);
         }
       }
     } catch (error) {
@@ -689,12 +710,15 @@ const Dashboard = () => {
       Authorization: "Bearer " + authToken,
     };
     let body = {
+      vehicleNo: vehicleInputs?.vehicleNo,
+      code: vehicleInputs?.code,
       modelId: vehicleInputs?.model,
       vehicleTypeId: vehicleInputs?.vehicleType,
       ownedById: vehicleInputs?.ownedby,
       aggregatorId: vehicleInputs?.aggregator,
       registrationExpiry: vehicleInputs?.expDate,
       emirates: vehicleInputs?.emirates,
+      chasisNumber: vehicleInputs?.chasisNo,
       status: "available",
       isDeleted: false,
     };
@@ -716,16 +740,22 @@ const Dashboard = () => {
         showToast("success", "Success", "Vehicle updated successfully!");
       } else {
         showToast("error", "Error", response.message);
+        setBtnLoader(false);
       }
     } catch (err) {
       alert("something went wrong");
+      setBtnLoader(false);
     }
   };
 
   const deleteVehicle = async (id) => {
     setBtnLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
     try {
-      let response = await apiHelper.del(`vehicle/${id}`);
+      let response = await apiHelper.del(`vehicle/${id}`, headers, {});
       if (response.success) {
         setTimeout(() => {
           getVehicleData();
@@ -736,8 +766,11 @@ const Dashboard = () => {
         }, 800);
       } else {
         showToast("error", "Error", response.message);
+        setBtnLoader(false);
       }
-    } catch (err) {}
+    } catch (err) {
+      setBtnLoader(false);
+    }
   };
 
   //  ***********************************Transaction APIs *******************************
@@ -858,7 +891,7 @@ const Dashboard = () => {
                 onChange={handleSelectChange}
               >
                 <option value="">Select an aggregator</option>
-                {apiData.aggregators.map((item) => (
+                {apiData?.aggregators?.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.name}
                   </option>
@@ -876,7 +909,7 @@ const Dashboard = () => {
                 onChange={handleSelectChange}
               >
                 <option value="">Select a category</option>
-                {apiData.categories.map((item) => (
+                {apiData?.categories?.map((item) => (
                   <option key={item.id} value={item.id}>
                     {`${item.name} ${item.fuel}`}
                   </option>
@@ -894,7 +927,7 @@ const Dashboard = () => {
                 onChange={handleSelectChange}
               >
                 <option value="">Select owner</option>
-                {apiData.ownedBy.map((item) => (
+                {apiData?.ownedBy?.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.name}
                   </option>
@@ -912,7 +945,7 @@ const Dashboard = () => {
                 onChange={handleSelectChange}
               >
                 <option value="">Select a model</option>
-                {apiData.models.map((item) => (
+                {apiData?.models?.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.brand}
                   </option>
@@ -929,7 +962,7 @@ const Dashboard = () => {
                 onChange={handleSelectChange}
               >
                 <option value="">Select emirates</option>
-                {Emirates.map((item, index) => (
+                {Emirates?.map((item, index) => (
                   <option key={index} value={item}>
                     {item}
                   </option>
@@ -944,7 +977,7 @@ const Dashboard = () => {
                 type="date"
                 className="form-control w-100"
                 id="expiryDate"
-                value={vehicleInputs?.expDate}
+                value={date}
                 onChange={handleDateChange}
               />
             </div>
@@ -1473,7 +1506,7 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {vehicleData.length > 0
+                  {vehicleData?.length > 0
                     ? vehicleData?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
@@ -1528,7 +1561,7 @@ const Dashboard = () => {
                                   className="bi bi-trash"
                                   style={{ color: "#fff" }}
                                   onClick={() => {
-                                    handleDeleteClick(row?._id);
+                                    handleDeleteClick(row?.id);
                                   }}
                                 ></i>
                               </div>
@@ -1553,6 +1586,8 @@ const Dashboard = () => {
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Full Address
                     </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Edit</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Delete</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1562,6 +1597,33 @@ const Dashboard = () => {
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">{row?.name}</TableCell>
                           <TableCell align="left">{row?.fullAddress}</TableCell>
+                          <TableCell>
+                            <td>
+                              <div className={styles.btn_box}>
+                                <i
+                                  className="bi bi-pencil-square"
+                                  style={{ color: "#fff" }}
+                                  onClick={() => {
+                                    editLocationModal(row);
+                                  }}
+                                ></i>
+                              </div>
+                            </td>
+                          </TableCell>
+                          <TableCell>
+                            <td>
+                              <div className={styles.btn_box_del}>
+                                <i
+                                  className="bi bi-trash"
+                                  style={{ color: "#fff" }}
+                                  onClick={() => {
+                                    {
+                                    }
+                                  }}
+                                ></i>
+                              </div>
+                            </td>
+                          </TableCell>
                         </TableRow>
                       ))
                     : "No Data Available"}
@@ -1578,7 +1640,7 @@ const Dashboard = () => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          {["back", "front", "left", "right"].map((position) => {
+          {["back", "front", "left", "right"]?.map((position) => {
             const imageObj = selectedImages?.find((img) => img.value[position]);
             console.log("obj", imageObj);
             const urlid =
@@ -1681,7 +1743,7 @@ const Dashboard = () => {
               }}
               disabled={btnLoader}
             >
-              Delete
+              {btnLoader ? <ButtonLoader /> : "Delete"}
             </button>
           </div>
         </Box>
