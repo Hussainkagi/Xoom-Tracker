@@ -175,10 +175,12 @@ const Dashboard = () => {
   // Employee Form Field States
   const [empCode, setEmpCode] = useState("");
   const [empName, setEmpName] = useState("");
+  const [empId, setEmpId] = useState("");
 
   // Locstion form states
   const [locationName, setLocationName] = useState("");
   const [locationFull, setLocationfull] = useState("");
+  const [locId, setLocId] = useState("");
 
   //Transaction Allocation Flow States
   const [TafileData, setTaFileData] = useState(null);
@@ -263,8 +265,18 @@ const Dashboard = () => {
   };
 
   const handleDeleteClick = (id) => {
-    handleInputFields("editId", id);
     setShowDeletePopup(true);
+
+    switch (value) {
+      case 1:
+        setEmpId(id);
+      case 2:
+        handleInputFields("editId", id);
+      case 3:
+        setLocId(id);
+      default:
+        return;
+    }
   };
 
   // Handle the button click to trigger the file input
@@ -290,8 +302,20 @@ const Dashboard = () => {
     return "";
   };
 
-  const editLocationModal = () => {
+  const editLocationModal = (data) => {
     showModalform(true);
+    setLocationName(data?.name);
+    setLocationfull(data?.fullAddress);
+    setLocId(data?.id);
+    handleInputFields("isEditing", true);
+  };
+
+  const editEmployeemodal = (data) => {
+    showModalform(true);
+    setEmpId(data?.id);
+    setEmpCode(data?.code);
+    setEmpName(data?.name);
+    handleInputFields("isEditing", true);
   };
 
   const editVehicleModal = (data) => {
@@ -507,8 +531,11 @@ const Dashboard = () => {
 
   //  ***********************************Employee APIs *******************************
   const getEmployeeData = async () => {
-    let response = await apiHelper.get("/employee");
-
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    let response = await apiHelper.get("/employee", {}, headers);
     setEmployeeData(response.data);
   };
 
@@ -540,8 +567,15 @@ const Dashboard = () => {
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
+        if (!empCode || !empName) {
+          showToast("error", "Error", "All fields are required");
+          return;
+        }
         setBtnLoader(true);
-        setShowSplash(true);
+        let authToken = localStorage.getItem("token");
+        let headers = {
+          Authorization: "Bearer " + authToken,
+        };
         let body = {
           code: empCode.toUpperCase(),
           name: empName,
@@ -549,22 +583,90 @@ const Dashboard = () => {
           isDeleted: false,
         };
 
-        const response = await apiHelper.post("/employee", body, {
-          headers: { "Content-Type": "application/json" },
-        });
-        showModalform(false);
-        setManual(false);
-        setBtnLoader(false);
-        setShowSplash(false);
-        setEmpCode("");
-        setEmpName("");
-        getEmployeeData();
+        const response = await apiHelper.post("/employee", body, headers);
+        if (response.success) {
+          setTimeout(() => {
+            showModalform(false);
+            setManual(false);
+            setBtnLoader(false);
+            showToast("success", "Success", "Driver created successfully!");
+            setEmpCode("");
+            setEmpName("");
+            getEmployeeData();
+          }, 800);
+        } else {
+          showToast("error", "Error", response.message);
+        }
       }
     } catch (error) {
       console.error("Error uploading file:", error.message);
       alert("Failed to upload file.");
       setBtnLoader(false);
       setShowSplash(false);
+    }
+  };
+
+  const updateEmployee = async () => {
+    if (!empCode || !empName) {
+      showToast("error", "Error", "All fields are required");
+      return;
+    }
+    handleInputFields("isEditing", true);
+    setBtnLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    let body = {
+      code: empCode.toUpperCase(),
+      name: empName,
+      status: "active",
+      isDeleted: false,
+    };
+
+    try {
+      let response = await apiHelper.patch(`/employee/${empId}`, body, headers);
+      if (response?.success) {
+        setTimeout(() => {
+          showModalform(false);
+          setBtnLoader(false);
+          clearFields();
+          handleInputFields("isEditing", false);
+          getVehicleData();
+        }, 800);
+
+        showToast("success", "Success", "Driver data updated successfully!");
+      } else {
+        showToast("error", "Error", response.message);
+        setBtnLoader(false);
+      }
+    } catch (err) {
+      alert("something went wrong");
+      setBtnLoader(false);
+    }
+  };
+
+  const deleteEmployee = async (id) => {
+    setBtnLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      let response = await apiHelper.del(`employee/${id}`, headers, {});
+      if (response.success) {
+        setTimeout(() => {
+          getEmployeeData();
+          setBtnLoader(false);
+          setShowDeletePopup(false);
+          showToast("success", "Success", "Driver data deleted successfully!");
+        }, 800);
+      } else {
+        showToast("error", "Error", response.message);
+        setBtnLoader(false);
+      }
+    } catch (err) {
+      setBtnLoader(false);
     }
   };
 
@@ -610,6 +712,72 @@ const Dashboard = () => {
     }
   };
 
+  const updateLocationData = async () => {
+    if (!locationName || !locationFull) {
+      showToast("error", "Error", "All fields are required");
+      return;
+    }
+    setBtnLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    let body = {
+      name: locationName,
+      fullAddress: locationFull,
+    };
+    try {
+      let response = await apiHelper.patch(`/location/${locId}`, body, headers);
+      if (response?.success) {
+        setTimeout(() => {
+          handleInputFields("isEditing", false);
+          showModalform(false);
+          setLocationName("");
+          setLocationfull("");
+          getLocationData();
+          setBtnLoader(false);
+        }, 800);
+
+        showToast("success", "Success", "Location updated successfully!");
+      } else {
+        showToast("error", "Error", response.message);
+        setBtnLoader(false);
+      }
+    } catch (err) {
+      alert("something went wrong");
+      setBtnLoader(false);
+    }
+  };
+
+  const deleteLocation = async (id) => {
+    setBtnLoader(true);
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      let response = await apiHelper.del(`location/${id}`, headers, {});
+      if (response.success) {
+        setTimeout(() => {
+          getEmployeeData();
+          setBtnLoader(false);
+          setShowDeletePopup(false);
+          showToast(
+            "success",
+            "Success",
+            "Location data deleted successfully!"
+          );
+        }, 800);
+      } else {
+        showToast("error", "Error", response.message);
+        setBtnLoader(false);
+      }
+    } catch (err) {
+      setBtnLoader(false);
+      alert("something went wrong!");
+    }
+  };
+
   //  ***********************************Vehicle APIs *******************************
   const getVehicleData = async () => {
     let authToken = localStorage.getItem("token");
@@ -651,7 +819,6 @@ const Dashboard = () => {
           return;
         }
         setBtnLoader(true);
-        setShowSplash(true);
         let authToken = localStorage.getItem("token");
         let headers = {
           Authorization: "Bearer " + authToken,
@@ -677,7 +844,6 @@ const Dashboard = () => {
               showModalform(false);
               setManual(false);
               setBtnLoader(false);
-              setShowSplash(false);
               clearFields();
 
               getVehicleData();
@@ -690,7 +856,6 @@ const Dashboard = () => {
         } catch (err) {
           alert("something went wrong");
           setBtnLoader(false);
-          setShowSplash(false);
         }
       }
     } catch (error) {
@@ -705,6 +870,7 @@ const Dashboard = () => {
       return;
     }
     setBtnLoader(true);
+    setShowSplash(false);
     let authToken = localStorage.getItem("token");
     let headers = {
       Authorization: "Bearer " + authToken,
@@ -775,13 +941,79 @@ const Dashboard = () => {
 
   //  ***********************************Transaction APIs *******************************
   const getTransactionData = async () => {
-    let response = await apiHelper.get("/transaction");
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    let response = await apiHelper.get("/transaction", {}, headers);
     setTransactionData(response.data);
     console.log("Data", response.data);
   };
 
   //******************************APIS ENDS******************************** */
 
+  const deleteFunction = () => {
+    switch (value) {
+      case 1:
+        return deleteEmployee(empId);
+      case 2:
+        return deleteVehicle(vehicleInputs?.editId);
+      case 3:
+        return deleteLocation(locId);
+      default:
+        return;
+    }
+  };
+
+  // ****************************Export Data to Excel Common Function*******************************
+  const exportDataToExcel = (value, tableData) => {
+    switch (value) {
+      case 1: // Employee Data
+        // Prepare the data for Excel
+        const employeeSheetData = tableData.map((item, index) => ({
+          "Sr. No.": index + 1,
+          "Employee Code": item.code,
+          "Driver Name": item.name,
+        }));
+
+        // Convert the data to a worksheet
+        const employeeSheet = XLSX.utils.json_to_sheet(employeeSheetData);
+
+        // Create a workbook and append the sheet
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, employeeSheet, "Employees");
+
+        // Export the Excel file
+        XLSX.writeFile(workbook, "Employee_Data.xlsx");
+        break;
+
+      case 2: // Vehicle Data
+        const vehicleSheetData = tableData.map((item, index) => ({
+          "Sr. No.": index + 1,
+          "Vehicle No": item.vehicleNo,
+          Code: item.code,
+          "Registration Expiry": item.registrationExpiry,
+          Emirates: item.emirates,
+          "Chassis Number": item.chasisNumber,
+          Status: item.status,
+          "Vehicle Type": item.vehicleType?.name || "N/A",
+          "Fuel Type": item.vehicleType?.fuel || "N/A",
+          Brand: item.model?.brand || "N/A",
+          "Owned By": item.ownedBy?.name || "N/A",
+          Aggregator: item.aggregator?.name || "N/A",
+        }));
+
+        const vehicleSheet = XLSX.utils.json_to_sheet(vehicleSheetData);
+        const vehicleWorkbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(vehicleWorkbook, vehicleSheet, "Vehicles");
+        XLSX.writeFile(vehicleWorkbook, "Vehicle_Data.xlsx");
+        break;
+
+      default:
+        console.error("Invalid value passed for export");
+        break;
+    }
+  };
   // ***************************Render modal forms***************************************
   const renderModalforma = () => {
     switch (value) {
@@ -830,7 +1062,9 @@ const Dashboard = () => {
                 color="primary"
                 sx={{ backgroundColor: themeColor }}
                 onClick={() => {
-                  uploadEmployeeData(fileData);
+                  vehicleInputs?.isEditing
+                    ? updateEmployee()
+                    : uploadEmployeeData(fileData);
                 }}
                 disabled={btnLoader}
               >
@@ -1066,7 +1300,9 @@ const Dashboard = () => {
                 sx={{ backgroundColor: themeColor }}
                 disabled={btnLoader}
                 onClick={() => {
-                  addLocationData();
+                  vehicleInputs?.isEditing
+                    ? updateLocationData()
+                    : addLocationData();
                 }}
               >
                 {!btnLoader ? "Submit" : <ButtonLoader />}
@@ -1257,7 +1493,7 @@ const Dashboard = () => {
                     borderRadius: "1.5rem",
                     fontWeight: "bold",
                   }}
-                  onClick={() => {}}
+                  onClick={exportDataToExcel}
                 >
                   Excel Export{" "}
                   <i
@@ -1460,6 +1696,8 @@ const Dashboard = () => {
                       Employee Code
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Edit</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Delete</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1469,6 +1707,30 @@ const Dashboard = () => {
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">{row?.code}</TableCell>
                           <TableCell align="left">{row?.name}</TableCell>
+                          <TableCell>
+                            <td>
+                              <div className={styles.btn_box}>
+                                <i
+                                  className="bi bi-pencil-square"
+                                  style={{ color: "#fff" }}
+                                  onClick={() => editEmployeemodal(row)}
+                                ></i>
+                              </div>
+                            </td>
+                          </TableCell>
+                          <TableCell>
+                            <td>
+                              <div className={styles.btn_box_del}>
+                                <i
+                                  className="bi bi-trash"
+                                  style={{ color: "#fff" }}
+                                  onClick={() => {
+                                    handleDeleteClick(row?.id);
+                                  }}
+                                ></i>
+                              </div>
+                            </td>
+                          </TableCell>
                         </TableRow>
                       ))
                     : "No Data Available"}
@@ -1618,6 +1880,7 @@ const Dashboard = () => {
                                   style={{ color: "#fff" }}
                                   onClick={() => {
                                     {
+                                      handleDeleteClick(row?.id);
                                     }
                                   }}
                                 ></i>
@@ -1739,7 +2002,7 @@ const Dashboard = () => {
             <button
               className="btn btn-danger"
               onClick={() => {
-                deleteVehicle(vehicleInputs?.editId);
+                deleteFunction();
               }}
               disabled={btnLoader}
             >

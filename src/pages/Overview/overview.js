@@ -42,8 +42,8 @@ function Overview() {
     datasets: [
       {
         data: [],
-        backgroundColor: ["#007bff", "#ffc107", "#00eb79"], // Add more colors if needed
-        hoverBackgroundColor: ["#0056b3", "#d39e00", "#1e7e34"], // Add more hover colors if needed
+        backgroundColor: [], // Add more colors if needed
+        hoverBackgroundColor: [], // Add more hover colors if needed
       },
     ],
   });
@@ -317,17 +317,29 @@ function Overview() {
     const labels = aggregatorData.map((item) => item.aggregatorName);
     const data = aggregatorData.map((item) => parseInt(item.vehicleCount, 10));
 
+    // Generate random colors based on the number of aggregators
+    const randomBackgroundColors = labels.map(() => generateRandomColor());
+    const randomHoverColors = randomBackgroundColors.map((color) =>
+      generateRandomColor()
+    );
+
     console.log("Labels", labels);
     setPieChartData({
       labels,
       datasets: [
         {
           data,
-          backgroundColor: ["#007bff", "#ffc107", "#00eb79"], // Adjust colors if needed
-          hoverBackgroundColor: ["#0056b3", "#d39e00", "#1e7e34"], // Adjust hover colors
+          backgroundColor: randomBackgroundColors,
+          hoverBackgroundColor: randomHoverColors,
         },
       ],
     });
+  };
+
+  const generateRandomColor = () => {
+    // Generate a random RGB color
+    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    return randomColor.padEnd(7, "0"); // Ensure the color code is always 7 characters long
   };
 
   return (
@@ -554,26 +566,31 @@ function Overview() {
           <div className="col-md-6">
             <div className="card bg-light shadow-sm">
               <div className="card-body">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="card-title">Transaction</h5>
-                  {/* Select dropdown for category */}
-                  <select
-                    className="form-select w-auto"
-                    value={category}
-                    onChange={handleCategoryChange}
-                  >
-                    <option value="Day">Categorise by Days</option>
-                    <option value="Month">Categorise by Months</option>
-                    <option value="Year">Categorise by Years</option>
-                  </select>
-                </div>
-                {/* Render Bar chart */}
-                <div>
-                  <Bar
-                    data={barChartData[category]}
-                    options={barChartOptions}
-                  />
-                </div>
+                <h5 className="card-title">Vehicle by Locations</h5>
+                <table className="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Count</th>
+                      <th>Free</th>
+                      <th>Occupied</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apiData?.vehicleType?.map((data, index) => (
+                      <tr key={index}>
+                        <td>{data?.vehicleTypeName}</td>
+                        <td>{data?.vehicleCount}</td>
+                        <td>{data?.available}</td>
+                        <td>{data?.occupied}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <h5>Total Vehicle : 35</h5>
+                <button className="btn btn-success btn-sm mt-3">
+                  View detailed table
+                </button>
               </div>
             </div>
           </div>
