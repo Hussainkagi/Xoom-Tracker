@@ -23,7 +23,10 @@
   .without__filters{
     display: flex;
     width:  100%;
-    justify-content: flex-end;
+    justify-content: flex-start;
+  }
+  .input-width-custom{
+    width: 400px;
   }
 
   .btn_box{
@@ -48,6 +51,17 @@
   }
 
  
+  .add__btn {
+    background-color: #9acb3b;
+    border: none;
+}
+
+.add__btn:hover{
+  background-color: #537622;
+}
+
+
+
 
 
 

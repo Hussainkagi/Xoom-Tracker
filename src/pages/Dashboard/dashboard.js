@@ -347,6 +347,10 @@ const Dashboard = () => {
     handleInputFields("vehicleNo", "");
     handleInputFields("chasisNo", "");
     handleInputFields("code", "");
+    setEmpCode("");
+    setEmpName("");
+    setLocationName("");
+    setLocationfull("");
   };
 
   const checkVehicleFields = () => {
@@ -632,7 +636,7 @@ const Dashboard = () => {
           setBtnLoader(false);
           clearFields();
           handleInputFields("isEditing", false);
-          getVehicleData();
+          getEmployeeData();
         }, 800);
 
         showToast("success", "Success", "Driver data updated successfully!");
@@ -759,7 +763,7 @@ const Dashboard = () => {
       let response = await apiHelper.del(`location/${id}`, headers, {});
       if (response.success) {
         setTimeout(() => {
-          getEmployeeData();
+          getLocationData();
           setBtnLoader(false);
           setShowDeletePopup(false);
           showToast(
@@ -966,15 +970,18 @@ const Dashboard = () => {
   };
 
   // ****************************Export Data to Excel Common Function*******************************
-  const exportDataToExcel = (value, tableData) => {
+  const exportDataToExcel = () => {
     switch (value) {
       case 1: // Employee Data
         // Prepare the data for Excel
-        const employeeSheetData = tableData.map((item, index) => ({
+        console.log("AA", employeeData);
+        const employeeSheetData = employeeData.map((item, index) => ({
           "Sr. No.": index + 1,
           "Employee Code": item.code,
           "Driver Name": item.name,
         }));
+
+        console.log("sheete", employeeSheetData);
 
         // Convert the data to a worksheet
         const employeeSheet = XLSX.utils.json_to_sheet(employeeSheetData);
@@ -988,10 +995,10 @@ const Dashboard = () => {
         break;
 
       case 2: // Vehicle Data
-        const vehicleSheetData = tableData.map((item, index) => ({
+        const vehicleSheetData = vehicleData.map((item, index) => ({
           "Sr. No.": index + 1,
-          "Vehicle No": item.vehicleNo,
           Code: item.code,
+          "Vehicle No": item.vehicleNo,
           "Registration Expiry": item.registrationExpiry,
           Emirates: item.emirates,
           "Chassis Number": item.chasisNumber,
@@ -1008,6 +1015,28 @@ const Dashboard = () => {
         XLSX.utils.book_append_sheet(vehicleWorkbook, vehicleSheet, "Vehicles");
         XLSX.writeFile(vehicleWorkbook, "Vehicle_Data.xlsx");
         break;
+
+      // case 3:
+      //   const location = locationData.map((item, index) => ({
+      //     "Sr. No.": index + 1,
+      //     "Vehicle No": item.vehicleNo,
+      //     Code: item.code,
+      //     "Registration Expiry": item.registrationExpiry,
+      //     Emirates: item.emirates,
+      //     "Chassis Number": item.chasisNumber,
+      //     Status: item.status,
+      //     "Vehicle Type": item.vehicleType?.name || "N/A",
+      //     "Fuel Type": item.vehicleType?.fuel || "N/A",
+      //     Brand: item.model?.brand || "N/A",
+      //     "Owned By": item.ownedBy?.name || "N/A",
+      //     Aggregator: item.aggregator?.name || "N/A",
+      //   }));
+
+      //   const vehicleSheet = XLSX.utils.json_to_sheet(vehicleSheetData);
+      //   const vehicleWorkbook = XLSX.utils.book_new();
+      //   XLSX.utils.book_append_sheet(vehicleWorkbook, vehicleSheet, "Vehicles");
+      //   XLSX.writeFile(vehicleWorkbook, "Vehicle_Data.xlsx");
+      //   break;
 
       default:
         console.error("Invalid value passed for export");
@@ -1052,6 +1081,7 @@ const Dashboard = () => {
                 sx={{ backgroundColor: themeColor }}
                 onClick={() => {
                   showModalform(false);
+                  clearFields();
                 }}
               >
                 Cancel
@@ -1394,59 +1424,28 @@ const Dashboard = () => {
           <div className="d-flex   justify-content-end align-items-end mb-2 gap-2">
             {value === 0 && (
               <button
-                type="button"
-                className="btn btn-primary mt-2 btn-sm d-flex justify-content-center align-items-center gap-2"
-                style={{
-                  backgroundColor: "#9acb3b",
-                  border: "none",
-                  borderRadius: "1.5rem",
-                  fontWeight: "bold",
-                }}
+                className={`btn btn-primary mb-3 ${styles.add__btn}`}
                 onClick={handleButtonClick}
               >
                 Bulk Import{" "}
-                <i
-                  className="bi bi-cloud-arrow-up"
-                  style={{
-                    fontSize: "1.5rem",
-                    fontWeight: "bold",
-                  }}
-                ></i>
                 <input
                   type="file"
                   ref={fileInputRef}
                   style={{ display: "none" }}
                   onChange={handleFileChange}
                 />
+                <i className="bi bi-cloud-arrow-up"></i>
               </button>
             )}
             {value !== 0 && (
               <div>
-                <Button
-                  variant="contained"
-                  color="success"
+                <button
+                  className={`btn btn-primary mb-3 ${styles.add__btn}`}
                   onClick={handleClick}
-                  sx={{
-                    backgroundColor: "#9acb3b",
-                    borderRadius: "1.5rem",
-                    fontSize: ".95rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.5rem",
-                    height: "40px",
-                    fontWeight: "bold",
-                  }}
                 >
-                  Add
-                  <i
-                    className="bi bi-plus-circle"
-                    style={{
-                      fontSize: "1.5rem",
-                      fontWeight: "bold",
-                    }}
-                  ></i>
-                </Button>
+                  <i className="bi bi-plus-circle me-2"></i> Add User
+                </button>
+
                 <Menu
                   id="simple-menu"
                   anchorEl={anchorEl}
@@ -1483,52 +1482,21 @@ const Dashboard = () => {
             <div className="d-flex  gap-2 justify-content-end align-items-end">
               {
                 <button
-                  type="button"
-                  data-mdb-button-init
-                  data-mdb-ripple-init
-                  className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-                  style={{
-                    backgroundColor: "#9acb3b",
-                    border: "none",
-                    borderRadius: "1.5rem",
-                    fontWeight: "bold",
-                  }}
+                  className={`btn btn-primary mb-3 ${styles.add__btn}`}
                   onClick={exportDataToExcel}
                 >
-                  Excel Export{" "}
-                  <i
-                    className="bi bi-download"
-                    style={{
-                      fontSize: "1.5rem",
-                      fontWeight: "bold",
-                    }}
-                  ></i>
+                  Excel Export <i className="bi bi-download"></i>
                 </button>
               }
               {value === 2 && (
                 <button
-                  type="button"
-                  data-mdb-button-init
-                  data-mdb-ripple-init
-                  className="btn btn-primary btn-sm d-flex justify-content-center align-items-center gap-2"
-                  style={{
-                    backgroundColor: "#9acb3b",
-                    border: "none",
-                    borderRadius: "1.5rem",
-                    fontWeight: "bold",
-                  }}
+                  className={`btn btn-primary mb-3 ${styles.add__btn}`}
                   onClick={() => {
                     setTransactionModal(true);
                   }}
                 >
                   Transaction Allocation{" "}
-                  <i
-                    className="bi bi-arrow-left-right"
-                    style={{
-                      fontSize: "1.5rem",
-                      fontWeight: "bold",
-                    }}
-                  ></i>
+                  <i className="bi bi-arrow-left-right"></i>
                 </button>
               )}
             </div>
@@ -1567,7 +1535,10 @@ const Dashboard = () => {
               value === 0 ? styles.filter__container : styles.without__filters
             }
           >
-            <div className="mb-3 w-100">
+            <div
+              className={`mb-3 ${value === 0 ? "w-100" : ""}`}
+              style={{ width: "300px" }}
+            >
               {/* Search Input Field */}
               <label htmlFor="endDate" className="form-label">
                 Search...
