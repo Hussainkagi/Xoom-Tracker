@@ -59,12 +59,16 @@ const Home = () => {
     fetchAllData();
   }, []);
   const fetchAllData = async () => {
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
     setShowSplash(true);
     try {
       const [vehicleRes, locationRes, employeeRes] = await Promise.all([
-        apiHelper.get("/vehicle"),
-        apiHelper.get("/location"),
-        apiHelper.get("/employee"),
+        apiHelper.get("/vehicle", {}, headers),
+        apiHelper.get("/location", {}, headers),
+        apiHelper.get("/employee", {}, headers),
       ]);
 
       setVehicleData(vehicleRes.data);

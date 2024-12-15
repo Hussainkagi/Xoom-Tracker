@@ -287,12 +287,14 @@ const Dashboard = () => {
 
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
+    setFileData(null);
     fileInputRef.current.click();
     setAnchorEl(false);
   };
 
   // Handle file selection
   const handleFileChange = (event) => {
+    console.log("dsjhdjs");
     const file = event.target.files[0];
     if (file) {
       setFileName(file.name);
@@ -361,7 +363,6 @@ const Dashboard = () => {
 
   const checkVehicleFields = () => {
     if (
-      !vehicleInputs.aggregator ||
       !vehicleInputs.vehicleType ||
       !vehicleInputs.ownedby ||
       !vehicleInputs.model ||
@@ -427,6 +428,11 @@ const Dashboard = () => {
 
   const submitFile = () => {
     switch (value) {
+      case 0:
+        //Transaction Upload
+        uploadTransactionData(fileData);
+        break;
+
       case 1:
         // Driver allocation
         uploadEmployeeData(fileData);
@@ -632,6 +638,7 @@ const Dashboard = () => {
               setBtnLoader(false);
               setFileData(null);
               setFileName("");
+              fileInputRef.current.value = "";
               showToast("success", "Success", "Driver upload successfully!");
               if (result?.errorArray?.length > 0) {
                 downloadErrorFile(result);
@@ -642,6 +649,7 @@ const Dashboard = () => {
 
             setFileData(null);
             setFileName("");
+            fileInputRef.current.value = "";
             showToast(
               "error",
               "Error",
@@ -652,6 +660,7 @@ const Dashboard = () => {
           setBtnLoader(false);
           setFileData(null);
           setFileName("");
+          fileInputRef.current.value = "";
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
@@ -907,6 +916,7 @@ const Dashboard = () => {
             setTimeout(() => {
               setFileData(null);
               setFileName("");
+              fileInputRef.current.value = "";
               getVehicleData();
               setBtnLoader(false);
               showToast("success", "Success", "Driver upload successfully!");
@@ -919,6 +929,7 @@ const Dashboard = () => {
 
             setFileData(null);
             setFileName("");
+            fileInputRef.current.value = "";
             showToast(
               "error",
               "Error",
@@ -981,6 +992,21 @@ const Dashboard = () => {
   };
 
   const updateVehicle = async () => {
+    let body1 = {
+      vehicleNo: vehicleInputs?.vehicleNo,
+      code: vehicleInputs?.code,
+      modelId: vehicleInputs?.model,
+      vehicleTypeId: vehicleInputs?.vehicleType,
+      ownedById: vehicleInputs?.ownedby,
+      aggregatorId: vehicleInputs?.aggregator,
+      registrationExpiry: vehicleInputs?.expDate,
+      emirates: vehicleInputs?.emirates,
+      chasisNumber: vehicleInputs?.chasisNo,
+      status: "available",
+      isDeleted: false,
+    };
+
+    console.log("update", body1);
     if (!checkVehicleFields()) {
       return;
     }
@@ -1063,6 +1089,87 @@ const Dashboard = () => {
     let response = await apiHelper.get("/transaction", {}, headers);
     setTransactionData(response.data);
     console.log("Data", response.data);
+  };
+
+  const uploadTransactionData = async (file) => {
+    try {
+      if (!file) {
+        alert("No file selected. Please upload a file.");
+        return;
+      }
+
+      if (file) {
+        const isExcelFile =
+          file.type === "application/vnd.ms-excel" ||
+          file.type ===
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        // console.log("is Excel file", isExcelFile);
+        // console.log("file", file);
+
+        if (isExcelFile) {
+          let authToken = localStorage.getItem("token");
+          let headers = {
+            Authorization: "Bearer " + authToken,
+          };
+          setBtnLoader(true);
+          // setShowSplash(true);
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const response = await fetch(
+            process.env.REACT_APP_BASE_URL + "/transaction/upload",
+            {
+              method: "POST",
+              headers,
+              body: formData,
+            }
+          );
+
+          const result = await response.json();
+
+          if (result?.success) {
+            setTimeout(() => {
+              getTransactionData();
+              setBtnLoader(false);
+              setFileData(null);
+              setFileName("");
+              fileInputRef.current.value = "";
+              showToast(
+                "success",
+                "Success",
+                "Transaction upload successfully!"
+              );
+              if (result?.errorArray?.length > 0) {
+                downloadErrorFile(result);
+              }
+            }, 1500);
+          } else {
+            setBtnLoader(false);
+
+            setFileData(null);
+            fileInputRef.current.value = "";
+            setFileName("");
+            showToast(
+              "error",
+              "Error",
+              result.message || "Something went wrong!"
+            );
+          }
+        } else {
+          setBtnLoader(false);
+          setFileData(null);
+          setFileName("");
+          fileInputRef.current.value = "";
+          alert("Oops! Uploaded file was not in required format.");
+        }
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error.message);
+      alert("Failed to upload file.");
+      setBtnLoader(false);
+      setShowSplash(false);
+    }
   };
 
   //******************************APIS ENDS******************************** */
@@ -1760,11 +1867,14 @@ const Dashboard = () => {
                     <TableCell>Employee Code</TableCell>
                     <TableCell>Name</TableCell>
                     <TableCell>Vehicle Number</TableCell>
+                    <TableCell>Vehicle Details</TableCell>
                     <TableCell align="center">Date</TableCell>
                     <TableCell align="center">Time</TableCell>
                     <TableCell align="center">Location</TableCell>
+                    <TableCell align="center">Comment</TableCell>
                     <TableCell align="center">Status</TableCell>
                     <TableCell align="center">Images</TableCell>
+                    <TableCell align="center">Edit</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1772,28 +1882,65 @@ const Dashboard = () => {
                     <TableRow key={row.id}>
                       <TableCell>{row?.employee?.code}</TableCell>
                       <TableCell>{row?.employee?.name}</TableCell>
-                      <TableCell>{row?.vehicle?.vehicleNo}</TableCell>
+                      <TableCell>
+                        <div className={styles.plate__code}>
+                          <span>
+                            <strong>{`${row?.vehicle?.code || ""}`}</strong>{" "}
+                          </span>
+                          <span className={styles.emirates}>
+                            {row?.vehicle?.emirates === "Dubai"
+                              ? "DXB"
+                              : row?.vehicle?.emirates === "Sharjah"
+                              ? "SHJ"
+                              : row?.vehicle?.emirates === "AbuDhabi"
+                              ? "AUH"
+                              : ""}
+                          </span>
+                          <span>
+                            {" "}
+                            <strong>{row?.vehicle?.vehicleNo}</strong>
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {row?.vehicle
+                          ? `${row.vehicle.model?.brand} (${row.vehicle.vehicleType?.name} ${row.vehicle.vehicleType?.fuel})`
+                          : ""}
+                      </TableCell>
                       <TableCell align="center">{row.date}</TableCell>
                       <TableCell align="center">{row.time}</TableCell>
                       <TableCell align="center">
                         {row?.location?.name}
                       </TableCell>
+                      <TableCell align="center">{row?.comments}</TableCell>
                       <TableCell align="center">
                         <Chip
-                          label={
-                            row.action === "entry" ? "Check in" : "Check out"
-                          }
-                          color={row.action === "entry" ? "success" : "error"}
+                          label={row.action === "in" ? "Check in" : "Check out"}
+                          color={row.action === "in" ? "success" : "error"}
                         />
                       </TableCell>
                       <TableCell align="center">
                         <i
                           className="bi bi-eye cursor-pointer"
+                          style={{
+                            cursor: "pointer",
+                          }}
                           onClick={() => {
                             handleImageClick(row.pictures);
                             console.log("Click", row.pictures);
                           }}
                         ></i>
+                      </TableCell>
+                      <TableCell>
+                        <td>
+                          <div className={styles.btn_box}>
+                            <i
+                              className="bi bi-pencil-square"
+                              style={{ color: "#fff" }}
+                              // onClick={() => editEmployeemodal(row)}
+                            ></i>
+                          </div>
+                        </td>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -1862,6 +2009,9 @@ const Dashboard = () => {
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Vehicle No.
                     </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Plate Code
+                    </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Model</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Owned By</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Emirates</TableCell>
@@ -1888,6 +2038,7 @@ const Dashboard = () => {
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">{row?.vehicleNo}</TableCell>
+                          <TableCell align="left">{row?.code}</TableCell>
                           <TableCell align="left">
                             {row?.model?.brand}
                           </TableCell>
@@ -2020,12 +2171,12 @@ const Dashboard = () => {
         <Box sx={style}>
           {["back", "front", "left", "right"]?.map((position) => {
             const imageObj = selectedImages?.find((img) => img.value[position]);
-            console.log("obj", imageObj);
+
             const urlid =
               imageObj && imageObj?.value[position]?.url
                 ? extractGoogleDriveFileId(imageObj?.value[position]?.url)
                 : null;
-            console.log("UR:", urlid);
+
             return (
               <img
                 src={

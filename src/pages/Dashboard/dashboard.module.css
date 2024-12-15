@@ -60,8 +60,20 @@
   background-color: #537622;
 }
 
+.plate__code{
+  padding: .25rem;
+  background-color: #fff;
+  border: .5px solid #000;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
 
-
+.emirates{
+  font-size: 8px;
+  writing-mode: vertical-rl;
+text-orientation:upright;
+}
 
 
 
