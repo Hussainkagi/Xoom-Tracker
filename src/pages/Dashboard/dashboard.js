@@ -182,6 +182,8 @@ const Dashboard = () => {
   const [locationFull, setLocationfull] = useState("");
   const [locId, setLocId] = useState("");
 
+  const [popupVisible, setPopupVisible] = useState(false);
+
   //Transaction Allocation Flow States
   const [TafileData, setTaFileData] = useState(null);
   const [count, setCount] = useState(0);
@@ -243,6 +245,10 @@ const Dashboard = () => {
       ...prevState,
       [key]: value,
     }));
+  };
+
+  const handleClosePopup = () => {
+    setPopupVisible(false);
   };
 
   const handleInputFields = (key, value) => {
@@ -419,6 +425,25 @@ const Dashboard = () => {
     }
   };
 
+  const submitFile = () => {
+    switch (value) {
+      case 1:
+        // Driver allocation
+        uploadEmployeeData(fileData);
+
+        break;
+      case 2:
+        uploadVehicleData(fileData);
+        // Vehicle allocation
+        break;
+      case 3:
+        // Transaction allocation
+        break;
+      default:
+        return;
+    }
+  };
+
   const handleFileUploadClick = () => {
     transactionFileInput.current.click();
   };
@@ -533,6 +558,27 @@ const Dashboard = () => {
     }
   };
 
+  const downloadErrorFile = (data) => {
+    const errorData = data.errorArray.map((error, index) => ({
+      "#": index + 1,
+      Error: error,
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(errorData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Errors");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "ErrorReport.xlsx";
+    link.click();
+    setPopupVisible(true);
+  };
+
   //  ***********************************Employee APIs *******************************
   const getEmployeeData = async () => {
     let authToken = localStorage.getItem("token");
@@ -545,29 +591,67 @@ const Dashboard = () => {
 
   const uploadEmployeeData = async (file) => {
     try {
-      const formData = new FormData();
-      // formData.append("file", file);+
+      if (!file) {
+        alert("No file selected. Please upload a file.");
+        return;
+      }
+
       if (file) {
         const isExcelFile =
           file.type === "application/vnd.ms-excel" ||
           file.type ===
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-        if (isExcelFile && !manual) {
-          setBtnLoader(true);
-          setShowSplash(true);
-          formData.append("file", file);
-          const response = await apiHelper.post("/employee/upload", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          getEmployeeData();
-          setBtnLoader(false);
-          setShowSplash(false);
+        // console.log("is Excel file", isExcelFile);
+        // console.log("file", file);
 
-          alert(response.message || "Upload successful");
+        if (isExcelFile && !manual) {
+          let authToken = localStorage.getItem("token");
+          let headers = {
+            Authorization: "Bearer " + authToken,
+          };
+          setBtnLoader(true);
+          // setShowSplash(true);
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const response = await fetch(
+            process.env.REACT_APP_BASE_URL + "/employee/upload",
+            {
+              method: "POST",
+              headers,
+              body: formData,
+            }
+          );
+
+          const result = await response.json();
+
+          if (result?.success) {
+            setTimeout(() => {
+              getEmployeeData();
+              setBtnLoader(false);
+              setFileData(null);
+              setFileName("");
+              showToast("success", "Success", "Driver upload successfully!");
+              if (result?.errorArray?.length > 0) {
+                downloadErrorFile(result);
+              }
+            }, 1500);
+          } else {
+            setBtnLoader(false);
+
+            setFileData(null);
+            setFileName("");
+            showToast(
+              "error",
+              "Error",
+              result.message || "Something went wrong!"
+            );
+          }
         } else {
-          setShowSplash(false);
           setBtnLoader(false);
+          setFileData(null);
+          setFileName("");
           alert("Oops! Uploaded file was not in required format.");
         }
       } else if (manual) {
@@ -637,9 +721,8 @@ const Dashboard = () => {
           clearFields();
           handleInputFields("isEditing", false);
           getEmployeeData();
+          showToast("success", "Success", "Driver data updated successfully!");
         }, 800);
-
-        showToast("success", "Success", "Driver data updated successfully!");
       } else {
         showToast("error", "Error", response.message);
         setBtnLoader(false);
@@ -797,6 +880,10 @@ const Dashboard = () => {
       const formData = new FormData();
       // formData.append("file", file);+
       if (file) {
+        let authToken = localStorage.getItem("token");
+        let headers = {
+          Authorization: "Bearer " + authToken,
+        };
         const isExcelFile =
           file.type === "application/vnd.ms-excel" ||
           file.type ===
@@ -804,17 +891,41 @@ const Dashboard = () => {
 
         if (isExcelFile && !manual) {
           setBtnLoader(true);
-          setShowSplash(true);
+          const formData = new FormData();
           formData.append("file", file);
-          const response = await apiHelper.post("/vehicle/upload", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          getVehicleData();
-          setBtnLoader(false);
-          setShowSplash(false);
-          alert(response.message || "Upload successful");
+          console.log("Form", formData);
+          const response = await fetch(
+            process.env.REACT_APP_BASE_URL + "/vehicle/upload",
+            {
+              method: "POST",
+              headers,
+              body: formData,
+            }
+          );
+          const result = await response.json();
+          if (result?.success) {
+            setTimeout(() => {
+              setFileData(null);
+              setFileName("");
+              getVehicleData();
+              setBtnLoader(false);
+              showToast("success", "Success", "Driver upload successfully!");
+              if (result?.errorArray?.length > 0) {
+                downloadErrorFile(result);
+              }
+            }, 1500);
+          } else {
+            setBtnLoader(false);
+
+            setFileData(null);
+            setFileName("");
+            showToast(
+              "error",
+              "Error",
+              result.message || "Something went wrong!"
+            );
+          }
         } else {
-          setShowSplash(false);
           setBtnLoader(false);
           alert("Oops! Uploaded file was not in required format.");
         }
@@ -1417,6 +1528,41 @@ const Dashboard = () => {
     );
   };
 
+  const Popup = ({ message, onClose }) => {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "#fff",
+          padding: "20px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+          zIndex: 1000,
+        }}
+      >
+        <h4>Notice</h4>
+        <p>{message}</p>
+        <button
+          onClick={onClose}
+          style={{
+            marginTop: "10px",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Close
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.main__container}>
       <div className={styles.parent__container}>
@@ -1443,7 +1589,7 @@ const Dashboard = () => {
                   className={`btn btn-primary mb-3 ${styles.add__btn}`}
                   onClick={handleClick}
                 >
-                  <i className="bi bi-plus-circle me-2"></i> Add User
+                  <i className="bi bi-plus-circle me-2"></i> Add
                 </button>
 
                 <Menu
@@ -1521,11 +1667,9 @@ const Dashboard = () => {
                 width: "150px",
                 height: "30px",
               }}
-              onClick={() => {
-                uploadEmployeeData(fileData);
-              }}
+              onClick={submitFile}
             >
-              Submit
+              {btnLoader ? <ButtonLoader /> : "Submit"}
             </button>
           </div>
         )}
@@ -1982,6 +2126,13 @@ const Dashboard = () => {
           </div>
         </Box>
       </Modal>
+
+      {popupVisible && (
+        <Popup
+          message="Few entries were not uploaded. Kindly check the downloaded file."
+          onClose={handleClosePopup}
+        />
+      )}
     </div>
   );
 };

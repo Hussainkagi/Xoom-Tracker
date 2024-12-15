@@ -51,10 +51,11 @@ const apiHelper = {
 
   post: async (endpoint, data, headers = {}) => {
     try {
+      const isFormData = data instanceof FormData;
       const response = await api.post(endpoint, data, {
         headers: {
           ...headers,
-          "Content-Type": "application/json",
+          ...(isFormData ? {} : { "Content-Type": "application/json" }),
         },
       });
       return response.data;
