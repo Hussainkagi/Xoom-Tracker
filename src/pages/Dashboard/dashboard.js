@@ -11,6 +11,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
+import Tooltip from "@mui/material/Tooltip";
 import { Modal, Button, Menu, MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import apiHelper from "../../utils/apiHelper/apiHelper";
@@ -22,6 +23,7 @@ import Splashscreen from "../../components/Splashscreen/splashloader";
 import FileLoader from "../../components/FileUploadLoader/loader";
 import Toast from "../../components/Toast/toast";
 import { EditLocation } from "@mui/icons-material";
+import alrtSign from "../../assets/Images/alert.png";
 
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
@@ -1643,6 +1645,10 @@ const Dashboard = () => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
           background: "#fff",
           padding: "20px",
           borderRadius: "8px",
@@ -1650,16 +1656,14 @@ const Dashboard = () => {
           zIndex: 1000,
         }}
       >
-        <h4>Notice</h4>
-        <p>{message}</p>
+        <img src={alrtSign} alt="alert-popup" className={styles.alert__img} />
+        <h4>Warning</h4>
+        <strong>{message}</strong>
         <button
+          className="btn btn-danger"
           onClick={onClose}
           style={{
             marginTop: "10px",
-            backgroundColor: "#007bff",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
             borderRadius: "4px",
             cursor: "pointer",
           }}
@@ -1871,10 +1875,10 @@ const Dashboard = () => {
                     <TableCell align="center">Date</TableCell>
                     <TableCell align="center">Time</TableCell>
                     <TableCell align="center">Location</TableCell>
-                    <TableCell align="center">Comment</TableCell>
                     <TableCell align="center">Status</TableCell>
                     <TableCell align="center">Images</TableCell>
                     <TableCell align="center">Edit</TableCell>
+                    <TableCell align="center">Comment</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1912,7 +1916,6 @@ const Dashboard = () => {
                       <TableCell align="center">
                         {row?.location?.name}
                       </TableCell>
-                      <TableCell align="center">{row?.comments}</TableCell>
                       <TableCell align="center">
                         <Chip
                           label={row.action === "in" ? "Check in" : "Check out"}
@@ -1941,6 +1944,11 @@ const Dashboard = () => {
                             ></i>
                           </div>
                         </td>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title={row?.comments || "No comments"}>
+                          <i className="bi bi-chat"></i>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}
