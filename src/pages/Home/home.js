@@ -7,6 +7,27 @@ import { styled } from "@mui/material/styles";
 import { Autocomplete, stepButtonClasses, TextField } from "@mui/material";
 import Toast from "../../components/Toast/toast";
 
+const CustomAutocomplete = styled(Autocomplete)({
+  "& .MuiAutocomplete-endAdornment": {
+    display: "none",
+  },
+  "& .MuiInputBase-root": {
+    height: "40px",
+    padding: "0 8px",
+  },
+  "& .MuiInputLabel-root": {
+    color: "#000",
+    top: "50%",
+    transform: "translate(0, -50%)",
+    left: "8px",
+  },
+  "& .MuiInputLabel-shrink": {
+    top: 0,
+    transform: "translate(0, -50%) scale(.75)",
+    left: "14px",
+  },
+});
+
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [formTitle, setFormTitle] = useState("");
@@ -46,6 +67,7 @@ const Home = () => {
   const [employeeData, setEmployeeData] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [vehicleData, setVehicleData] = useState([]);
+  const [aggregatorData, setAggregatorData] = useState([]);
   const [toastConfig, setToastConfig] = useState({
     show: false,
     title: "",
@@ -53,6 +75,17 @@ const Home = () => {
     type: "success",
   });
 
+  const [formInputs, setFormInputs] = useState({
+    empCode: "",
+    empName: "",
+    vehicleNo: "",
+    aggregator: "",
+    location: "",
+    date: "",
+    time: "",
+    action: "",
+    comments: "",
+  });
   // **************************Get APIS**********************************
 
   useEffect(() => {
@@ -65,21 +98,31 @@ const Home = () => {
     };
     setShowSplash(true);
     try {
-      const [vehicleRes, locationRes, employeeRes] = await Promise.all([
-        apiHelper.get("/vehicle", {}, headers),
-        apiHelper.get("/location", {}, headers),
-        apiHelper.get("/employee", {}, headers),
-      ]);
+      const [vehicleRes, locationRes, employeeRes, aggregatorRes] =
+        await Promise.all([
+          apiHelper.get("/vehicle", {}, headers),
+          apiHelper.get("/location", {}, headers),
+          apiHelper.get("/employee", {}, headers),
+          apiHelper.get("/aggregator", {}, headers),
+        ]);
 
-      setVehicleData(vehicleRes.data);
-      setLocationData(locationRes.data);
-      setEmployeeData(employeeRes.data);
-      console.log("EMP", employeeRes.data);
+      setVehicleData(vehicleRes?.data);
+      setLocationData(locationRes?.data);
+      setEmployeeData(employeeRes?.data);
+      setAggregatorData(aggregatorRes?.data);
+      setShowSplash(false);
     } catch (error) {
       console.error("Error fetching data:", error);
-    } finally {
-      setShowSplash(false); // Hide splash loader once all data is fetched
+      setShowSplash(false);
     }
+  };
+
+  //Handle form fields
+  const handleFormInputs = (key, value) => {
+    setFormInputs((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
   };
 
   // Handling picture uploads and showing preview
@@ -102,23 +145,24 @@ const Home = () => {
 
   const handleSelectInputChange = (input, type) => {
     if (type === 1) {
-      setEmployeeCode(input);
+      handleFormInputs("empCode", input);
 
       const selectedEmployee = employeeData.find((emp) => emp.id === input);
 
       if (selectedEmployee) {
-        setName(selectedEmployee.name);
+        handleFormInputs("empName", selectedEmployee.name);
       }
     } else if (type === 2) {
-      setLocation(input);
+      handleFormInputs("location", input);
     } else if (type === 3) {
-      setVehicleNo(input);
+      handleFormInputs("vehicleNo", input);
     }
   };
 
   const handleTimeChange = (e) => {
     const selectedTime = e.target.value;
     setTime(selectedTime);
+
     formatTimeWithSuffix(selectedTime);
   };
 
@@ -145,10 +189,20 @@ const Home = () => {
     const suffix = hourNum >= 12 ? "PM" : "AM";
     const displayHour = hourNum % 12 === 0 ? 12 : hourNum % 12;
 
-    setDisplayTime(`${displayHour}:${minute} ${suffix}`);
+    handleFormInputs("time", `${displayHour}:${minute} ${suffix}`);
   };
 
   const resetForm = () => {
+    handleFormInputs("empCode", "");
+    handleFormInputs("empName", "");
+    handleFormInputs("vehicleNo", "");
+    handleFormInputs("aggregator", "");
+    handleFormInputs("location", "");
+    handleFormInputs("date", "");
+    handleFormInputs("time", "");
+    handleFormInputs("action", "");
+    handleFormInputs("comments", "");
+
     setVehicleNo("");
     setEmployeeCode("");
     setName("");
@@ -169,41 +223,40 @@ const Home = () => {
     });
     setComments("");
   };
-
-  const CustomAutocomplete = styled(Autocomplete)({
-    "& .MuiAutocomplete-endAdornment": {
-      display: "none",
-    },
-    "& .MuiInputBase-root": {
-      height: "40px",
-      padding: "0 8px",
-    },
-    "& .MuiInputLabel-root": {
-      color: "#000",
-      top: "50%",
-      transform: "translate(0, -50%)",
-      left: "8px",
-    },
-    "& .MuiInputLabel-shrink": {
-      top: 0,
-      transform: "translate(0, -50%) scale(.75)",
-      left: "14px",
-    },
-  });
+  const checkVehicleFields = () => {
+    if (
+      !formInputs.aggregator ||
+      !formInputs.vehicleNo ||
+      !formInputs.location ||
+      !formInputs.empName ||
+      !formInputs.empCode ||
+      !formInputs.time ||
+      !formInputs.date
+    ) {
+      showToast("error", "Error", "All fields are required");
+      return false;
+    }
+    return true;
+  };
 
   // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!checkVehicleFields()) {
+      return;
+    }
     setBtnLoader(true);
     // Create a new FormData instance
     const formData = new FormData();
-    formData.append("vehicle", vehicleNo);
-    formData.append("employee", employeeCode);
-    formData.append("date", date);
-    formData.append("time", displayTime);
-    formData.append("location", location);
-    formData.append("comments", comments);
-    formData.append("action", !checkout ? "entry" : "exit");
+    formData.append("vehicle", formInputs?.vehicleNo);
+    formData.append("employee", formInputs?.empCode);
+    formData.append("date", formInputs?.date);
+    formData.append("time", formInputs?.time);
+    formData.append("location", formInputs?.location);
+    formData.append("comments", formInputs?.comments);
+    formData.append("aggregator", formInputs?.aggregator);
+    formData.append("action", !checkout ? "in" : "out");
 
     // if (vehiclePictures.back)
     //   formData.append("vehiclePictures[back]", vehiclePictures.back);
@@ -258,7 +311,9 @@ const Home = () => {
             id="vehicleno"
             options={vehicleData}
             value={
-              vehicleData.find((vehicle) => vehicle.id === vehicleNo) || null
+              vehicleData.find(
+                (vehicle) => vehicle.id === formInputs?.vehicleNo
+              ) || null
             }
             onChange={(event, newValue) =>
               handleSelectInputChange(newValue ? newValue.id : "", 3)
@@ -285,7 +340,9 @@ const Home = () => {
           <CustomAutocomplete
             id="employeeCode"
             options={employeeData}
-            value={employeeData.find((emp) => emp.id === employeeCode) || null}
+            value={
+              employeeData.find((emp) => emp.id === formInputs?.empCode) || null
+            }
             onChange={(event, newValue) =>
               handleSelectInputChange(newValue ? newValue.id : "", 1)
             }
@@ -311,7 +368,7 @@ const Home = () => {
           type="text"
           className="form-control"
           id="name"
-          value={name}
+          value={formInputs?.empName}
           readOnly
         />
       </div>
@@ -324,8 +381,8 @@ const Home = () => {
           type="date"
           className="form-control"
           id="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          value={formInputs?.date}
+          onChange={(e) => handleFormInputs("date", e.target.value)}
         />
       </div>
 
@@ -338,7 +395,7 @@ const Home = () => {
             type="time"
             className="form-control"
             id="time"
-            value={time}
+            value={formInputs?.time}
             onChange={handleTimeChange}
           />
         </div>
@@ -352,7 +409,10 @@ const Home = () => {
           <CustomAutocomplete
             id="location"
             options={locationData}
-            value={locationData.find((loc) => loc.id === location) || null}
+            value={
+              locationData.find((loc) => loc.id === formInputs?.location) ||
+              null
+            }
             onChange={(event, newValue) =>
               handleSelectInputChange(newValue ? newValue.id : "", 2)
             }
@@ -455,8 +515,8 @@ const Home = () => {
           className="form-control"
           id="comments"
           rows="3"
-          value={comments}
-          onChange={(e) => setComments(e.target.value)}
+          value={formInputs?.comments}
+          onChange={(e) => handleFormInputs("comments", e.target.value)}
         ></textarea>
       </div>
     </form>
