@@ -156,6 +156,8 @@ const Home = () => {
       handleFormInputs("location", input);
     } else if (type === 3) {
       handleFormInputs("vehicleNo", input);
+    } else if (type === 4) {
+      handleFormInputs("aggregator", input);
     }
   };
 
@@ -246,6 +248,11 @@ const Home = () => {
     if (!checkVehicleFields()) {
       return;
     }
+
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
     setBtnLoader(true);
     // Create a new FormData instance
     const formData = new FormData();
@@ -258,6 +265,8 @@ const Home = () => {
     formData.append("aggregator", formInputs?.aggregator);
     formData.append("action", !checkout ? "in" : "out");
 
+    console.log("form", formInputs);
+
     // if (vehiclePictures.back)
     //   formData.append("vehiclePictures[back]", vehiclePictures.back);
     // if (vehiclePictures.front)
@@ -268,9 +277,7 @@ const Home = () => {
     //   formData.append("vehiclePictures[right]", vehiclePictures.right);
 
     try {
-      const response = await apiHelper.post("/transaction", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await apiHelper.post("/transaction", formData, headers);
       if (response.success === true) {
         showToast(
           "success",
@@ -296,7 +303,7 @@ const Home = () => {
       console.error("Error submitting form:", err);
     }
     setBtnLoader(false);
-    console.log("Form Data:", formData);
+    // console.log("Form Data:", formData);
   };
 
   const formContent = (
@@ -395,10 +402,39 @@ const Home = () => {
             type="time"
             className="form-control"
             id="time"
-            value={formInputs?.time}
+            value={time}
             onChange={handleTimeChange}
           />
         </div>
+      </div>
+      {/* Aggregator Input*/}
+      <div className="mb-3">
+        <label htmlFor="employeeCode" className="form-label">
+          Aggregator
+        </label>
+        {aggregatorData && (
+          <CustomAutocomplete
+            id="aggregator"
+            options={aggregatorData}
+            value={
+              aggregatorData.find((agg) => agg.id === formInputs?.aggregator) ||
+              null
+            }
+            onChange={(event, newValue) =>
+              handleSelectInputChange(newValue ? newValue.name : "", 4)
+            }
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.code === value.code}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select an aggregator"
+                variant="outlined"
+                placeholder="Search aggregator"
+              />
+            )}
+          />
+        )}
       </div>
       {/* Location Dropdown */}
       <div className="mb-3">
