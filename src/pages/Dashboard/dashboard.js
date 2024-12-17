@@ -204,6 +204,7 @@ const Dashboard = () => {
     startDate: "",
     endDate: "",
     status: "",
+    filterData: [],
   });
   const [vehicleInputs, setVehicleInputs] = useState({
     aggregator: "",
@@ -305,26 +306,34 @@ const Dashboard = () => {
     switch (value) {
       case 0:
         // Case 0: Apply all filters (search, dates, and status)
+
         const filteredData = transactionData.filter((row) => {
+          console.log("Kamal", row);
           const matchesSearch =
             !filters.search ||
-            row.employee.name
+            row.employee?.code
               .toLowerCase()
-              .includes(filters.search.toLowerCase()) ||
-            row.vehicle.vehicleNo.includes(filters.search);
-          const matchesDate =
-            (!filters.startDate ||
-              new Date(row.date) >= new Date(filters.startDate)) &&
-            (!filters.endDate ||
-              new Date(row.date) <= new Date(filters.endDate));
-          const matchesStatus =
-            !filters.status ||
-            (filters.status === "available" && row.action === "in") ||
-            (filters.status === "notAvailable" && row.action === "out");
+              .includes(filters.search.toLowerCase());
+          //   ||
+          // row.vehicle.vehicleNo.includes(filters.search);
 
-          return matchesSearch && matchesDate && matchesStatus;
+          console.log("Kamal", filters.search);
+          console.log("Kamalss", matchesSearch);
+
+          // const matchesDate =
+          //   (!filters.startDate ||
+          //     new Date(row.date) >= new Date(filters.startDate)) &&
+          //   (!filters.endDate ||
+          //     new Date(row.date) <= new Date(filters.endDate));
+          // const matchesStatus =
+          //   !filters.status ||
+          //   (filters.status === "available" && row.action === "in") ||
+          //   (filters.status === "notAvailable" && row.action === "out");
+
+          return matchesSearch;
+          // && matchesDate && matchesStatus;
         });
-        setTransactionData(filteredData);
+        handleFilterChange("filterData", filteredData);
         break;
     }
   };
@@ -596,6 +605,7 @@ const Dashboard = () => {
       ]);
 
       setTransactionData(transactionRes.data);
+      handleFilterChange("filterData", transactionRes.data);
       setVehicleData(vehicleRes.data);
       setLocationData(locationRes.data);
       setEmployeeData(employeeRes.data);
@@ -1135,6 +1145,7 @@ const Dashboard = () => {
     };
     let response = await apiHelper.get("/transaction", {}, headers);
     setTransactionData(response.data);
+    handleFilterChange("filterData", response.data);
     console.log("Data", response.data);
   };
 
@@ -1900,13 +1911,13 @@ const Dashboard = () => {
                 </div>
               </>
             )}
-            {/* Apply Filter Button */}
-            {showApplyButton && (
-              <button className="btn btn-success" onClick={applyFilters}>
-                Apply Filters
-              </button>
-            )}
           </div>
+          {/* Apply Filter Button */}
+          {showApplyButton && (
+            <button className="btn btn-success" onClick={applyFilters}>
+              Apply Filters
+            </button>
+          )}
         </div>
         <div className={styles.tabs}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -1946,7 +1957,7 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {transactionData?.map((row) => (
+                  {filters?.filterData?.map((row) => (
                     <TableRow key={row.id}>
                       <TableCell>{row?.employee?.code}</TableCell>
                       <TableCell>{row?.employee?.name}</TableCell>
