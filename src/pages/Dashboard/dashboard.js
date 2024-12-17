@@ -199,6 +199,12 @@ const Dashboard = () => {
     ownedBy: [],
     models: [],
   });
+  const [filters, setFilters] = useState({
+    search: "",
+    startDate: "",
+    endDate: "",
+    status: "",
+  });
   const [vehicleInputs, setVehicleInputs] = useState({
     aggregator: "",
     vehicleType: "",
@@ -260,6 +266,14 @@ const Dashboard = () => {
     }));
   };
 
+  // Function to update filter values
+  const handleFilterChange = (key, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [key]: value,
+    }));
+  };
+
   const handleDateChange = (e) => {
     const inputDate = e.target.value;
     setDate(inputDate);
@@ -286,6 +300,37 @@ const Dashboard = () => {
         return;
     }
   };
+
+  const applyFilters = () => {
+    switch (value) {
+      case 0:
+        // Case 0: Apply all filters (search, dates, and status)
+        const filteredData = transactionData.filter((row) => {
+          const matchesSearch =
+            !filters.search ||
+            row.employee.name
+              .toLowerCase()
+              .includes(filters.search.toLowerCase()) ||
+            row.vehicle.vehicleNo.includes(filters.search);
+          const matchesDate =
+            (!filters.startDate ||
+              new Date(row.date) >= new Date(filters.startDate)) &&
+            (!filters.endDate ||
+              new Date(row.date) <= new Date(filters.endDate));
+          const matchesStatus =
+            !filters.status ||
+            (filters.status === "available" && row.action === "in") ||
+            (filters.status === "notAvailable" && row.action === "out");
+
+          return matchesSearch && matchesDate && matchesStatus;
+        });
+        setTransactionData(filteredData);
+        break;
+    }
+  };
+
+  const showApplyButton =
+    filters.search || filters.startDate || filters.endDate || filters.status;
 
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
@@ -1803,6 +1848,7 @@ const Dashboard = () => {
                 className="form-control"
                 id="startDate"
                 placeholder="Search..."
+                onChange={(e) => handleFilterChange("search", e.target.value)}
               />
             </div>
 
@@ -1817,6 +1863,9 @@ const Dashboard = () => {
                     type="date"
                     className="form-control w-100"
                     id="startDate"
+                    onChange={(e) =>
+                      handleFilterChange("startDate", e.target.value)
+                    }
                   />
                 </div>
                 {/* End Date Picker */}
@@ -1828,6 +1877,9 @@ const Dashboard = () => {
                     type="date"
                     className="form-control w-100"
                     id="endDate"
+                    onChange={(e) =>
+                      handleFilterChange("endDate", e.target.value)
+                    }
                   />
                 </div>
                 {/* Select Input for Checin and checkout */}
@@ -1835,12 +1887,24 @@ const Dashboard = () => {
                   <label htmlFor="availability" className="form-label">
                     Status Filter
                   </label>
-                  <select className="form-select w-100" id="availability">
+                  <select
+                    className="form-select w-100"
+                    id="availability"
+                    onChange={(e) =>
+                      handleFilterChange("status", e.target.value)
+                    }
+                  >
                     <option value="available">Check in</option>
                     <option value="notAvailable">Check out</option>
                   </select>
                 </div>
               </>
+            )}
+            {/* Apply Filter Button */}
+            {showApplyButton && (
+              <button className="btn btn-success" onClick={applyFilters}>
+                Apply Filters
+              </button>
             )}
           </div>
         </div>

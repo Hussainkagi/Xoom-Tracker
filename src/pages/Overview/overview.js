@@ -317,31 +317,43 @@ function Overview() {
     const labels = aggregatorData.map((item) => item.aggregatorName);
     const data = aggregatorData.map((item) => parseInt(item.vehicleCount, 10));
 
-    // Generate random colors based on the number of aggregators
-    const randomBackgroundColors = labels.map(() => generateRandomColor());
-    const randomHoverColors = randomBackgroundColors.map((color) =>
-      generateRandomColor()
-    );
+    // Generate random colors and maintain consistency
+    const colors = labels.map(() => generateRandomColor());
 
-    console.log("Labels", labels);
     setPieChartData({
       labels,
       datasets: [
         {
           data,
-          backgroundColor: randomBackgroundColors,
-          hoverBackgroundColor: randomHoverColors,
+          backgroundColor: colors,
+          hoverBackgroundColor: colors.map((color) => lightenColor(color, 20)),
         },
       ],
+      colors, // Maintain the same colors for the list
     });
   };
 
   const generateRandomColor = () => {
-    // Generate a random RGB color
     const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    return randomColor.padEnd(7, "0"); // Ensure the color code is always 7 characters long
+    return randomColor.padEnd(7, "0"); // Ensure 7-character color code
   };
 
+  const lightenColor = (color, percent) => {
+    // Lighten a color by a given percentage
+    const num = parseInt(color.slice(1), 16),
+      amt = Math.round(2.55 * percent),
+      R = (num >> 16) + amt,
+      G = ((num >> 8) & 0x00ff) + amt,
+      B = (num & 0x0000ff) + amt;
+    return `#${(
+      0x1000000 +
+      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+      (B < 255 ? (B < 1 ? 0 : B) : 255)
+    )
+      .toString(16)
+      .slice(1)}`;
+  };
   return (
     <div className={styles.parent__container}>
       <div className="container mt-4">
@@ -372,10 +384,7 @@ function Overview() {
                                 display: "inline-block",
                                 width: "15px",
                                 height: "15px",
-                                backgroundColor:
-                                  pieChartData.datasets[0].backgroundColor[
-                                    index
-                                  ],
+                                backgroundColor: pieChartData.colors[index],
                                 marginRight: "10px",
                               }}
                             ></span>
