@@ -42,8 +42,18 @@ function Overview() {
     datasets: [
       {
         data: [],
-        backgroundColor: [], // Add more colors if needed
-        hoverBackgroundColor: [], // Add more hover colors if needed
+        backgroundColor: [],
+        hoverBackgroundColor: [],
+      },
+    ],
+  });
+  const [vehiclePieChartData, setVehiclePieChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: [],
+        hoverBackgroundColor: [],
       },
     ],
   });
@@ -133,18 +143,6 @@ function Overview() {
     },
   };
 
-  const barChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      tooltip: {
-        enabled: true,
-      },
-    },
-  };
-
   const lineChartOptions = {
     responsive: true,
     plugins: {
@@ -172,26 +170,6 @@ function Overview() {
         beginAtZero: true,
       },
     },
-  };
-
-  const lineChartData = {
-    labels: ["January", "February", "March", "April", "May", "June"], // Example labels
-    datasets: [
-      {
-        label: "Check-In",
-        data: [12, 19, 3, 5, 2, 3],
-        borderColor: "green",
-        backgroundColor: "rgba(0, 255, 0, 0.1)",
-        tension: 0, // Smooth curve
-      },
-      {
-        label: "Check-Out",
-        data: [5, 15, 8, 10, 7, 4],
-        borderColor: "red",
-        backgroundColor: "rgba(255, 0, 0, 0.1)",
-        tension: 0, // Smooth curve
-      },
-    ],
   };
 
   const getChartData = () => {
@@ -302,6 +280,7 @@ function Overview() {
       handleApiData("vehicleType", vehicleType?.data);
 
       //Set Chart Data
+      setVehicleTypePieChartData(vehicleType?.data);
       setAggregatorPieChartData(aggregator?.data);
 
       setTimeout(() => {
@@ -314,13 +293,46 @@ function Overview() {
   };
 
   const setAggregatorPieChartData = (aggregatorData) => {
-    const labels = aggregatorData.map((item) => item.aggregatorName);
-    const data = aggregatorData.map((item) => parseInt(item.vehicleCount, 10));
+    const filteredData = aggregatorData.filter(
+      (item) =>
+        item.aggregatorName !== null && item.aggregatorName.trim() !== ""
+    );
+
+    const labels = filteredData.map((item) => item.aggregatorName);
+    const data = filteredData.map((item) => parseInt(item.vehicleCount, 10));
 
     // Generate random colors and maintain consistency
     const colors = labels.map(() => generateRandomColor());
 
     setPieChartData({
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: colors,
+          hoverBackgroundColor: colors.map((color) => lightenColor(color, 20)),
+        },
+      ],
+      colors, // Maintain the same colors for the list
+    });
+  };
+
+  const setVehicleTypePieChartData = (vehicleTypeData) => {
+    // Filter out data with invalid vehicleTypeName or zero available count
+    const filteredData = vehicleTypeData.filter(
+      (item) =>
+        item.vehicleTypeName !== null &&
+        item.vehicleTypeName.trim() !== "" &&
+        parseInt(item.available, 10) > 0
+    );
+
+    const labels = filteredData.map((item) => item.vehicleTypeName);
+    const data = filteredData.map((item) => parseInt(item.available, 10));
+
+    // Generate random colors and maintain consistency
+    const colors = labels.map(() => generateRandomColor());
+
+    setVehiclePieChartData({
       labels,
       datasets: [
         {
@@ -408,12 +420,12 @@ function Overview() {
                 <h5 className="card-title">Vehicle by Aggregator</h5>
                 <div className="d-flex">
                   <div className={styles.chart__parent}>
-                    <Pie data={pieChartData} options={pieChartOptions} />
+                    <Pie data={vehiclePieChartData} options={pieChartOptions} />
                   </div>
                   <div>
                     <div>
                       <ul style={{ listStyleType: "none", padding: 0 }}>
-                        {pieChartData.labels.map((label, index) => (
+                        {vehiclePieChartData.labels.map((label, index) => (
                           <li
                             key={label}
                             style={{
@@ -429,15 +441,14 @@ function Overview() {
                                 width: "15px",
                                 height: "15px",
                                 backgroundColor:
-                                  pieChartData.datasets[0].backgroundColor[
-                                    index
-                                  ],
+                                  vehiclePieChartData.colors[index],
                                 marginRight: "10px",
                               }}
                             ></span>
                             {/* Label and Value */}
                             <span>
-                              {label}: {pieChartData.datasets[0].data[index]}{" "}
+                              {label}:{" "}
+                              {vehiclePieChartData.datasets[0].data[index]}{" "}
                             </span>
                           </li>
                         ))}

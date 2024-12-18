@@ -205,6 +205,8 @@ const Dashboard = () => {
     endDate: "",
     status: "",
     filterData: [],
+    vehicleData: [],
+    employeeData: [],
   });
   const [vehicleInputs, setVehicleInputs] = useState({
     aggregator: "",
@@ -320,11 +322,12 @@ const Dashboard = () => {
           console.log("Kamal", filters.search);
           console.log("Kamalss", matchesSearch);
 
-          // const matchesDate =
-          //   (!filters.startDate ||
-          //     new Date(row.date) >= new Date(filters.startDate)) &&
-          //   (!filters.endDate ||
-          //     new Date(row.date) <= new Date(filters.endDate));
+          const matchesDate =
+            (!filters.startDate ||
+              new Date(row.date) >= new Date(filters.startDate)) &&
+            (!filters.endDate ||
+              new Date(row.date) <= new Date(filters.endDate));
+
           // const matchesStatus =
           //   !filters.status ||
           //   (filters.status === "available" && row.action === "in") ||
@@ -338,8 +341,72 @@ const Dashboard = () => {
     }
   };
 
+  const applyFiltersUpdated = () => {
+    let filteredData = transactionData.filter((row) => {
+      // Ignore rows with null or undefined critical fields
+      if (!row?.employee?.code || !row?.date || !row?.vehicle?.vehicleNo) {
+        return false;
+      }
+
+      const matchesSearch =
+        !filters.search ||
+        (row.employee?.code &&
+          row.employee.code
+            .toLowerCase()
+            .includes(filters.search.toLowerCase())) ||
+        (row.employee?.name &&
+          row.employee.name
+            .toLowerCase()
+            .includes(filters.search.toLowerCase()));
+
+      const matchesDate =
+        (!filters.startDate ||
+          new Date(row.date) >= new Date(filters.startDate)) &&
+        (!filters.endDate || new Date(row.date) <= new Date(filters.endDate));
+
+      const matchesStatus =
+        !filters.status ||
+        (filters.status === "available" && row.action === "in") ||
+        (filters.status === "notAvailable" && row.action === "out");
+
+      return matchesSearch && matchesDate && matchesStatus;
+    });
+
+    // Update the filterData with the new filtered data
+    handleFilterChange("filterData", filteredData);
+  };
+
+  const searchOnVehicles = () => {
+    const filteredVehicleData = vehicleData?.filter((row) => {
+      const vehicleNoMatch = row?.vehicleNo
+        ?.toLowerCase()
+        .includes(filters.search.toLowerCase());
+      const aggregatorMatch = row?.aggregator?.name
+        ?.toLowerCase()
+        .includes(filters.search.toLowerCase());
+      return vehicleNoMatch || aggregatorMatch;
+    });
+
+    handleFilterChange("vehicleData", filteredVehicleData);
+  };
+
+  // Filter employee data based on search query
+  const searchOnEmployess = () => {
+    const filteredEmployeeData = employeeData?.filter((row) => {
+      const nameMatch = row?.name
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const codeMatch = row?.code
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      return nameMatch || codeMatch;
+    });
+
+    handleFilterChange("employeeData", filteredEmployeeData);
+  };
+
   const showApplyButton =
-    filters.search || filters.startDate || filters.endDate || filters.status;
+    filters.search || (filters.startDate && filters.endDate) || filters.status;
 
   // Handle the button click to trigger the file input
   const handleButtonClick = () => {
@@ -460,6 +527,11 @@ const Dashboard = () => {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+    handleFilterChange("search", "");
+    handleFileChange("startDate", "");
+    handleFileChange("endDate", "");
+    handleFileChange("status", "");
+    handleFileChange("filterData", []);
   };
 
   const handleInputChange = (e) => {
@@ -1914,9 +1986,18 @@ const Dashboard = () => {
           </div>
           {/* Apply Filter Button */}
           {showApplyButton && (
-            <button className="btn btn-success" onClick={applyFilters}>
-              Apply Filters
-            </button>
+            <div>
+              <button className="btn btn-success" onClick={applyFilters}>
+                Apply Filters
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onClick={() => window.location.reload()}
+              >
+                Remove Filter <i className="bi bi-x-circle"></i>
+              </button>
+            </div>
           )}
         </div>
         <div className={styles.tabs}>
@@ -1934,7 +2015,11 @@ const Dashboard = () => {
                 <Tab label="Drivers" {...a11yProps(1)} />
                 <Tab label="Vehicles" {...a11yProps(2)} />
                 <Tab label="Locations" {...a11yProps(3)} />
-                <Tab label="Reports" {...a11yProps(5)} />
+                <Tab
+                  label="Reports(Work in progess!)"
+                  {...a11yProps(5)}
+                  disabled
+                />
               </Tabs>
             </ThemeProvider>
           </Box>
