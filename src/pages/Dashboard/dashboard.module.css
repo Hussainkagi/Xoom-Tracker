@@ -30,6 +30,11 @@
     width: 400px;
   }
 
+  .filter__box{
+    display: flex;
+    gap: 1rem;
+  }
+
   .btn_box{
     background-color: green;
     display: flex;

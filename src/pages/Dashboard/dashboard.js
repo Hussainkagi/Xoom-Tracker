@@ -309,34 +309,35 @@ const Dashboard = () => {
       case 0:
         // Case 0: Apply all filters (search, dates, and status)
 
-        const filteredData = transactionData.filter((row) => {
-          console.log("Kamal", row);
-          const matchesSearch =
-            !filters.search ||
-            row.employee?.code
-              .toLowerCase()
-              .includes(filters.search.toLowerCase());
-          //   ||
-          // row.vehicle.vehicleNo.includes(filters.search);
+        // const filteredData = transactionData.filter((row) => {
+        //   console.log("Kamal", row);
+        //   const matchesSearch =
+        //     !filters.search ||
+        //     row.employee?.code
+        //       .toLowerCase()
+        //       .includes(filters.search.toLowerCase());
+        //   //   ||
+        //   // row.vehicle.vehicleNo.includes(filters.search);
 
-          console.log("Kamal", filters.search);
-          console.log("Kamalss", matchesSearch);
+        //   console.log("Kamal", filters.search);
+        //   console.log("Kamalss", matchesSearch);
 
-          const matchesDate =
-            (!filters.startDate ||
-              new Date(row.date) >= new Date(filters.startDate)) &&
-            (!filters.endDate ||
-              new Date(row.date) <= new Date(filters.endDate));
+        //   const matchesDate =
+        //     (!filters.startDate ||
+        //       new Date(row.date) >= new Date(filters.startDate)) &&
+        //     (!filters.endDate ||
+        //       new Date(row.date) <= new Date(filters.endDate));
 
-          // const matchesStatus =
-          //   !filters.status ||
-          //   (filters.status === "available" && row.action === "in") ||
-          //   (filters.status === "notAvailable" && row.action === "out");
+        //   // const matchesStatus =
+        //   //   !filters.status ||
+        //   //   (filters.status === "available" && row.action === "in") ||
+        //   //   (filters.status === "notAvailable" && row.action === "out");
 
-          return matchesSearch;
-          // && matchesDate && matchesStatus;
-        });
-        handleFilterChange("filterData", filteredData);
+        //   return matchesSearch;
+        //   // && matchesDate && matchesStatus;
+        // });
+        // handleFilterChange("filterData", filteredData);
+        applyFiltersUpdated();
         break;
     }
   };
@@ -344,9 +345,9 @@ const Dashboard = () => {
   const applyFiltersUpdated = () => {
     let filteredData = transactionData.filter((row) => {
       // Ignore rows with null or undefined critical fields
-      if (!row?.employee?.code || !row?.date || !row?.vehicle?.vehicleNo) {
-        return false;
-      }
+      // if (!row?.employee?.code || !row?.date || !row?.vehicle?.vehicleNo) {
+      //   return false;
+      // }
 
       const matchesSearch =
         !filters.search ||
@@ -364,10 +365,11 @@ const Dashboard = () => {
           new Date(row.date) >= new Date(filters.startDate)) &&
         (!filters.endDate || new Date(row.date) <= new Date(filters.endDate));
 
+      console.log("staus", filters?.status);
       const matchesStatus =
         !filters.status ||
-        (filters.status === "available" && row.action === "in") ||
-        (filters.status === "notAvailable" && row.action === "out");
+        (filters.status === "in" && row.action === "in") ||
+        (filters.status === "out" && row.action === "out");
 
       return matchesSearch && matchesDate && matchesStatus;
     });
@@ -395,10 +397,10 @@ const Dashboard = () => {
     const filteredEmployeeData = employeeData?.filter((row) => {
       const nameMatch = row?.name
         ?.toLowerCase()
-        .includes(searchQuery.toLowerCase());
+        .includes(filters.search.toLowerCase());
       const codeMatch = row?.code
         ?.toLowerCase()
-        .includes(searchQuery.toLowerCase());
+        .includes(filters.search.toLowerCase());
       return nameMatch || codeMatch;
     });
 
@@ -418,7 +420,7 @@ const Dashboard = () => {
   // Handle file selection
   const handleFileChange = (event) => {
     console.log("dsjhdjs");
-    const file = event.target.files[0];
+    const file = event?.target?.files[0];
     if (file) {
       setFileName(file.name);
       setFileData(file);
@@ -588,7 +590,7 @@ const Dashboard = () => {
     setTimeout(() => {
       setFileLoader(false);
     }, 3000);
-    const file = event.target.files[0];
+    const file = event?.target?.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -1977,8 +1979,11 @@ const Dashboard = () => {
                       handleFilterChange("status", e.target.value)
                     }
                   >
-                    <option value="available">Check in</option>
-                    <option value="notAvailable">Check out</option>
+                    <option value="all" defaultChecked>
+                      Select status
+                    </option>
+                    <option value="in">Check in</option>
+                    <option value="out">Check out</option>
                   </select>
                 </div>
               </>
@@ -1986,13 +1991,13 @@ const Dashboard = () => {
           </div>
           {/* Apply Filter Button */}
           {showApplyButton && (
-            <div>
+            <div className={styles.filter__box}>
               <button className="btn btn-success" onClick={applyFilters}>
                 Apply Filters
               </button>
               <button
                 type="button"
-                class="btn btn-secondary"
+                className="btn btn-secondary"
                 onClick={() => window.location.reload()}
               >
                 Remove Filter <i className="bi bi-x-circle"></i>
