@@ -307,37 +307,13 @@ const Dashboard = () => {
   const applyFilters = () => {
     switch (value) {
       case 0:
-        // Case 0: Apply all filters (search, dates, and status)
-
-        // const filteredData = transactionData.filter((row) => {
-        //   console.log("Kamal", row);
-        //   const matchesSearch =
-        //     !filters.search ||
-        //     row.employee?.code
-        //       .toLowerCase()
-        //       .includes(filters.search.toLowerCase());
-        //   //   ||
-        //   // row.vehicle.vehicleNo.includes(filters.search);
-
-        //   console.log("Kamal", filters.search);
-        //   console.log("Kamalss", matchesSearch);
-
-        //   const matchesDate =
-        //     (!filters.startDate ||
-        //       new Date(row.date) >= new Date(filters.startDate)) &&
-        //     (!filters.endDate ||
-        //       new Date(row.date) <= new Date(filters.endDate));
-
-        //   // const matchesStatus =
-        //   //   !filters.status ||
-        //   //   (filters.status === "available" && row.action === "in") ||
-        //   //   (filters.status === "notAvailable" && row.action === "out");
-
-        //   return matchesSearch;
-        //   // && matchesDate && matchesStatus;
-        // });
-        // handleFilterChange("filterData", filteredData);
         applyFiltersUpdated();
+        break;
+      case 1:
+        searchOnEmployess();
+        break;
+      case 2:
+        searchOnVehicles();
         break;
     }
   };
@@ -534,6 +510,8 @@ const Dashboard = () => {
     handleFileChange("endDate", "");
     handleFileChange("status", "");
     handleFileChange("filterData", []);
+    handleFilterChange("vehicleData", []);
+    handleFilterChange("employeeData", []);
   };
 
   const handleInputChange = (e) => {
@@ -680,6 +658,8 @@ const Dashboard = () => {
 
       setTransactionData(transactionRes.data);
       handleFilterChange("filterData", transactionRes.data);
+      handleFilterChange("vehicleData", vehicleRes.data);
+      handleFilterChange("employeeData", employeeRes.data);
       setVehicleData(vehicleRes.data);
       setLocationData(locationRes.data);
       setEmployeeData(employeeRes.data);
@@ -724,6 +704,7 @@ const Dashboard = () => {
     };
     let response = await apiHelper.get("/employee", {}, headers);
     setEmployeeData(response.data);
+    handleFilterChange("employeeData", response.data);
   };
 
   const uploadEmployeeData = async (file) => {
@@ -1013,6 +994,7 @@ const Dashboard = () => {
     };
     let response = await apiHelper.get("/vehicle", {}, headers);
     setVehicleData(response.data);
+    handleFilterChange("vehicleData", response.data);
   };
 
   const uploadVehicleData = async (file) => {
@@ -2136,8 +2118,8 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {employeeData
-                    ? employeeData?.map((row, index) => (
+                  {filters?.employeeData
+                    ? filters?.employeeData?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">{row?.code}</TableCell>
@@ -2207,7 +2189,7 @@ const Dashboard = () => {
                 </TableHead>
                 <TableBody>
                   {vehicleData?.length > 0
-                    ? vehicleData?.map((row, index) => (
+                    ? filters?.vehicleData?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">{row?.vehicleNo}</TableCell>

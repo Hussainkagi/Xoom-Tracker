@@ -366,6 +366,13 @@ function Overview() {
       .toString(16)
       .slice(1)}`;
   };
+
+  const calculateTotal = (dataArray, fieldName) => {
+    return dataArray?.reduce(
+      (total, item) => total + (item[fieldName] || 0),
+      0
+    );
+  };
   return (
     <div className={styles.parent__container}>
       <div className="container mt-4">
@@ -486,7 +493,10 @@ function Overview() {
                     ))}
                   </tbody>
                 </table>
-                <h5>Total Vehicle : 35</h5>
+                <h5>
+                  Total Vehicle :{" "}
+                  {calculateTotal(apiData?.models, "vehicleCount")}
+                </h5>
                 <button className="btn btn-success btn-sm mt-3">
                   View detailed table
                 </button>
@@ -518,7 +528,10 @@ function Overview() {
                     ))}
                   </tbody>
                 </table>
-                <h5>Total Vehicle : 35</h5>
+                <h5>
+                  Total Vehicle :{" "}
+                  {calculateTotal(apiData?.ownedBy, "vehicleCount")}
+                </h5>
                 <button className="btn btn-success btn-sm mt-3">
                   View detailed table
                 </button>
@@ -550,7 +563,10 @@ function Overview() {
                     ))}
                   </tbody>
                 </table>
-                <h5>Total Vehicle : 35</h5>
+                <h5>
+                  Total Vehicle :{" "}
+                  {calculateTotal(apiData?.vehicleType, "vehicleCount")}
+                </h5>
                 <button className="btn btn-success btn-sm mt-3">
                   View detailed table
                 </button>
