@@ -92,56 +92,6 @@ function Overview() {
       },
     },
   };
-  const barChartData = {
-    Day: {
-      labels: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`), // Days in a month
-      datasets: [
-        {
-          label: "transactions",
-          data: Array.from({ length: 30 }, () =>
-            Math.floor(Math.random() * 5000 + 10000)
-          ),
-          backgroundColor: "#9acb3b",
-        },
-      ],
-    },
-    Month: {
-      labels: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      datasets: [
-        {
-          label: "transactions",
-          data: [
-            120000, 130000, 125000, 140000, 150000, 140000, 135000, 130000,
-            125000, 135000, 140000, 150000,
-          ],
-          backgroundColor: "#9acb3b",
-        },
-      ],
-    },
-    Year: {
-      labels: ["2022", "2023", "2024"],
-      datasets: [
-        {
-          label: "transactions",
-          data: [1450000, 1500000, 1550000],
-          backgroundColor: "#9acb3b",
-        },
-      ],
-    },
-  };
 
   const lineChartOptions = {
     responsive: true,
@@ -369,7 +319,7 @@ function Overview() {
 
   const calculateTotal = (dataArray, fieldName) => {
     return dataArray?.reduce(
-      (total, item) => total + (item[fieldName] || 0),
+      (total, item) => total + (parseInt(item[fieldName]) || 0),
       0
     );
   };

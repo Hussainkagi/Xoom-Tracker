@@ -24,6 +24,7 @@ import FileLoader from "../../components/FileUploadLoader/loader";
 import Toast from "../../components/Toast/toast";
 import { EditLocation } from "@mui/icons-material";
 import alrtSign from "../../assets/Images/alert.png";
+import progress from "../../assets/Images/progress.jpg";
 
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
@@ -207,6 +208,7 @@ const Dashboard = () => {
     filterData: [],
     vehicleData: [],
     employeeData: [],
+    isApplied: false,
   });
   const [vehicleInputs, setVehicleInputs] = useState({
     aggregator: "",
@@ -305,6 +307,7 @@ const Dashboard = () => {
   };
 
   const applyFilters = () => {
+    handleFilterChange("isApplied", true);
     switch (value) {
       case 0:
         applyFiltersUpdated();
@@ -503,13 +506,26 @@ const Dashboard = () => {
     if (name === "emirates") handleInputFields("emirates", value);
   };
 
+  const handleClearFilter = () => {
+    if (value === 0) {
+      window.location.reload();
+    } else if (value === 1) {
+      getEmployeeData();
+      handleFilterChange("isApplied", false);
+    } else if (value === 2) {
+      getVehicleData();
+
+      handleFilterChange("isApplied", false);
+    }
+  };
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
     handleFilterChange("search", "");
     handleFileChange("startDate", "");
     handleFileChange("endDate", "");
     handleFileChange("status", "");
-
+    handleFilterChange("isApplied", false);
     if (newValue === 0) {
       getTransactionData();
     } else if (newValue === 1) {
@@ -1922,6 +1938,7 @@ const Dashboard = () => {
               <input
                 type="text"
                 className="form-control"
+                value={filters?.search}
                 id="startDate"
                 placeholder="Search..."
                 onChange={(e) => handleFilterChange("search", e.target.value)}
@@ -1986,13 +2003,15 @@ const Dashboard = () => {
               <button className="btn btn-success" onClick={applyFilters}>
                 Apply Filters
               </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => window.location.reload()}
-              >
-                Remove Filter <i className="bi bi-x-circle"></i>
-              </button>
+              {filters?.isApplied && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleClearFilter}
+                >
+                  Remove Filter <i className="bi bi-x-circle"></i>
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -2011,11 +2030,7 @@ const Dashboard = () => {
                 <Tab label="Drivers" {...a11yProps(1)} />
                 <Tab label="Vehicles" {...a11yProps(2)} />
                 <Tab label="Locations" {...a11yProps(3)} />
-                <Tab
-                  label="Reports(Work in progess!)"
-                  {...a11yProps(5)}
-                  disabled
-                />
+                <Tab label="Reports" {...a11yProps(5)} />
               </Tabs>
             </ThemeProvider>
           </Box>
@@ -2323,6 +2338,16 @@ const Dashboard = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={4}>
+            <div className="d-flex flex-column justify-content-center align-items-center">
+              <img
+                src={progress}
+                alt="under-maintain-image"
+                className={styles.main__img}
+              />
+              <h3>This page is under development!</h3>
+            </div>
           </CustomTabPanel>
         </div>
       </div>
