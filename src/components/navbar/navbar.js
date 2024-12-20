@@ -86,11 +86,7 @@ function Navbar() {
                 Overview
               </a>
             </li>
-            <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="/users">
-                Users
-              </a>
-            </li>
+
             <li className="nav-item">
               <a
                 className="nav-link active"
@@ -98,6 +94,11 @@ function Navbar() {
                 href="/subfields"
               >
                 Subfields
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link active" aria-current="page" href="/users">
+                Users
               </a>
             </li>
           </ul>
