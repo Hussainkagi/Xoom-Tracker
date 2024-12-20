@@ -509,9 +509,18 @@ const Dashboard = () => {
     handleFileChange("startDate", "");
     handleFileChange("endDate", "");
     handleFileChange("status", "");
-    handleFileChange("filterData", []);
-    handleFilterChange("vehicleData", []);
-    handleFilterChange("employeeData", []);
+
+    if (newValue === 0) {
+      getTransactionData();
+    } else if (newValue === 1) {
+      getEmployeeData();
+    } else if (newValue === 2) {
+      getVehicleData();
+    }
+
+    // handleFileChange("filterData", []);
+    // handleFilterChange("vehicleData", []);
+    // handleFilterChange("employeeData", []);
   };
 
   const handleInputChange = (e) => {
