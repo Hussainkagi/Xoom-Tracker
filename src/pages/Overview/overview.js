@@ -36,6 +36,7 @@ function Overview() {
     ownedBy: [],
     models: [],
   });
+  const [chartData, setChartData] = useState(null);
 
   const [pieChartData, setPieChartData] = useState({
     labels: [],
@@ -118,6 +119,28 @@ function Overview() {
           text: "Entries",
         },
         beginAtZero: true,
+      },
+    },
+  };
+  const lineChartOptions2 = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Date",
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Number of Actions",
+        },
       },
     },
   };
@@ -322,6 +345,71 @@ function Overview() {
       (total, item) => total + (parseInt(item[fieldName]) || 0),
       0
     );
+  };
+
+  // ***************************transaction line chart Data processing********************
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/transaction/filter?months=0"
+      );
+      const data = response.data;
+
+      const processedData = processChartData(data);
+      setChartData(processedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const processChartData = (data) => {
+    const currentMonth = moment().month();
+    const today = moment();
+
+    // Create an object to store counts for each day
+    const counts = {};
+    for (let i = 1; i <= today.date(); i++) {
+      const date = moment().date(i).format("YYYY-MM-DD");
+      counts[date] = { in: 0, out: 0 };
+    }
+
+    // Populate the counts object
+    data.forEach((entry) => {
+      const entryDate = moment(entry.date, "YYYY-MM-DD");
+      if (entryDate.month() === currentMonth) {
+        const dateStr = entryDate.format("YYYY-MM-DD");
+        if (entry.action === "in") {
+          counts[dateStr].in++;
+        } else if (entry.action === "out") {
+          counts[dateStr].out++;
+        }
+      }
+    });
+
+    // Prepare data for the chart
+    const labels = Object.keys(counts);
+    const checkInData = labels.map((date) => counts[date].in);
+    const checkOutData = labels.map((date) => counts[date].out);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Check-In",
+          data: checkInData,
+          borderColor: "green",
+          backgroundColor: "rgba(0, 255, 0, 0.1)",
+          tension: 0.4,
+        },
+        {
+          label: "Check-Out",
+          data: checkOutData,
+          borderColor: "red",
+          backgroundColor: "rgba(255, 0, 0, 0.1)",
+          tension: 0.4,
+        },
+      ],
+    };
   };
   return (
     <div className={styles.parent__container}>
