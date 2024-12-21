@@ -8,20 +8,23 @@
   margin: 0 auto;
 }
 
-.scrollable-card {
-  max-height: 300px;
+.scrollable__card {
+  /* max-height: 300px;
+  overflow-y: auto; */
+}
+.table__container{
+  max-height: 200px;
   overflow-y: auto;
 }
-
-.scrollable-card .table {
+.table__container .table {
   margin-bottom: 0;
 }
 
-.scrollable-card::-webkit-scrollbar {
+.table__container::-webkit-scrollbar {
   width: 6px;
 }
 
-.scrollable-card::-webkit-scrollbar-thumb {
+.table__container::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }

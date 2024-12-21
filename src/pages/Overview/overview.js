@@ -11,6 +11,7 @@ import {
   PointElement,
 } from "chart.js";
 import { Bar, Pie, Line } from "react-chartjs-2";
+import moment from "moment";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Splashscreen from "../../components/Splashscreen/splashloader";
 import styles from "./overview.module.css";
@@ -348,19 +349,19 @@ function Overview() {
   };
 
   // ***************************transaction line chart Data processing********************
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/transaction/filter?months=0"
-      );
-      const data = response.data;
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "http://localhost:3000/transaction/filter?months=0"
+  //     );
+  //     const data = response.data;
 
-      const processedData = processChartData(data);
-      setChartData(processedData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  //     const processedData = processChartData(data);
+  //     setChartData(processedData);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
 
   const processChartData = (data) => {
     const currentMonth = moment().month();
@@ -509,28 +510,30 @@ function Overview() {
         <div className="row">
           <div className="col-md-4 mb-4">
             <div className="card bg-light shadow-sm">
-              <div className="card-body scrollable-card">
+              <div className={`card-body ${styles.scrollable__card}`}>
                 <h5 className="card-title">Vehicle by Model</h5>
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Model</th>
-                      <th>Count</th>
-                      <th>Free</th>
-                      <th>Occupied</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {apiData?.models?.map((data, index) => (
-                      <tr key={index}>
-                        <td>{data?.modelBrand}</td>
-                        <td>{data?.vehicleCount}</td>
-                        <td>{data?.available}</td>
-                        <td>{data?.occupied}</td>
+                <div className={styles.table__container}>
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Model</th>
+                        <th>Count</th>
+                        <th>Free</th>
+                        <th>Occupied</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {apiData?.models?.map((data, index) => (
+                        <tr key={index}>
+                          <td>{data?.modelBrand}</td>
+                          <td>{data?.vehicleCount}</td>
+                          <td>{data?.available}</td>
+                          <td>{data?.occupied}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <h5>
                   Total Vehicle:{" "}
                   {calculateTotal(apiData?.models, "vehicleCount")}
@@ -544,28 +547,30 @@ function Overview() {
 
           <div className="col-md-4 mb-4">
             <div className="card bg-light shadow-sm">
-              <div className="card-body scrollable-card">
+              <div className="card-body">
                 <h5 className="card-title">Vehicle by Owner</h5>
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Owned by</th>
-                      <th>Count</th>
-                      <th>Free</th>
-                      <th>Occupied</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {apiData?.ownedBy?.map((data, index) => (
-                      <tr key={index}>
-                        <td>{data?.ownerName}</td>
-                        <td>{data?.vehicleCount}</td>
-                        <td>{data?.available}</td>
-                        <td>{data?.occupied}</td>
+                <div className={styles.table__container}>
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Owned by</th>
+                        <th>Count</th>
+                        <th>Free</th>
+                        <th>Occupied</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {apiData?.ownedBy?.map((data, index) => (
+                        <tr key={index}>
+                          <td>{data?.ownerName}</td>
+                          <td>{data?.vehicleCount}</td>
+                          <td>{data?.available}</td>
+                          <td>{data?.occupied}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <h5>
                   Total Vehicle:{" "}
                   {calculateTotal(apiData?.ownedBy, "vehicleCount")}
@@ -581,26 +586,28 @@ function Overview() {
             <div className="card bg-light shadow-sm">
               <div className="card-body scrollable-card">
                 <h5 className="card-title">Vehicle by Type</h5>
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Count</th>
-                      <th>Free</th>
-                      <th>Occupied</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {apiData?.vehicleType?.map((data, index) => (
-                      <tr key={index}>
-                        <td>{data?.vehicleTypeName}</td>
-                        <td>{data?.vehicleCount}</td>
-                        <td>{data?.available}</td>
-                        <td>{data?.occupied}</td>
+                <div className={styles.table__container}>
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Count</th>
+                        <th>Free</th>
+                        <th>Occupied</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {apiData?.vehicleType?.map((data, index) => (
+                        <tr key={index}>
+                          <td>{data?.vehicleTypeName}</td>
+                          <td>{data?.vehicleCount}</td>
+                          <td>{data?.available}</td>
+                          <td>{data?.occupied}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <h5>
                   Total Vehicle:{" "}
                   {calculateTotal(apiData?.vehicleType, "vehicleCount")}
