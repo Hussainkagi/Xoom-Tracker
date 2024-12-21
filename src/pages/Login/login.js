@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import "./login.css";
 import logo from "../../assets/logo.jpeg";
 import apiHelper from "../../utils/apiHelper/apiHelper";
+import ButtonLoader from "../../components/Loader/buttonLoader";
 
 const Login = () => {
   // State for email, password, and error message
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [btnLoader, setBtnLoader] = useState(false);
 
   const navigate = useNavigate();
 
@@ -20,17 +22,25 @@ const Login = () => {
       password: password,
     };
     console.log("body", body);
+    setBtnLoader(true);
     try {
       let res = await apiHelper.post("/auth/login", body, {});
       if (res?.accessToken) {
         localStorage.setItem("token", res.accessToken);
-        navigate("/");
-        window.location.reload();
+        setTimeout(() => {
+          setBtnLoader(false);
+          navigate("/");
+          window.location.reload();
+        }, 1000);
       } else {
-        setError("Invalid credentials");
+        setTimeout(() => {
+          setError("Invalid credentials");
+          setBtnLoader(false);
+        }, 1000);
       }
     } catch (error) {
       window.alert("Something went wrong");
+      setBtnLoader(false);
     }
   };
 
@@ -71,7 +81,7 @@ const Login = () => {
                 </label>
               </div>
 
-              <div className="d-flex justify-content-between align-items-center">
+              {/* <div className="d-flex justify-content-between align-items-center">
                 <div className="form-check mb-0">
                   <input
                     className="form-check-input me-2"
@@ -86,7 +96,7 @@ const Login = () => {
                 <a href="#!" className="text-body">
                   Forgot password?
                 </a>
-              </div>
+              </div> */}
 
               {/* Display error message if credentials are incorrect */}
               {error && <p className="text-danger text-center">{error}</p>}
@@ -102,14 +112,14 @@ const Login = () => {
                     border: "none",
                   }}
                 >
-                  Login
+                  {btnLoader ? <ButtonLoader /> : "Login"}
                 </button>
-                <p className="small fw-bold mt-2 pt-1 mb-0">
+                {/* <p className="small fw-bold mt-2 pt-1 mb-0">
                   Don't have an account?{" "}
                   <a href="#!" className="link-danger">
                     Register
                   </a>
-                </p>
+                </p> */}
               </div>
             </form>
           </div>

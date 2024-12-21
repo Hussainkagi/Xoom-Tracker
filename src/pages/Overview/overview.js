@@ -421,7 +421,7 @@ function Overview() {
         <div className="row">
           <div className="col-md-4 mb-4">
             <div className="card bg-light shadow-sm">
-              <div className="card-body">
+              <div className="card-body scrollable-card">
                 <h5 className="card-title">Vehicle by Model</h5>
                 <table className="table table-striped">
                   <thead>
@@ -429,7 +429,7 @@ function Overview() {
                       <th>Model</th>
                       <th>Count</th>
                       <th>Free</th>
-                      <th>occupied</th>
+                      <th>Occupied</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -444,7 +444,7 @@ function Overview() {
                   </tbody>
                 </table>
                 <h5>
-                  Total Vehicle :{" "}
+                  Total Vehicle:{" "}
                   {calculateTotal(apiData?.models, "vehicleCount")}
                 </h5>
                 <button className="btn btn-success btn-sm mt-3">
@@ -456,8 +456,8 @@ function Overview() {
 
           <div className="col-md-4 mb-4">
             <div className="card bg-light shadow-sm">
-              <div className="card-body">
-                <h5 className="card-title">Vehicle by owner</h5>
+              <div className="card-body scrollable-card">
+                <h5 className="card-title">Vehicle by Owner</h5>
                 <table className="table table-striped">
                   <thead>
                     <tr>
@@ -479,7 +479,7 @@ function Overview() {
                   </tbody>
                 </table>
                 <h5>
-                  Total Vehicle :{" "}
+                  Total Vehicle:{" "}
                   {calculateTotal(apiData?.ownedBy, "vehicleCount")}
                 </h5>
                 <button className="btn btn-success btn-sm mt-3">
@@ -491,7 +491,7 @@ function Overview() {
 
           <div className="col-md-4 mb-4">
             <div className="card bg-light shadow-sm">
-              <div className="card-body">
+              <div className="card-body scrollable-card">
                 <h5 className="card-title">Vehicle by Type</h5>
                 <table className="table table-striped">
                   <thead>
@@ -514,7 +514,7 @@ function Overview() {
                   </tbody>
                 </table>
                 <h5>
-                  Total Vehicle :{" "}
+                  Total Vehicle:{" "}
                   {calculateTotal(apiData?.vehicleType, "vehicleCount")}
                 </h5>
                 <button className="btn btn-success btn-sm mt-3">
