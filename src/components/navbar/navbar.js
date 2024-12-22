@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../../assets/logo.jpeg";
 import styles from "./navbar.module.css";
 import { Box, Modal, useMediaQuery } from "@mui/material";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [showModal, setShowModal] = useState(false);
+  const [access, SetAccess] = useState(false);
   const navigate = useNavigate();
 
   // Check for mobile screen size
@@ -23,6 +24,11 @@ function Navbar() {
     boxShadow: 24,
     p: 4,
   };
+
+  useEffect(() => {
+    let role = localStorage.getItem("role");
+    SetAccess(role);
+  }, []);
 
   // Show logout modal
   const handleLogoutClick = () => {
@@ -87,20 +93,28 @@ function Navbar() {
               </a>
             </li>
 
-            <li className="nav-item">
-              <a
-                className="nav-link active"
-                aria-current="page"
-                href="/subfields"
-              >
-                Subfields
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="/users">
-                Users
-              </a>
-            </li>
+            {access !== "Viewer" && (
+              <li className="nav-item">
+                <a
+                  className="nav-link active"
+                  aria-current="page"
+                  href="/subfields"
+                >
+                  Subfields
+                </a>
+              </li>
+            )}
+            {access === "Owner" && (
+              <li className="nav-item">
+                <a
+                  className="nav-link active"
+                  aria-current="page"
+                  href="/users"
+                >
+                  Users
+                </a>
+              </li>
+            )}
           </ul>
 
           {/* Logout Button Aligned to the End */}

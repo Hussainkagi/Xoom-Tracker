@@ -36,6 +36,7 @@ function Overview() {
     vehicleType: [],
     ownedBy: [],
     models: [],
+    locationBy: [],
   });
   const [chartData, setChartData] = useState(null);
 
@@ -72,6 +73,7 @@ function Overview() {
 
   useEffect(() => {
     fetchAllData();
+    fetchData();
   }, []);
 
   const pieChartOptions = {
@@ -241,17 +243,20 @@ function Overview() {
       Authorization: "Bearer " + authToken,
     };
     try {
-      const [aggregator, ownedBy, model, vehicleType] = await Promise.all([
-        apiHelper.get("/vehicle/aggregator-count", {}, headers),
-        apiHelper.get("/vehicle/owner-count", {}, headers),
-        apiHelper.get("/vehicle/model-count", {}, headers),
-        apiHelper.get("/vehicle/vehicle-type-count", {}, headers),
-      ]);
+      const [aggregator, ownedBy, model, vehicleType, byLocation] =
+        await Promise.all([
+          apiHelper.get("/vehicle/aggregator-count", {}, headers),
+          apiHelper.get("/vehicle/owner-count", {}, headers),
+          apiHelper.get("/vehicle/model-count", {}, headers),
+          apiHelper.get("/vehicle/vehicle-type-count", {}, headers),
+          apiHelper.get("/vehicle/by-location", {}, headers),
+        ]);
 
       handleApiData("aggregators", aggregator?.data);
       handleApiData("ownedBy", ownedBy?.data);
       handleApiData("models", model?.data);
       handleApiData("vehicleType", vehicleType?.data);
+      handleApiData("locationBy", byLocation?.data);
 
       //Set Chart Data
       setVehicleTypePieChartData(vehicleType?.data);
@@ -302,7 +307,7 @@ function Overview() {
 
     const labels = filteredData.map((item) => item.vehicleTypeName);
     const data = filteredData.map((item) => parseInt(item.available, 10));
-
+    console.log("logs", labels);
     // Generate random colors and maintain consistency
     const colors = labels.map(() => generateRandomColor());
 
@@ -349,19 +354,28 @@ function Overview() {
   };
 
   // ***************************transaction line chart Data processing********************
-  // const fetchData = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       "http://localhost:3000/transaction/filter?months=0"
-  //     );
-  //     const data = response.data;
+  const fetchData = async () => {
+    let authToken = localStorage.getItem("token");
 
-  //     const processedData = processChartData(data);
-  //     setChartData(processedData);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    try {
+      const response = await apiHelper.get(
+        "/transaction/filter?months=0",
+        {},
+        headers
+      );
+      const data = response.data;
+
+      const processedData = processChartData(data);
+
+      console.log("****************");
+      setChartData(processedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const processChartData = (data) => {
     const currentMonth = moment().month();
@@ -379,6 +393,12 @@ function Overview() {
       const entryDate = moment(entry.date, "YYYY-MM-DD");
       if (entryDate.month() === currentMonth) {
         const dateStr = entryDate.format("YYYY-MM-DD");
+
+        // Ensure the date exists in the counts object
+        if (!counts[dateStr]) {
+          counts[dateStr] = { in: 0, out: 0 };
+        }
+
         if (entry.action === "in") {
           counts[dateStr].in++;
         } else if (entry.action === "out") {
@@ -391,6 +411,8 @@ function Overview() {
     const labels = Object.keys(counts);
     const checkInData = labels.map((date) => counts[date].in);
     const checkOutData = labels.map((date) => counts[date].out);
+
+    console.log("labels", labels);
 
     return {
       labels,
@@ -412,6 +434,7 @@ function Overview() {
       ],
     };
   };
+
   return (
     <div className={styles.parent__container}>
       <div className="container mt-4">
@@ -538,9 +561,9 @@ function Overview() {
                   Total Vehicle:{" "}
                   {calculateTotal(apiData?.models, "vehicleCount")}
                 </h5>
-                <button className="btn btn-success btn-sm mt-3">
+                {/* <button className="btn btn-success btn-sm mt-3">
                   View detailed table
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
@@ -575,9 +598,9 @@ function Overview() {
                   Total Vehicle:{" "}
                   {calculateTotal(apiData?.ownedBy, "vehicleCount")}
                 </h5>
-                <button className="btn btn-success btn-sm mt-3">
+                {/* <button className="btn btn-success btn-sm mt-3">
                   View detailed table
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
@@ -612,22 +635,22 @@ function Overview() {
                   Total Vehicle:{" "}
                   {calculateTotal(apiData?.vehicleType, "vehicleCount")}
                 </h5>
-                <button className="btn btn-success btn-sm mt-3">
+                {/* <button className="btn btn-success btn-sm mt-3">
                   View detailed table
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
         </div>
 
         <div className="row">
-          <div className="col-md-6">
+          <div className="col-md-8">
             <div className="card bg-light shadow-sm">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="card-title">Transaction</h5>
                   {/* Select dropdown for category */}
-                  <select
+                  {/* <select
                     className="form-select w-auto"
                     value={category}
                     onChange={handleCategoryChange}
@@ -635,16 +658,18 @@ function Overview() {
                     <option value="Day">Categorise by Days</option>
                     <option value="Month">Categorise by Months</option>
                     <option value="Year">Categorise by Years</option>
-                  </select>
+                  </select> */}
                 </div>
                 {/* Render Bar chart */}
                 <div>
-                  <Line data={getChartData()} options={lineChartOptions} />
+                  {chartData && (
+                    <Line data={chartData} options={lineChartOptions} />
+                  )}
                 </div>
               </div>
             </div>
           </div>
-          <div className="col-md-6">
+          <div className="col-md-4">
             <div className="card bg-light shadow-sm">
               <div className="card-body">
                 <h5 className="card-title">Vehicle by Locations</h5>
@@ -658,9 +683,9 @@ function Overview() {
                     </tr>
                   </thead>
                   <tbody>
-                    {apiData?.vehicleType?.map((data, index) => (
+                    {apiData?.locationBy?.map((data, index) => (
                       <tr key={index}>
-                        <td>{data?.vehicleTypeName}</td>
+                        <td>{data?.locationName}</td>
                         <td>{data?.vehicleCount}</td>
                         <td>{data?.available}</td>
                         <td>{data?.occupied}</td>
@@ -668,10 +693,13 @@ function Overview() {
                     ))}
                   </tbody>
                 </table>
-                <h5>Total Vehicle : 35</h5>
-                <button className="btn btn-success btn-sm mt-3">
+                <h5>
+                  Total Vehicle :{" "}
+                  {calculateTotal(apiData?.locationBy, "vehicleCount")}
+                </h5>
+                {/* <button className="btn btn-success btn-sm mt-3">
                   View detailed table
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

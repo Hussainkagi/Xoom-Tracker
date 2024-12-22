@@ -1927,23 +1927,25 @@ const Dashboard = () => {
               value === 0 ? styles.filter__container : styles.without__filters
             }
           >
-            <div
-              className={`mb-3 ${value === 0 ? "w-100" : ""}`}
-              style={{ width: "300px" }}
-            >
-              {/* Search Input Field */}
-              <label htmlFor="endDate" className="form-label">
-                Search...
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                value={filters?.search}
-                id="startDate"
-                placeholder="Search..."
-                onChange={(e) => handleFilterChange("search", e.target.value)}
-              />
-            </div>
+            {value !== 3 && (
+              <div
+                className={`mb-3 ${value === 0 ? "w-100" : ""}`}
+                style={{ width: "300px" }}
+              >
+                {/* Search Input Field */}
+                <label htmlFor="endDate" className="form-label">
+                  Search...
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={filters?.search}
+                  id="startDate"
+                  placeholder="Search..."
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
+                />
+              </div>
+            )}
 
             {/* Start Date Picker */}
             {value === 0 && (
@@ -2359,12 +2361,16 @@ const Dashboard = () => {
       >
         <Box sx={style}>
           {["back", "front", "left", "right"]?.map((position) => {
-            const imageObj = selectedImages?.find((img) => img.value[position]);
+            const imageObj = selectedImages?.find((img) => img[position]);
 
             const urlid =
-              imageObj && imageObj?.value[position]?.url
-                ? extractGoogleDriveFileId(imageObj?.value[position]?.url)
+              imageObj && imageObj[position]?.url
+                ? extractGoogleDriveFileId(imageObj[position]?.url)
                 : null;
+            console.log(
+              position,
+              `https://lh3.googleusercontent.com/d/${urlid}=w1000?authuser=1/view`
+            );
 
             return (
               <img

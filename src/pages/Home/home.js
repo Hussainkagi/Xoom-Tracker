@@ -267,18 +267,28 @@ const Home = () => {
 
     console.log("form", formInputs);
 
-    // if (vehiclePictures.back)
-    //   formData.append("vehiclePictures[back]", vehiclePictures.back);
-    // if (vehiclePictures.front)
-    //   formData.append("vehiclePictures[front]", vehiclePictures.front);
-    // if (vehiclePictures.left)
-    //   formData.append("vehiclePictures[left]", vehiclePictures.left);
-    // if (vehiclePictures.right)
-    //   formData.append("vehiclePictures[right]", vehiclePictures.right);
+    if (vehiclePictures.back)
+      formData.append("vehiclePictures[back]", vehiclePictures.back);
+    if (vehiclePictures.front)
+      formData.append("vehiclePictures[front]", vehiclePictures.front);
+    if (vehiclePictures.left)
+      formData.append("vehiclePictures[left]", vehiclePictures.left);
+    if (vehiclePictures.right)
+      formData.append("vehiclePictures[right]", vehiclePictures.right);
 
     try {
-      const response = await apiHelper.post("/transaction", formData, headers);
-      if (response.success === true) {
+      const response = await fetch(
+        process.env.REACT_APP_BASE_URL + "/transaction",
+        {
+          method: "POST",
+          headers,
+          body: formData,
+        }
+      );
+      console.log("responsesjfskjdhdgf", response);
+      const result = await response.json();
+      // const response = await apiHelper.post("/transaction", formData, headers);
+      if (result.success === true) {
         showToast(
           "success",
           "Success",
@@ -297,7 +307,6 @@ const Home = () => {
         );
         setBtnLoader(false);
       }
-      console.log("Response:", response);
     } catch (err) {
       showToast("error", "Error", "Something went wrong!");
       console.error("Error submitting form:", err);
@@ -476,7 +485,10 @@ const Home = () => {
             <input
               type="file"
               className="form-control"
-              onChange={(e) => handlePictureChange("front", e.target.files[0])}
+              onChange={(e) => {
+                console.log("Image File", e.target.files[0]);
+                handlePictureChange("front", e.target.files[0]);
+              }}
             />
             {vehiclePreviews.front && (
               <img

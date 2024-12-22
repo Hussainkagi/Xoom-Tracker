@@ -27,6 +27,8 @@ const Login = () => {
       let res = await apiHelper.post("/auth/login", body, {});
       if (res?.accessToken) {
         localStorage.setItem("token", res.accessToken);
+        localStorage.setItem("role", res?.user?.role);
+
         setTimeout(() => {
           setBtnLoader(false);
           navigate("/");

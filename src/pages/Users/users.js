@@ -44,6 +44,10 @@ const UserPage = () => {
     }));
   };
 
+  const isSupperAdmin = (email) => {
+    return email === "xoom@admin.com";
+  };
+
   const validateForm = () => {
     const errors = {};
 
@@ -267,18 +271,26 @@ const UserPage = () => {
                   <td>{user?.email}</td>
                   <td>{user?.role}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => handleOpenUpdateModal(user)}
-                    >
-                      <i className="bi bi-pencil-square"></i>
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleOpenDeletePopup(user)}
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
+                    {!isSupperAdmin(user?.email) ? (
+                      <>
+                        <button
+                          className="btn btn-sm btn-warning me-2"
+                          onClick={() => handleOpenUpdateModal(user)}
+                        >
+                          <i className="bi bi-pencil-square"></i>
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleOpenDeletePopup(user)}
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </>
+                    ) : (
+                      <span className={styles.super__user__text}>
+                        <i className="bi bi-bookmark-star-fill"></i> Super User
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))
