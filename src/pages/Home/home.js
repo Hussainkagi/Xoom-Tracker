@@ -291,6 +291,7 @@ const Home = () => {
           "Success",
           checkout ? "Check out SuccessFull" : "Check in SuccessFull"
         );
+        setShowSuccessModal(true);
         resetForm();
         setShowModal(false);
         setBtnLoader(false);
