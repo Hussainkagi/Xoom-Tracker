@@ -88,6 +88,15 @@ text-orientation:upright;
 .alert__img{
   width: 100px;
 }
+.transaction__file{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background-color: transparent;
+}
 
 
 

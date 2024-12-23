@@ -408,7 +408,7 @@ const Dashboard = () => {
   };
   const removeSelectedFile = () => {
     setTaFileData(null);
-    transactionFileInput.current.value = ""; // Reset the file input
+    transactionFileInput.current.value = "";
     setCount(0);
     setTotalAmount(0);
   };
@@ -613,7 +613,7 @@ const Dashboard = () => {
         // Process the data to count rows and calculate total amount
         if (sheetData?.length > 1) {
           const rows = sheetData.slice(1);
-          const amountIndex = sheetData[0].indexOf("amount");
+          const amountIndex = sheetData[0].indexOf("Amount(AED)");
 
           if (amountIndex !== -1) {
             const total = rows.reduce(
@@ -623,6 +623,7 @@ const Dashboard = () => {
             setCount(rows?.length);
             setTotalAmount(total.toFixed(2));
             setTransactionBtn(false);
+            setTaFileData(file);
           } else {
             alert("The uploaded file does not have a column named 'amount'.");
           }
@@ -632,7 +633,6 @@ const Dashboard = () => {
       };
 
       reader.readAsArrayBuffer(file);
-      setTaFileData(file);
     }
   };
   // *********************************Handle Image Model START***********************************
@@ -660,16 +660,22 @@ const Dashboard = () => {
 
   // ***********************Fines Allocation Function ***************************
   const processFinesAllocation = async (file) => {
+    if (!file) {
+      alert("Kindly upload a file!");
+      return;
+    }
     let authToken = localStorage.getItem("token");
+
     let headers = {
       Authorization: "Bearer " + authToken,
     };
     if (file) {
+      setBtnLoader(true);
       const formData = new FormData();
       formData.append("file", file);
       try {
         let response = await fetch(
-          process.env.REACT_APP_BASE_URL + "/upload-fine",
+          process.env.REACT_APP_BASE_URL + "/transaction/upload-fine",
           {
             method: "POST",
             headers,
@@ -678,8 +684,19 @@ const Dashboard = () => {
         );
 
         if (response.success) {
+          setBtnLoader(false);
+        } else {
+          showToast(
+            "error",
+            "Error",
+            response?.message || "Something went wrong!"
+          );
+          setBtnLoader(false);
         }
-      } catch (err) {}
+      } catch (err) {
+        setBtnLoader(false);
+        showToast("error", "Error", "Something went wrong!");
+      }
     }
   };
 
@@ -1774,10 +1791,10 @@ const Dashboard = () => {
           <div className="d-flex justify-content-between align-items-center mt-2 p-2 border rounded">
             <span>{TafileData.name}</span>
             <button
-              className="btn btn-danger btn-xs"
+              className={`${styles.transaction__file}`}
               onClick={removeSelectedFile}
             >
-              &times;
+              <i className="bi bi-trash"></i>
             </button>
           </div>
         )}
@@ -1807,10 +1824,10 @@ const Dashboard = () => {
               variant="contained"
               color="primary"
               sx={{ backgroundColor: themeColor }}
-              onClick={processFinesAllocation}
+              onClick={() => processFinesAllocation(TafileData)}
               disabled={transactionBtn}
             >
-              {"Submit"}
+              {btnLoader ? <ButtonLoader /> : "Submit"}
             </Button>
           </div>
         </div>

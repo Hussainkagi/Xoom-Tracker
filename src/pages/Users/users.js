@@ -5,17 +5,17 @@ import styles from "./users.module.css";
 import apiHelper from "../../utils/apiHelper/apiHelper";
 import DataLoader from "../../components/DataLoader/loader";
 import Toast from "../../components/Toast/toast";
+import Splashscreen from "../../components/Splashscreen/splashloader";
 
-let token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Ilhvb21AdGVzdC5jb20iLCJzdWIiOiIyMzFmY2ExZS04ZWY1LTQ4NzAtYjQ3Yy1lYjY1NTljMWIyNWIiLCJyb2xlIjoiT3duZXIiLCJpYXQiOjE3MzM1OTMwNzYsImV4cCI6MTczMzc2NTg3Nn0.hEkJsbFKCYHbYImHI9jj4xkMGp6QAOqeN4bQ-XGeQto";
 const UserPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [updateId, setUpdateId] = useState("");
   const [users, setUsers] = useState([]);
+
+  const [showSplash, setShowSplash] = useState(false);
   const [formState, setFormState] = useState({
     first: "",
     last: "",
@@ -83,7 +83,6 @@ const UserPage = () => {
   };
 
   const handleCloseModal = () => {
-    setSelectedUser(null);
     setShowModal(false);
     clearFields();
   };
@@ -152,16 +151,26 @@ const UserPage = () => {
 
   const getUsers = async () => {
     setLoader(true);
+    setShowSplash(true);
     let authToken = localStorage.getItem("token");
     let headers = {
       Authorization: "Bearer " + authToken,
     };
     try {
       let response = await apiHelper.get("/users", {}, headers);
-      setTimeout(() => {
+      if (response?.success) {
+        setTimeout(() => {
+          setShowSplash(false);
+          setLoader(false);
+        }, 1000);
+      } else {
+        showToast("error", "Error", response.message);
+        setShowSplash(false);
         setLoader(false);
-      }, 1000);
+      }
+
       // setLoader(false);
+
       setUsers(response?.data);
 
       console.log("users", response);
@@ -503,6 +512,7 @@ const UserPage = () => {
           </div>
         </div>
       )}
+      {showSplash && <Splashscreen />}
 
       {
         <Toast

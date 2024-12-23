@@ -6,13 +6,12 @@ import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [showModal, setShowModal] = useState(false);
-  const [access, SetAccess] = useState(false);
+  const [access, setAccess] = useState(false);
+  const [opacity, setOpacity] = useState(1);
   const navigate = useNavigate();
 
-  // Check for mobile screen size
   const isMobile = useMediaQuery("(max-width:600px)");
 
-  // Style for the modal box, responsive design
   const style = {
     position: "absolute",
     top: "50%",
@@ -26,32 +25,49 @@ function Navbar() {
   };
 
   useEffect(() => {
-    let role = localStorage.getItem("role");
-    SetAccess(role);
+    const role = localStorage.getItem("role");
+    setAccess(role);
+
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setOpacity(scrollTop > 50 ? 0.8 : 1);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
-  // Show logout modal
   const handleLogoutClick = () => {
     setShowModal(true);
   };
 
-  // Close logout modal
   const handleCloseModal = () => {
     setShowModal(false);
   };
 
-  // Logout user and redirect to login page
   const logout = () => {
-    // Remove the token from localStorage
     localStorage.removeItem("token");
-
-    // Redirect to login page
     navigate("/login");
     window.location.reload();
   };
 
   return (
-    <nav className={`navbar navbar-expand-lg navbar-dark bg-dark`}>
+    <nav
+      className={`navbar navbar-expand-lg navbar-dark bg-dark`}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        zIndex: 1000,
+        opacity: opacity,
+        transition: "opacity 0.3s ease-in-out", // Smooth opacity transition
+      }}
+    >
       <div className="container-fluid">
         <a className="navbar-brand" href="/">
           <img src={logo} alt="logo" className={styles.logo__image} />
@@ -117,7 +133,6 @@ function Navbar() {
             )}
           </ul>
 
-          {/* Logout Button Aligned to the End */}
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
               <a
@@ -132,23 +147,16 @@ function Navbar() {
           </ul>
         </div>
 
-        {/* Logout Confirmation Modal */}
         <Modal open={showModal} onClose={handleCloseModal}>
           <Box sx={style}>
             <div className={styles.exit__model}>
               <i className={`bi bi-exclamation-circle ${styles.icon}`}></i>
               <h4>Are you sure you want to logout?</h4>
               <div className={styles.btn__box}>
-                <button
-                  className="btn btn-primary"
-                  onClick={handleCloseModal} // Close the modal
-                >
+                <button className="btn btn-primary" onClick={handleCloseModal}>
                   Cancel
                 </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={logout} // Perform logout and navigate
-                >
+                <button className="btn btn-danger" onClick={logout}>
                   Logout
                 </button>
               </div>

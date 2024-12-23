@@ -408,7 +408,9 @@ function Overview() {
     });
 
     // Prepare data for the chart
-    const labels = Object.keys(counts);
+    const labels = Object.keys(counts).sort(
+      (a, b) => new Date(a) - new Date(b)
+    );
     const checkInData = labels.map((date) => counts[date].in);
     const checkOutData = labels.map((date) => counts[date].out);
 

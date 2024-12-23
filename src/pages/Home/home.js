@@ -286,11 +286,11 @@ const Home = () => {
       const result = await response.json();
       // const response = await apiHelper.post("/transaction", formData, headers);
       if (result.success === true) {
-        showToast(
-          "success",
-          "Success",
-          checkout ? "Check out SuccessFull" : "Check in SuccessFull"
-        );
+        // showToast(
+        //   "success",
+        //   "Success",
+        //   checkout ? "Check out SuccessFull" : "Check in SuccessFull"
+        // );
         setShowSuccessModal(true);
         resetForm();
         setShowModal(false);
