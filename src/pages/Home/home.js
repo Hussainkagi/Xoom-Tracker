@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import apiHelper from "../../utils/apiHelper/apiHelper";
 import Splashscreen from "../../components/Splashscreen/splashloader";
 import { styled } from "@mui/material/styles";
-import { Autocomplete, stepButtonClasses, TextField } from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 import Toast from "../../components/Toast/toast";
+import CheckMark from "../../components/CheckMark/check";
 
 const CustomAutocomplete = styled(Autocomplete)({
   "& .MuiAutocomplete-endAdornment": {
@@ -41,12 +42,8 @@ const Home = () => {
     resetForm();
   };
 
-  const [employeeCode, setEmployeeCode] = useState("");
   const [checkout, setCheckout] = useState(false);
-  const [name, setName] = useState("");
-  const [vehicleNo, setVehicleNo] = useState("");
-  const [location, setLocation] = useState("");
-  const [date, setDate] = useState("");
+
   const [time, setTime] = useState("10:30 AM");
   const [vehiclePictures, setVehiclePictures] = useState({
     front: null,
@@ -60,14 +57,14 @@ const Home = () => {
     left: null,
     right: null,
   });
-  const [comments, setComments] = useState("");
-  const [displayTime, setDisplayTime] = useState("");
+
   const [btnLoader, setBtnLoader] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
   const [employeeData, setEmployeeData] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [vehicleData, setVehicleData] = useState([]);
   const [aggregatorData, setAggregatorData] = useState([]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [toastConfig, setToastConfig] = useState({
     show: false,
     title: "",
@@ -314,6 +311,17 @@ const Home = () => {
     setBtnLoader(false);
     // console.log("Form Data:", formData);
   };
+
+  const checkModal = (
+    <>
+      <CheckMark />
+      {checkout ? (
+        <span>Check out SuccessFull</span>
+      ) : (
+        <span>Check in SuccessFull</span>
+      )}
+    </>
+  );
 
   const formContent = (
     <form>
@@ -622,6 +630,26 @@ const Home = () => {
           onClose={handleCloseToast}
         />
       }
+      <Modal
+        show={showSuccessModal}
+        handleClose={() => setShowSuccessModal(false)}
+        content={checkModal}
+      >
+        {/* <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        > */}
+
+        {/* </Box> */}
+      </Modal>
     </div>
   );
 };
