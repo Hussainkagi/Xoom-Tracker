@@ -22,7 +22,6 @@ import Splashscreen from "../../components/Splashscreen/splashloader";
 
 import FileLoader from "../../components/FileUploadLoader/loader";
 import Toast from "../../components/Toast/toast";
-import { EditLocation } from "@mui/icons-material";
 import alrtSign from "../../assets/Images/alert.png";
 import progress from "../../assets/Images/progress.jpg";
 
@@ -193,6 +192,7 @@ const Dashboard = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [transactionBtn, setTransactionBtn] = useState(true);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+
   const [date, setDate] = useState("");
   const [apiData, setApiData] = useState({
     aggregators: [],
@@ -234,6 +234,7 @@ const Dashboard = () => {
   ];
 
   const [anchorEl, setAnchorEl] = useState(null);
+
   const [toastConfig, setToastConfig] = useState({
     show: false,
     title: "",
@@ -398,13 +399,16 @@ const Dashboard = () => {
 
   // Handle file selection
   const handleFileChange = (event) => {
-    console.log("dsjhdjs");
     const file = event?.target?.files[0];
     if (file) {
       setFileName(file.name);
       setFileData(file);
       // Process the file as needed
     }
+  };
+  const removeSelectedFile = () => {
+    setTaFileData(null);
+    transactionFileInput.current.value = ""; // Reset the file input
   };
   const formatDate = (date) => {
     if (date) {
@@ -606,8 +610,8 @@ const Dashboard = () => {
 
         // Process the data to count rows and calculate total amount
         if (sheetData?.length > 1) {
-          const rows = sheetData.slice(1); // Skip header
-          const amountIndex = sheetData[0].indexOf("amount"); // Find "amount" column index
+          const rows = sheetData.slice(1);
+          const amountIndex = sheetData[0].indexOf("amount");
 
           if (amountIndex !== -1) {
             const total = rows.reduce(
@@ -616,7 +620,7 @@ const Dashboard = () => {
             );
             setCount(rows?.length);
             setTotalAmount(total.toFixed(2));
-            setTransactionBtn(false); // Enable the submit button
+            setTransactionBtn(false);
           } else {
             alert("The uploaded file does not have a column named 'amount'.");
           }
@@ -626,7 +630,7 @@ const Dashboard = () => {
       };
 
       reader.readAsArrayBuffer(file);
-      setTaFileData(file); // Save the file data
+      setTaFileData(file);
     }
   };
   // *********************************Handle Image Model START***********************************
@@ -651,6 +655,31 @@ const Dashboard = () => {
   // *********************************Handle Image Model END***********************************
 
   //******************************APIS STARTS******************************** */
+
+  // ***********************Fines Allocation Function ***************************
+  const processFinesAllocation = async (file) => {
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        let response = await fetch(
+          process.env.REACT_APP_BASE_URL + "/upload-fine",
+          {
+            method: "POST",
+            headers,
+            body: formData,
+          }
+        );
+
+        if (response.success) {
+        }
+      } catch (err) {}
+    }
+  };
 
   // ************************* Fetch All Data**********************'
   const fetchAllData = async () => {
@@ -1502,23 +1531,25 @@ const Dashboard = () => {
                 placeholder="Enter vehicle no."
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="aggregators">Aggregator</label>
-              <select
-                className="form-control"
-                id="aggregators"
-                name="aggregators"
-                value={vehicleInputs?.aggregator}
-                onChange={handleSelectChange}
-              >
-                <option value="">Select an aggregator</option>
-                {apiData?.aggregators?.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {vehicleInputs?.isEditing && (
+              <div className="form-group">
+                <label htmlFor="aggregators">Aggregator</label>
+                <select
+                  className="form-control"
+                  id="aggregators"
+                  name="aggregators"
+                  value={vehicleInputs?.aggregator}
+                  onChange={handleSelectChange}
+                >
+                  <option value="">Select an aggregator</option>
+                  {apiData?.aggregators?.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="form-group">
               <label htmlFor="categories">Category</label>
@@ -1763,7 +1794,7 @@ const Dashboard = () => {
               variant="contained"
               color="primary"
               sx={{ backgroundColor: themeColor }}
-              onClick={() => {}}
+              onClick={processFinesAllocation}
               disabled={transactionBtn}
             >
               {"Submit"}
@@ -1830,6 +1861,17 @@ const Dashboard = () => {
                 />
                 <i className="bi bi-cloud-arrow-up"></i>
               </button>
+            )}
+            {TafileData && (
+              <div className="d-flex justify-content-between align-items-center mt-2 p-2 border rounded">
+                <span>{TafileData.name}</span>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={removeSelectedFile}
+                >
+                  &times;
+                </button>
+              </div>
             )}
             {value !== 0 && (
               <div>
@@ -2190,9 +2232,7 @@ const Dashboard = () => {
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Vehicle No.
                     </TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>
-                      Plate Code
-                    </TableCell>
+
                     <TableCell sx={{ fontWeight: "bold" }}>Model</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Owned By</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Emirates</TableCell>
@@ -2218,8 +2258,26 @@ const Dashboard = () => {
                     ? filters?.vehicleData?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
-                          <TableCell align="left">{row?.vehicleNo}</TableCell>
-                          <TableCell align="left">{row?.code}</TableCell>
+                          <TableCell align="left">
+                            <div className={styles.plate__code}>
+                              <span>
+                                <strong>{`${row?.code || ""}`}</strong>{" "}
+                              </span>
+                              <span className={styles.emirates}>
+                                {row?.emirates === "Dubai"
+                                  ? "DXB"
+                                  : row?.emirates === "Sharjah"
+                                  ? "SHJ"
+                                  : row?.emirates === "AbuDhabi"
+                                  ? "AUH"
+                                  : ""}
+                              </span>
+                              <span>
+                                {" "}
+                                <strong>{row?.vehicleNo}</strong>
+                              </span>
+                            </div>
+                          </TableCell>
                           <TableCell align="left">
                             {row?.model?.brand}
                           </TableCell>

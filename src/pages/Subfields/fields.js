@@ -178,9 +178,17 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.post("/owned-by", body, headers);
-      getOwnedBy();
-      setFormData({});
-    } catch (err) {}
+
+      if (res?.success) {
+        showToast("success", "Success", "Owner created successfully!");
+        getOwnedBy();
+        setFormData({});
+      } else {
+        showToast("error", "Error", res?.message);
+      }
+    } catch (err) {
+      showToast("error", "Error", "Something went wrong!");
+    }
   };
 
   const createModel = async () => {
@@ -197,12 +205,18 @@ function Fields() {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.post("/model", body, headers);
-      getModel();
-      setFormData({});
-    } catch (err) {}
+      if (res?.success) {
+        showToast("success", "Success", "Model created successfully!");
+        getModel();
+        setFormData({});
+      } else {
+        showToast("error", "Error", res?.message);
+      }
+    } catch (err) {
+      showToast("error", "Error", "Something went wrong!");
+    }
   };
 
   const createVehicleType = async () => {
@@ -222,9 +236,20 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.post("/vehicle-type", body, headers);
-      getCategory();
-      setFormData({});
-    } catch (err) {}
+      if (res?.success) {
+        showToast(
+          "success",
+          "Success",
+          "Vehicle Category created successfully!"
+        );
+        getCategory();
+        setFormData({});
+      } else {
+        showToast("error", "Error", res?.message);
+      }
+    } catch (err) {
+      showToast("error", "Error", "Something went wrong!");
+    }
   };
 
   //Delete APIS
