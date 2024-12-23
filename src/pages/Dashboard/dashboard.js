@@ -409,6 +409,8 @@ const Dashboard = () => {
   const removeSelectedFile = () => {
     setTaFileData(null);
     transactionFileInput.current.value = ""; // Reset the file input
+    setCount(0);
+    setTotalAmount(0);
   };
   const formatDate = (date) => {
     if (date) {
@@ -1768,6 +1770,17 @@ const Dashboard = () => {
           accept=".xlsx, .xls"
           onChange={handleFileUpload}
         />
+        {TafileData && (
+          <div className="d-flex justify-content-between align-items-center mt-2 p-2 border rounded">
+            <span>{TafileData.name}</span>
+            <button
+              className="btn btn-danger btn-xs"
+              onClick={removeSelectedFile}
+            >
+              &times;
+            </button>
+          </div>
+        )}
         <div>
           {count > 0 && totalAmount > 0 && (
             <div className="mt-3 text-center text-success">
@@ -1862,17 +1875,7 @@ const Dashboard = () => {
                 <i className="bi bi-cloud-arrow-up"></i>
               </button>
             )}
-            {TafileData && (
-              <div className="d-flex justify-content-between align-items-center mt-2 p-2 border rounded">
-                <span>{TafileData.name}</span>
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={removeSelectedFile}
-                >
-                  &times;
-                </button>
-              </div>
-            )}
+
             {value !== 0 && (
               <div>
                 <button

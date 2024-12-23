@@ -202,12 +202,12 @@ const Home = () => {
     handleFormInputs("action", "");
     handleFormInputs("comments", "");
 
-    setVehicleNo("");
-    setEmployeeCode("");
-    setName("");
-    setDate("");
+    // setVehicleNo("");
+    // setEmployeeCode("");
+    // setName("");
+    // setDate("");
     setTime("");
-    setLocation("");
+    // setLocation("");
     setVehiclePictures({
       front: null,
       back: null,
@@ -220,7 +220,7 @@ const Home = () => {
       left: null,
       right: null,
     });
-    setComments("");
+    // setComments("");
   };
   const checkVehicleFields = () => {
     if (
@@ -314,14 +314,14 @@ const Home = () => {
   };
 
   const checkModal = (
-    <>
+    <div className={styles.check__modal}>
       <CheckMark />
       {checkout ? (
-        <span>Check out SuccessFull</span>
+        <span className="text-danger">Check out SuccessFull</span>
       ) : (
         <span>Check in SuccessFull</span>
       )}
-    </>
+    </div>
   );
 
   const formContent = (
@@ -635,6 +635,7 @@ const Home = () => {
         show={showSuccessModal}
         handleClose={() => setShowSuccessModal(false)}
         content={checkModal}
+        showSubmit={false}
       >
         {/* <Box
           sx={{

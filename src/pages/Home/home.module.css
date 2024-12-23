@@ -29,6 +29,11 @@ button {
     height: 3.5rem;
     width: 10.5rem;
 }
+.check__modal{
+    text-align: center;
+    color: green;
+    font-size: 1.5rem;
+}
 
 @media (width < 768px) {
     .header {

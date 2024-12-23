@@ -8,6 +8,7 @@ const Modal = ({
   handleClose,
   onSubmit,
   disabled = false,
+  showSubmit = true,
 }) => {
   return (
     <div
@@ -36,14 +37,20 @@ const Modal = ({
             >
               Close
             </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={onSubmit}
-              disabled={disabled}
-            >
-              {disabled ? <Loader /> : "Submit"}
-            </button>
+            {showSubmit && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={onSubmit}
+                disabled={disabled}
+                style={{
+                  backgroundColor: "#9acb3b",
+                  border: "none",
+                }}
+              >
+                {disabled ? <Loader /> : "Submit"}
+              </button>
+            )}
           </div>
         </div>
       </div>
