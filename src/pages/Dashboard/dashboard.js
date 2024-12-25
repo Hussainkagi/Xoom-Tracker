@@ -684,29 +684,38 @@ const Dashboard = () => {
         );
 
         const result = await response.json();
-
+        console.log("respone", result);
         if (result?.success) {
-          setBtnLoader(false);
-          const employeeSheetData = result?.data.map((item) => ({
-            "Trip Date": item.tripDate,
-            "Trip Time": item.tripTime,
-            Plate: item.Plate,
-            "Amount(AED)": item.amount,
-            "Employee Name": item.employeeDetails.employee_name,
-          }));
-          // Convert the data to a worksheet
-          const employeeSheet = XLSX.utils.json_to_sheet(employeeSheetData);
+          setTimeout(() => {
+            setBtnLoader(false);
+            setTransactionModal(false);
+            setTaFileData(null);
+            if (result?.errorArray?.length > 0) {
+              downloadErrorFile(result);
+            }
+            if (result?.data?.length > 0) {
+              const employeeSheetData = result?.data.map((item) => ({
+                "Trip Date": item.tripDate,
+                "Trip Time": item.tripTime,
+                Plate: item.Plate,
+                "Amount(AED)": item.amount,
+                "Employee Name": item.employeeDetails.employee_name,
+              }));
+              // Convert the data to a worksheet
+              const employeeSheet = XLSX.utils.json_to_sheet(employeeSheetData);
 
-          // Create a workbook and append the sheet
-          const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(workbook, employeeSheet, "Employees");
+              // Create a workbook and append the sheet
+              const workbook = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(
+                workbook,
+                employeeSheet,
+                "Employees"
+              );
 
-          // Export the Excel file
-          XLSX.writeFile(workbook, "Fines_Allocation_File.xlsx");
-
-          if (result?.errorArray?.length > 0) {
-            downloadErrorFile(result);
-          }
+              // Export the Excel file
+              XLSX.writeFile(workbook, "Fines_Allocation_File.xlsx");
+            }
+          }, 800);
         } else {
           showToast(
             "error",
