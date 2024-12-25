@@ -273,38 +273,50 @@ const UserPage = () => {
           </thead>
           <tbody>
             {users?.length > 0 ? (
-              users.map((user, index) => (
-                <tr key={user?.id}>
-                  <td>{index + 1}</td>
-                  <td>{`${user?.firstName} ${user?.lastName}`}</td>
-                  <td>{user?.email}</td>
-                  <td>{user?.role}</td>
-                  <td>
-                    {!isSupperAdmin(user?.email) ? (
-                      <>
-                        <button
-                          className="btn btn-sm btn-warning me-2"
-                          onClick={() => handleOpenUpdateModal(user)}
-                        >
-                          <i className="bi bi-pencil-square"></i>
-                        </button>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleOpenDeletePopup(user)}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </>
-                    ) : (
-                      <span className={styles.super__user__text}>
-                        <i className="bi bi-bookmark-star-fill"></i> Super User
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))
+              // Sort users to ensure Super Admin is always at the top
+              [...users]
+                .sort((a, b) => {
+                  if (isSupperAdmin(a?.email)) return -1; // Super Admin first
+                  if (isSupperAdmin(b?.email)) return 1;
+                  return 0; // Keep the rest in original order
+                })
+                .map((user, index) => (
+                  <tr key={user?.id}>
+                    <td>{index + 1}</td>
+                    <td>{`${user?.firstName} ${user?.lastName}`}</td>
+                    <td>{user?.email}</td>
+                    <td>{user?.role}</td>
+                    <td>
+                      {!isSupperAdmin(user?.email) ? (
+                        <>
+                          <button
+                            className="btn btn-sm btn-warning me-2"
+                            onClick={() => handleOpenUpdateModal(user)}
+                          >
+                            <i className="bi bi-pencil-square"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleOpenDeletePopup(user)}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </>
+                      ) : (
+                        <span className={styles.super__user__text}>
+                          <i className="bi bi-bookmark-star-fill"></i> Super
+                          User
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))
             ) : (
-              <span>No Data Found!</span>
+              <tr>
+                <td colSpan="5" className="text-center">
+                  No Data Found!
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

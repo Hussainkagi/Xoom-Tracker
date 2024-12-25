@@ -2143,7 +2143,6 @@ const Dashboard = () => {
                     <TableCell align="center">Location</TableCell>
                     <TableCell align="center">Status</TableCell>
                     <TableCell align="center">Images</TableCell>
-                    <TableCell align="center">Edit</TableCell>
                     <TableCell align="center">Comment</TableCell>
                   </TableRow>
                 </TableHead>
@@ -2200,17 +2199,7 @@ const Dashboard = () => {
                           }}
                         ></i>
                       </TableCell>
-                      <TableCell>
-                        <td>
-                          <div className={styles.btn_box}>
-                            <i
-                              className="bi bi-pencil-square"
-                              style={{ color: "#fff" }}
-                              // onClick={() => editEmployeemodal(row)}
-                            ></i>
-                          </div>
-                        </td>
-                      </TableCell>
+
                       <TableCell>
                         <Tooltip title={row?.comments || "No comments"}>
                           <i className="bi bi-chat"></i>

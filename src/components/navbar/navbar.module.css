@@ -31,6 +31,10 @@
   padding-top: 70px; /* Adjust based on the navbar height */
 }
 
+.item__pointer{
+  cursor: pointer;
+}
+
 
 
 @media (max-width: 768px) {

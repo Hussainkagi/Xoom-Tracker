@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import logo from "../../assets/logo.jpeg";
 import styles from "./navbar.module.css";
 import { Box, Modal, useMediaQuery } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function Navbar() {
   const [showModal, setShowModal] = useState(false);
   const [access, setAccess] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const navigate = useNavigate();
+  const location = useLocation(); // Get the current location
 
   const isMobile = useMediaQuery("(max-width:600px)");
 
@@ -41,6 +42,12 @@ function Navbar() {
     };
   }, []);
 
+  const handleNavigation = (path) => {
+    if (location.pathname !== path) {
+      navigate(path); // Navigate only if the target path is different
+    }
+  };
+
   const handleLogoutClick = () => {
     setShowModal(true);
   };
@@ -55,6 +62,10 @@ function Navbar() {
     window.location.reload();
   };
 
+  // Determine active class based on the current path
+  const isActive = (path) =>
+    location.pathname === path ? { color: "#9acb3b", fontWeight: "bold" } : {};
+
   return (
     <nav
       className={`navbar navbar-expand-lg navbar-dark bg-dark`}
@@ -65,11 +76,15 @@ function Navbar() {
         width: "100%",
         zIndex: 1000,
         opacity: opacity,
-        transition: "opacity 0.3s ease-in-out", // Smooth opacity transition
+        transition: "opacity 0.3s ease-in-out",
       }}
     >
       <div className="container-fluid">
-        <a className="navbar-brand" href="/">
+        <a
+          className="navbar-brand"
+          onClick={() => handleNavigation("/")}
+          style={isActive("/")}
+        >
           <img src={logo} alt="logo" className={styles.logo__image} />
         </a>
         <button
@@ -85,47 +100,51 @@ function Navbar() {
         </button>
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="/">
+            <li className={`nav-item ${styles.item__pointer}`}>
+              <a
+                className="nav-link"
+                onClick={() => handleNavigation("/")}
+                style={isActive("/")}
+              >
                 Home
               </a>
             </li>
-            <li className="nav-item">
+            <li className={`nav-item ${styles.item__pointer}`}>
               <a
-                className="nav-link active"
-                aria-current="page"
-                href="/dashboard"
+                className="nav-link"
+                onClick={() => handleNavigation("/dashboard")}
+                style={isActive("/dashboard")}
               >
                 Dashboard
               </a>
             </li>
-            <li className="nav-item">
+            <li className={`nav-item ${styles.item__pointer}`}>
               <a
-                className="nav-link active"
-                aria-current="page"
-                href="/overview"
+                className="nav-link"
+                onClick={() => handleNavigation("/overview")}
+                style={isActive("/overview")}
               >
                 Overview
               </a>
             </li>
 
             {access !== "Viewer" && (
-              <li className="nav-item">
+              <li className={`nav-item ${styles.item__pointer}`}>
                 <a
-                  className="nav-link active"
-                  aria-current="page"
-                  href="/subfields"
+                  className="nav-link"
+                  onClick={() => handleNavigation("/subfields")}
+                  style={isActive("/subfields")}
                 >
                   Subfields
                 </a>
               </li>
             )}
             {access === "Owner" && (
-              <li className="nav-item">
+              <li className={`nav-item ${styles.item__pointer}`}>
                 <a
-                  className="nav-link active"
-                  aria-current="page"
-                  href="/users"
+                  className="nav-link"
+                  onClick={() => handleNavigation("/users")}
+                  style={isActive("/users")}
                 >
                   Users
                 </a>
@@ -134,13 +153,8 @@ function Navbar() {
           </ul>
 
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <a
-                className="nav-link active"
-                aria-current="page"
-                href="#"
-                onClick={handleLogoutClick}
-              >
+            <li className={`nav-item ${styles.item__pointer}`}>
+              <a className="nav-link active" onClick={handleLogoutClick}>
                 Logout
               </a>
             </li>
