@@ -1017,6 +1017,7 @@ const Dashboard = () => {
         showToast("success", "Success", "Vehicle created successfully!");
       } else {
         showToast("error", "Error", response.message);
+        setBtnLoader(false);
       }
     } catch (error) {
       alert("Failed to add location.");
@@ -1088,6 +1089,18 @@ const Dashboard = () => {
       setBtnLoader(false);
       alert("something went wrong!");
     }
+  };
+
+  const formatTime = (time) => {
+    const [hours, minutes, seconds] = time.split(":");
+    const date = new Date();
+    date.setHours(hours, minutes, seconds);
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
   };
 
   //  ***********************************Vehicle APIs *******************************
@@ -2177,7 +2190,9 @@ const Dashboard = () => {
                           : ""}
                       </TableCell>
                       <TableCell align="center">{row.date}</TableCell>
-                      <TableCell align="center">{row.time}</TableCell>
+                      <TableCell align="center">
+                        {formatTime(row.time)}
+                      </TableCell>
                       <TableCell align="center">
                         {row?.location?.name}
                       </TableCell>
