@@ -2154,6 +2154,7 @@ const Dashboard = () => {
                     <TableCell align="center">Date</TableCell>
                     <TableCell align="center">Time</TableCell>
                     <TableCell align="center">Location</TableCell>
+                    <TableCell align="center">Aggregator</TableCell>
                     <TableCell align="center">Status</TableCell>
                     <TableCell align="center">Images</TableCell>
                     <TableCell align="center">Comment</TableCell>
@@ -2195,6 +2196,9 @@ const Dashboard = () => {
                       </TableCell>
                       <TableCell align="center">
                         {row?.location?.name}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row?.aggregator?.name}
                       </TableCell>
                       <TableCell align="center">
                         <Chip

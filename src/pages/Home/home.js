@@ -224,7 +224,7 @@ const Home = () => {
   };
   const checkVehicleFields = () => {
     if (
-      !formInputs.aggregator ||
+      // !formInputs.aggregator ||
       !formInputs.vehicleNo ||
       !formInputs.location ||
       !formInputs.empName ||
@@ -435,12 +435,14 @@ const Home = () => {
             id="aggregator"
             options={aggregatorData}
             value={
-              aggregatorData.find((agg) => agg.id === formInputs?.aggregator) ||
-              null
+              aggregatorData.find(
+                (agg) => agg.name === formInputs?.aggregator
+              ) || null
             }
-            onChange={(event, newValue) =>
-              handleSelectInputChange(newValue ? newValue.name : "", 4)
-            }
+            onChange={(event, newValue) => {
+              console.log("dddddd", newValue);
+              handleSelectInputChange(newValue ? newValue.name : "", 4);
+            }}
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.code === value.code}
             renderInput={(params) => (
