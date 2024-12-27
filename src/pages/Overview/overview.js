@@ -302,11 +302,11 @@ function Overview() {
       (item) =>
         item.vehicleTypeName !== null &&
         item.vehicleTypeName.trim() !== "" &&
-        parseInt(item.available, 10) > 0
+        parseInt(item.occupied, 10) > 0
     );
 
     const labels = filteredData.map((item) => item.vehicleTypeName);
-    const data = filteredData.map((item) => parseInt(item.available, 10));
+    const data = filteredData.map((item) => parseInt(item.occupied, 10));
     console.log("logs", labels);
     // Generate random colors and maintain consistency
     const colors = labels.map(() => generateRandomColor());
@@ -488,7 +488,7 @@ function Overview() {
           <div className="col-lg-6 col-md-6 mb-4">
             <div className="card bg-light shadow-sm">
               <div className="card-body text-center">
-                <h5 className="card-title">Available Vehicle by Category</h5>
+                <h5 className="card-title">Occupied Vehicle by Category</h5>
                 <div className="d-flex">
                   <div className={styles.chart__parent}>
                     <Pie data={vehiclePieChartData} options={pieChartOptions} />

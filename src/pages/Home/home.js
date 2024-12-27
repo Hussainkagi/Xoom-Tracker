@@ -281,7 +281,7 @@ const Home = () => {
     formData.append("time", formInputs?.time);
     formData.append("location", formInputs?.location);
     formData.append("comments", formInputs?.comments);
-    formData.append("aggregator", formInputs?.aggregator);
+    formData.append("aggregator", checkout ? formInputs?.aggregator : "idle");
     formData.append("action", !checkout ? "in" : "out");
 
     console.log("form", formInputs);
