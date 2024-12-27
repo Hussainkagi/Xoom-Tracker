@@ -83,11 +83,13 @@ const Home = () => {
     action: "",
     comments: "",
   });
-  // **************************Get APIS**********************************
 
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  // **************************Get APIS**********************************
+
   const fetchAllData = async () => {
     let authToken = localStorage.getItem("token");
     let headers = {
@@ -114,6 +116,25 @@ const Home = () => {
     }
   };
 
+  const getPastTransactions = async (no) => {
+    let authToken = localStorage.getItem("token");
+    let headers = {
+      Authorization: "Bearer " + authToken,
+    };
+    if (!checkout) {
+      try {
+        let response = apiHelper.get(
+          `/transaction/past-transaction/${no}`,
+          {},
+          headers
+        );
+
+        console.log("response", response);
+      } catch (error) {}
+    }
+  };
+
+  // **************************Get APIS**********************************
   //Handle form fields
   const handleFormInputs = (key, value) => {
     setFormInputs((prevState) => ({
@@ -141,6 +162,7 @@ const Home = () => {
   };
 
   const handleSelectInputChange = (input, type) => {
+    console.log("aaaaa", input);
     if (type === 1) {
       handleFormInputs("empCode", input);
 
@@ -224,7 +246,7 @@ const Home = () => {
   };
   const checkVehicleFields = () => {
     if (
-      // !formInputs.aggregator ||
+      (checkout && !formInputs.aggregator) ||
       !formInputs.vehicleNo ||
       !formInputs.location ||
       !formInputs.empName ||
@@ -296,13 +318,7 @@ const Home = () => {
         setShowModal(false);
         setBtnLoader(false);
       } else {
-        showToast(
-          "error",
-          "Error",
-          !checkout
-            ? "vehicle already checked in"
-            : "vehicle already  checkedout"
-        );
+        showToast("error", "Error", result?.message);
         setBtnLoader(false);
       }
     } catch (err) {
@@ -340,9 +356,10 @@ const Home = () => {
                 (vehicle) => vehicle.id === formInputs?.vehicleNo
               ) || null
             }
-            onChange={(event, newValue) =>
-              handleSelectInputChange(newValue ? newValue.id : "", 3)
-            }
+            onChange={(event, newValue) => {
+              handleSelectInputChange(newValue ? newValue.id : "", 3);
+              getPastTransactions(newValue?.vehicleNo);
+            }}
             getOptionLabel={(option) => option.vehicleNo}
             isOptionEqualToValue={(option, value) => option.code === value.code}
             renderInput={(params) => (
@@ -426,36 +443,40 @@ const Home = () => {
         </div>
       </div>
       {/* Aggregator Input*/}
-      <div className="mb-3">
-        <label htmlFor="employeeCode" className="form-label">
-          Aggregator
-        </label>
-        {aggregatorData && (
-          <CustomAutocomplete
-            id="aggregator"
-            options={aggregatorData}
-            value={
-              aggregatorData.find(
-                (agg) => agg.name === formInputs?.aggregator
-              ) || null
-            }
-            onChange={(event, newValue) => {
-              console.log("dddddd", newValue);
-              handleSelectInputChange(newValue ? newValue.name : "", 4);
-            }}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.code === value.code}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select an aggregator"
-                variant="outlined"
-                placeholder="Search aggregator"
-              />
-            )}
-          />
-        )}
-      </div>
+      {checkout && (
+        <div className="mb-3">
+          <label htmlFor="employeeCode" className="form-label">
+            Aggregator
+          </label>
+          {aggregatorData && (
+            <CustomAutocomplete
+              id="aggregator"
+              options={aggregatorData}
+              value={
+                aggregatorData.find(
+                  (agg) => agg.name === formInputs?.aggregator
+                ) || null
+              }
+              onChange={(event, newValue) => {
+                console.log("dddddd", newValue);
+                handleSelectInputChange(newValue ? newValue.name : "", 4);
+              }}
+              getOptionLabel={(option) => option.name}
+              isOptionEqualToValue={(option, value) =>
+                option.code === value.code
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select an aggregator"
+                  variant="outlined"
+                  placeholder="Search aggregator"
+                />
+              )}
+            />
+          )}
+        </div>
+      )}
       {/* Location Dropdown */}
       <div className="mb-3">
         <label htmlFor="location" className="form-label">

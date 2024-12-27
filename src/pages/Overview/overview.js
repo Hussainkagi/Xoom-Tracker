@@ -488,7 +488,7 @@ function Overview() {
           <div className="col-lg-6 col-md-6 mb-4">
             <div className="card bg-light shadow-sm">
               <div className="card-body text-center">
-                <h5 className="card-title">Vehicle by Category</h5>
+                <h5 className="card-title">Available Vehicle by Category</h5>
                 <div className="d-flex">
                   <div className={styles.chart__parent}>
                     <Pie data={vehiclePieChartData} options={pieChartOptions} />

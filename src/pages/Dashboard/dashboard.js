@@ -11,6 +11,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
+import { TablePagination } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { Modal, Button, Menu, MenuItem } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -150,6 +151,7 @@ const theme = createTheme({
     },
   },
 });
+
 const Dashboard = () => {
   const [value, setValue] = useState(0);
   const fileInputRef = useRef(null);
@@ -192,6 +194,8 @@ const Dashboard = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [transactionBtn, setTransactionBtn] = useState(true);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
   const [date, setDate] = useState("");
   const [apiData, setApiData] = useState({
@@ -245,6 +249,15 @@ const Dashboard = () => {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const paginatedData = filters?.filterData
+    ?.slice()
+    .reverse()
+    .slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -2147,21 +2160,41 @@ const Dashboard = () => {
               <Table sx={{ minWidth: 650 }} aria-label="transaction table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Employee Code</TableCell>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Vehicle Number</TableCell>
-                    <TableCell>Vehicle Details</TableCell>
-                    <TableCell align="center">Date</TableCell>
-                    <TableCell align="center">Time</TableCell>
-                    <TableCell align="center">Location</TableCell>
-                    <TableCell align="center">Aggregator</TableCell>
-                    <TableCell align="center">Status</TableCell>
-                    <TableCell align="center">Images</TableCell>
-                    <TableCell align="center">Comment</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Employee Code
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Vehicle Number
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Vehicle Details
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Date
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Time
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Location
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Aggregator
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Status
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Images
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Comment
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filters?.filterData?.map((row) => (
+                  {paginatedData?.map((row) => (
                     <TableRow key={row.id}>
                       <TableCell>{row?.employee?.code}</TableCell>
                       <TableCell>{row?.employee?.name}</TableCell>
@@ -2228,6 +2261,14 @@ const Dashboard = () => {
                   ))}
                 </TableBody>
               </Table>
+              <TablePagination
+                rowsPerPageOptions={[20]}
+                component="div"
+                count={filters?.filterData?.length || 0}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+              />
             </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
