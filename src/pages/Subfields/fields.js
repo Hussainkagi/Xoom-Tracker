@@ -266,61 +266,67 @@ function Fields() {
     console.log("body", body);
     try {
       let res = await apiHelper.del(`/aggregator/${id}`, headers, {});
-      getAggregate();
+
+      if (res?.success) {
+        showToast("success", "Success", "Aggregator deleted successfully!");
+        getAggregate();
+      } else {
+        showToast("error", "Error", res?.message || "Something went wrong!");
+      }
     } catch (err) {}
   };
 
   const deleteOwnedBy = async (id) => {
-    let body = {
-      name: formData?.ownedByName,
-    };
-
     let authToken = localStorage.getItem("token");
 
     let headers = {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.del(`/owned-by/${id}`, headers, {});
-      getOwnedBy();
+      if (res?.success) {
+        showToast("success", "Success", "OwnerBy deleted successfully!");
+        getOwnedBy();
+      } else {
+        showToast("error", "Error", res?.message || "Something went wrong!");
+      }
     } catch (err) {}
   };
 
   const deleteModel = async (id) => {
-    let body = {
-      brand: formData?.modelName,
-    };
-
     let authToken = localStorage.getItem("token");
 
     let headers = {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.del(`/model/${id}`, headers, {});
-      getModel();
+      if (res?.success) {
+        showToast("success", "Success", "Model deleted successfully!");
+        getModel();
+      } else {
+        showToast("error", "Error", res?.message || "Something went wrong!");
+      }
     } catch (err) {}
   };
 
   const deleteVehicleType = async (id) => {
-    let body = {
-      name: formData?.categoryName,
-      fuel: formData?.fuel,
-    };
     let authToken = localStorage.getItem("token");
 
     let headers = {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.del(`/vehicle-type/${id}`, headers, {});
-      getCategory();
+      if (res?.success) {
+        showToast("success", "Success", "Vehicle Type deleted successfully!");
+        getCategory();
+      } else {
+        showToast("error", "Error", res?.message || "Something went wrong!");
+      }
     } catch (err) {}
   };
 

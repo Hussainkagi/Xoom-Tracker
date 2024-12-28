@@ -357,7 +357,9 @@ const Dashboard = () => {
       const matchesStatus =
         !filters.status ||
         (filters.status === "in" && row.action === "in") ||
-        (filters.status === "out" && row.action === "out");
+        (filters.status === "out" && row.action === "out") ||
+        (filters.status === "both" &&
+          (row.action === "in" || row.action === "out"));
 
       return matchesSearch && matchesDate && matchesStatus;
     });
@@ -2001,12 +2003,12 @@ const Dashboard = () => {
               }
               {value === 2 && (
                 <button
-                  className={`btn btn-primary mb-3 ${styles.add__btn}`}
+                  className={`btn btn-primary mb-3 text-nowrap  ${styles.add__btn}`}
                   onClick={() => {
                     setTransactionModal(true);
                   }}
                 >
-                  Transaction Allocation{" "}
+                  Transaction Allocation
                   <i className="bi bi-arrow-left-right"></i>
                 </button>
               )}
@@ -2044,7 +2046,7 @@ const Dashboard = () => {
               value === 0 ? styles.filter__container : styles.without__filters
             }
           >
-            {value !== 3 && (
+            {value !== 3 && value !== 4 && (
               <div
                 className={`mb-3 ${value === 0 ? "w-100" : ""}`}
                 style={{ width: "300px" }}
@@ -2109,8 +2111,11 @@ const Dashboard = () => {
                     <option value="all" defaultChecked>
                       Select status
                     </option>
-                    <option value="in">Check in</option>
-                    <option value="out">Check out</option>
+                    <option value="in">Show Only Check in Transactions</option>
+                    <option value="out">
+                      Show Only Check out Transactions
+                    </option>
+                    <option value="both">Show Both</option>
                   </select>
                 </div>
               </>
@@ -2229,7 +2234,7 @@ const Dashboard = () => {
                         {row?.location?.name}
                       </TableCell>
                       <TableCell align="center">
-                        {row?.aggregator?.name}
+                        {row?.vehicle?.aggregator?.name}
                       </TableCell>
                       <TableCell align="center">
                         <Chip
