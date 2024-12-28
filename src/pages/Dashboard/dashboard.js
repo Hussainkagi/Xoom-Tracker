@@ -703,6 +703,8 @@ const Dashboard = () => {
             setBtnLoader(false);
             setTransactionModal(false);
             setTaFileData(null);
+            setCount(0);
+            setTotalAmount(0);
             if (result?.errorArray?.length > 0) {
               downloadErrorFile(result);
             }
@@ -712,7 +714,8 @@ const Dashboard = () => {
                 "Trip Time": item.tripTime,
                 Plate: item.Plate,
                 "Amount(AED)": item.amount,
-                "Employee Name": item.employeeDetails.employee_name,
+                "Employee Code": item?.details?.employee_code,
+                "Employee Name": item?.details?.employee_name,
               }));
               // Convert the data to a worksheet
               const employeeSheet = XLSX.utils.json_to_sheet(employeeSheetData);

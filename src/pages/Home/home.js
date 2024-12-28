@@ -65,6 +65,7 @@ const Home = () => {
   const [vehicleData, setVehicleData] = useState([]);
   const [aggregatorData, setAggregatorData] = useState([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [pastData, setPastData] = useState([]);
   const [toastConfig, setToastConfig] = useState({
     show: false,
     title: "",
@@ -123,13 +124,19 @@ const Home = () => {
     };
     if (!checkout) {
       try {
-        let response = apiHelper.get(
+        let response = await apiHelper.get(
           `/transaction/past-transaction/${no}`,
           {},
           headers
         );
 
-        console.log("response", response);
+        if (response?.success) {
+          setPastData(response?.data);
+          handleFormInputs("empCode", response?.data?.employee?.id);
+          handleFormInputs("empName", response?.data?.employee?.name);
+        }
+
+        console.log("response", response?.data);
       } catch (error) {}
     }
   };
@@ -229,6 +236,7 @@ const Home = () => {
     // setName("");
     // setDate("");
     setTime("");
+    setPastData([]);
     // setLocation("");
     setVehiclePictures({
       front: null,
@@ -378,26 +386,40 @@ const Home = () => {
         <label htmlFor="employeeCode" className="form-label">
           Employee Code
         </label>
-        {employeeData && (
-          <CustomAutocomplete
+        {checkout ? (
+          employeeData && (
+            <CustomAutocomplete
+              id="employeeCode"
+              options={employeeData}
+              disabled={!checkout}
+              value={
+                employeeData.find((emp) => emp.id === formInputs?.empCode) ||
+                null
+              }
+              onChange={(event, newValue) =>
+                handleSelectInputChange(newValue ? newValue.id : "", 1)
+              }
+              getOptionLabel={(option) => option.code}
+              isOptionEqualToValue={(option, value) =>
+                option.code === value.code
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select an employee"
+                  variant="outlined"
+                  placeholder="Search employees"
+                />
+              )}
+            />
+          )
+        ) : (
+          <input
+            type="text"
+            className="form-control"
             id="employeeCode"
-            options={employeeData}
-            value={
-              employeeData.find((emp) => emp.id === formInputs?.empCode) || null
-            }
-            onChange={(event, newValue) =>
-              handleSelectInputChange(newValue ? newValue.id : "", 1)
-            }
-            getOptionLabel={(option) => option.code}
-            isOptionEqualToValue={(option, value) => option.code === value.code}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select an employee"
-                variant="outlined"
-                placeholder="Search employees"
-              />
-            )}
+            value={pastData?.employee?.code || ""}
+            readOnly
           />
         )}
       </div>
@@ -410,7 +432,7 @@ const Home = () => {
           type="text"
           className="form-control"
           id="name"
-          value={formInputs?.empName}
+          value={checkout ? formInputs?.empName : pastData?.employee?.name}
           readOnly
         />
       </div>
