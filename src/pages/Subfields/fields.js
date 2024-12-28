@@ -487,7 +487,7 @@ function Fields() {
             </tr>
           </thead>
           <tbody>
-            {apiData?.ownedBy.map((row, index) => (
+            {apiData?.ownedBy?.map((row, index) => (
               <tr key={row.id}>
                 <td>{index + 1}</td>
                 <td>{row.name}</td>
@@ -521,7 +521,7 @@ function Fields() {
             </tr>
           </thead>
           <tbody>
-            {apiData?.categories.map((row, index) => (
+            {apiData?.categories?.map((row, index) => (
               <tr key={row.id}>
                 <td>{index + 1}</td>
                 <td>{row.name}</td>
@@ -632,7 +632,7 @@ function Fields() {
               </div>
               <div className="modal-body">
                 <form>
-                  {modalConfig[activeModal].fields.map((field) => (
+                  {modalConfig[activeModal].fields?.map((field) => (
                     <div className="mb-3" key={field.name}>
                       <label className="form-label">{field.label}</label>
                       {field.type === "select" ? (
@@ -643,7 +643,7 @@ function Fields() {
                           onChange={handleChange}
                         >
                           <option value="">Select {field.label}</option>
-                          {field.options.map((option, idx) => (
+                          {field?.options?.map((option, idx) => (
                             <option key={idx} value={option}>
                               {option}
                             </option>

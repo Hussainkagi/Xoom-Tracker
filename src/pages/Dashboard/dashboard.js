@@ -53,7 +53,7 @@ const style = {
   boxShadow: 24,
   p: 4,
   maxHeight: "90vh",
-  overflow: "hidden",
+  overflow: "auto",
 };
 
 const scrollableStyle = {
@@ -736,7 +736,7 @@ const Dashboard = () => {
           showToast(
             "error",
             "Error",
-            response?.message || "Something went wrong!"
+            result?.message || "Something went wrong!"
           );
           setBtnLoader(false);
         }
