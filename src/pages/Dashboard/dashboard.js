@@ -324,7 +324,7 @@ const Dashboard = () => {
     handleFilterChange("isApplied", true);
     switch (value) {
       case 0:
-        applyFiltersUpdated();
+        searchOnTransactions();
         break;
       case 1:
         searchOnEmployess();
@@ -335,23 +335,18 @@ const Dashboard = () => {
     }
   };
 
-  const applyFiltersUpdated = () => {
+  const searchOnTransactions = () => {
     let filteredData = transactionData.filter((row) => {
-      // Ignore rows with null or undefined critical fields
-      // if (!row?.employee?.code || !row?.date || !row?.vehicle?.vehicleNo) {
-      //   return false;
-      // }
-
       const matchesSearch =
         !filters.search ||
-        (row.employee?.code &&
-          row.employee.code
-            .toLowerCase()
-            .includes(filters.search.toLowerCase())) ||
-        (row.employee?.name &&
-          row.employee.name
-            .toLowerCase()
-            .includes(filters.search.toLowerCase()));
+        (row?.employee?.code &&
+          row?.employee?.code
+            ?.toLowerCase()
+            ?.includes(filters.search.toLowerCase())) ||
+        (row?.vehicle?.vehicleNo &&
+          row?.vehicle?.vehicleNo
+            ?.toLowerCase()
+            ?.includes(filters.search.toLowerCase()));
 
       const matchesDate =
         (!filters.startDate ||
