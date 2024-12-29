@@ -98,6 +98,11 @@ text-orientation:upright;
   background-color: transparent;
 }
 
+.alert__icon{
+  color: red;
+  font-size: 4.5rem;
+}
+
 
 
   @media (width < 768px)  {

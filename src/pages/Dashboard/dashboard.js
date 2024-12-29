@@ -1434,6 +1434,36 @@ const Dashboard = () => {
   // ****************************Export Data to Excel Common Function*******************************
   const exportDataToExcel = () => {
     switch (value) {
+      case 0:
+        const transactionSheetData = transactionData.map((item, index) => ({
+          "Sr. No.": index + 1,
+          "Employee Code": item?.employee?.code || "N/A",
+          "Employee Name": item?.employee?.name || "N/A",
+          "Vehicle Code": item?.vehicle?.code || "N/A",
+          "Vehicle No": item?.vehicle?.vehicleNo || "N/A",
+          " Emirates": item?.vehicle?.emirates || "NA",
+          "Vehicle Details": item?.vehicle
+            ? `${item.vehicle.model?.brand || "N/A"} (${
+                item.vehicle.vehicleType?.name || "N/A"
+              } ${item.vehicle.vehicleType?.fuel || "N/A"})`
+            : "N/A",
+          Date: item.date || "N/A",
+          Time: item.time || "N/A",
+          Location: item?.location?.name || "N/A",
+          Aggregator: item?.vehicle?.aggregator?.name || "N/A",
+          Action: item.action === "in" ? "Check In" : "Check Out",
+          Comments: item.comments || "N/A",
+        }));
+        const transactionSheet = XLSX.utils.json_to_sheet(transactionSheetData);
+        const transactionWorkbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(
+          transactionWorkbook,
+          transactionSheet,
+          "Transactions"
+        );
+        XLSX.writeFile(transactionWorkbook, "Transaction_Data.xlsx");
+        break;
+
       case 1: // Employee Data
         // Prepare the data for Excel
         console.log("AA", employeeData);
@@ -1911,7 +1941,7 @@ const Dashboard = () => {
           zIndex: 1000,
         }}
       >
-        <img src={alrtSign} alt="alert-popup" className={styles.alert__img} />
+        <i className={`bi bi-exclamation-triangle ${styles.alert__icon}`}></i>
         <h4>Warning</h4>
         <strong>{message}</strong>
         <button
@@ -2234,7 +2264,7 @@ const Dashboard = () => {
                         {row?.location?.name}
                       </TableCell>
                       <TableCell align="center">
-                        {row?.vehicle?.aggregator?.name}
+                        {row?.aggregator?.name}
                       </TableCell>
                       <TableCell align="center">
                         <Chip
