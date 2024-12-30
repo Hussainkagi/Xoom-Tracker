@@ -623,19 +623,29 @@ const Dashboard = () => {
         // Process the data to count rows and calculate total amount
         if (sheetData?.length > 1) {
           const rows = sheetData.slice(1);
+
+          // Filter out empty rows
+          const validRows = rows.filter((row) =>
+            row.some(
+              (cell) => cell !== null && cell !== undefined && cell !== ""
+            )
+          );
+
           const amountIndex = sheetData[0].indexOf("Amount(AED)");
 
           if (amountIndex !== -1) {
-            const total = rows.reduce(
+            const total = validRows.reduce(
               (sum, row) => sum + (parseFloat(row[amountIndex]) || 0),
               0
             );
-            setCount(rows?.length);
+            setCount(validRows?.length); // Use the length of validRows
             setTotalAmount(total.toFixed(2));
             setTransactionBtn(false);
             setTaFileData(file);
           } else {
-            alert("The uploaded file does not have a column named 'amount'.");
+            alert(
+              "The uploaded file does not have a column named 'Amount(AED)'."
+            );
           }
         } else {
           alert("The uploaded file seems to be empty.");
@@ -645,6 +655,7 @@ const Dashboard = () => {
       reader.readAsArrayBuffer(file);
     }
   };
+
   // *********************************Handle Image Model START***********************************
   const handleImageClick = (images) => {
     // Open modal with selected images
