@@ -2316,9 +2316,7 @@ const Dashboard = () => {
                       <TableCell align="center">
                         {row?.location?.name}
                       </TableCell>
-                      <TableCell align="center">
-                        {row?.aggregator?.name}
-                      </TableCell>
+                      <TableCell align="center">{row?.aggregator}</TableCell>
                       <TableCell align="center">
                         <Chip
                           label={row.action === "in" ? "Check in" : "Check out"}
