@@ -47,7 +47,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: 450,
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,
@@ -1852,6 +1852,48 @@ const Dashboard = () => {
     return (
       <div>
         <p className="text-center">Add your documents here.</p>
+        <div
+          className="mb-4 p-3 border rounded"
+          style={{
+            backgroundColor: "#f8f9fa",
+            boxShadow: "0 1px 4px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <h6 className="text-center text-muted">Required Excel Format</h6>
+          <div
+            className="table-responsive"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              overflowX: "auto",
+            }}
+          >
+            <table
+              className="table table-bordered"
+              style={{
+                maxWidth: "500px",
+                borderCollapse: "collapse",
+                backgroundColor: "#ffffff",
+                fontSize: "14px",
+              }}
+            >
+              <thead style={{ backgroundColor: "#e9ecef" }}>
+                <tr>
+                  <th>Trip Date</th>
+                  <th>Trip Time</th>
+                  <th>Plate</th>
+                  <th>Amount(AED)</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+          <p
+            className="text-muted text-center mt-2"
+            style={{ fontSize: "12px" }}
+          >
+            Please ensure your file matches the above format before uploading.
+          </p>
+        </div>
         <div
           className="d-flex flex-column justify-content-center align-items-center border border-dashed rounded p-4"
           style={{
