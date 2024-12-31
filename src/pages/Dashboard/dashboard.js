@@ -195,6 +195,11 @@ const Dashboard = () => {
   const [transactionBtn, setTransactionBtn] = useState(true);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [page, setPage] = useState(0);
+  const [pageTable, setPageTable] = useState({
+    transactionPage: 0,
+    employeePage: 0,
+    vehiclePage: 0,
+  });
   const rowsPerPage = 10;
 
   const [date, setDate] = useState("");
@@ -254,10 +259,44 @@ const Dashboard = () => {
     setPage(newPage);
   };
 
+  const handlePaginatonPage = (type, newPage) => {
+    console.log("eeeeee", newPage);
+    switch (type) {
+      case 1:
+        handlePageData("transactionPage", newPage);
+        break;
+      case 2:
+        handlePageData("employeePage", newPage);
+        break;
+      case 3:
+        handlePageData("vehiclePage", newPage);
+        break;
+    }
+  };
+
   const paginatedData = filters?.filterData
     ?.slice()
     .reverse()
-    .slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+    .slice(
+      pageTable?.transactionPage * rowsPerPage,
+      (pageTable?.transactionPage + 1) * rowsPerPage
+    );
+
+  const employeePaginationData = filters?.employeeData
+    ?.slice()
+    .reverse()
+    .slice(
+      pageTable?.employeePage * rowsPerPage,
+      (pageTable?.employeePage + 1) * rowsPerPage
+    );
+
+  const vehiclePaginationData = filters?.vehicleData
+    ?.slice()
+    .reverse()
+    .slice(
+      pageTable?.vehiclePage * rowsPerPage,
+      (pageTable?.vehiclePage + 1) * rowsPerPage
+    );
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -269,6 +308,13 @@ const Dashboard = () => {
 
   const handleApiData = (key, value) => {
     setApiData((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
+
+  const handlePageData = (key, value) => {
+    setPageTable((prevState) => ({
       ...prevState,
       [key]: value,
     }));
@@ -2316,7 +2362,9 @@ const Dashboard = () => {
                       <TableCell align="center">
                         {row?.location?.name}
                       </TableCell>
-                      <TableCell align="center">{row?.aggregator}</TableCell>
+                      <TableCell align="center">
+                        {row?.aggregatorElectric}
+                      </TableCell>
                       <TableCell align="center">
                         <Chip
                           label={row.action === "in" ? "Check in" : "Check out"}
@@ -2350,8 +2398,10 @@ const Dashboard = () => {
                 component="div"
                 count={filters?.filterData?.length || 0}
                 rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
+                page={pageTable?.transactionPage}
+                onPageChange={(event, newPage) =>
+                  handlePaginatonPage(1, newPage)
+                }
               />
             </TableContainer>
           </CustomTabPanel>
@@ -2370,8 +2420,8 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filters?.employeeData
-                    ? filters?.employeeData?.map((row, index) => (
+                  {employeePaginationData
+                    ? employeePaginationData?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">{row?.code}</TableCell>
@@ -2405,6 +2455,16 @@ const Dashboard = () => {
                     : "No Data Available"}
                 </TableBody>
               </Table>
+              <TablePagination
+                rowsPerPageOptions={[20]}
+                component="div"
+                count={filters?.employeeData?.length || 0}
+                rowsPerPage={rowsPerPage}
+                page={pageTable?.employeePage}
+                onPageChange={(event, newPage) =>
+                  handlePaginatonPage(2, newPage)
+                }
+              />
             </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
@@ -2424,7 +2484,7 @@ const Dashboard = () => {
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Aggregator
                     </TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>
+                    <TableCell sx={{ fontWeight: "bold" }}> 
                       Chasis No.
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
@@ -2438,8 +2498,8 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {vehicleData?.length > 0
-                    ? filters?.vehicleData?.map((row, index) => (
+                  {vehiclePaginationData
+                    ? vehiclePaginationData?.map((row, index) => (
                         <TableRow key={index}>
                           <TableCell align="left">{index + 1}</TableCell>
                           <TableCell align="left">
@@ -2523,6 +2583,16 @@ const Dashboard = () => {
                     : "No Data Available"}
                 </TableBody>
               </Table>
+              <TablePagination
+                rowsPerPageOptions={[20]}
+                component="div"
+                count={filters?.vehicleData?.length || 0}
+                rowsPerPage={rowsPerPage}
+                page={pageTable?.vehiclePage}
+                onPageChange={(event, newPage) =>
+                  handlePaginatonPage(3, newPage)
+                }
+              />
             </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={3}>
