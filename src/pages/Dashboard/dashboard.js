@@ -342,7 +342,6 @@ const Dashboard = () => {
   const handleDateChange = (e) => {
     const inputDate = e.target.value;
     setDate(inputDate);
-    console.log("date", e.target.value);
     if (inputDate) {
       const [year, month, day] = inputDate.split("-");
       handleInputFields("expDate", `${day}-${month}-${year}`);
@@ -368,6 +367,9 @@ const Dashboard = () => {
 
   const applyFilters = () => {
     handleFilterChange("isApplied", true);
+    handlePageData("transactionPage", 0);
+    handlePageData("employeePage", 0);
+    handlePageData("vehiclePage", 0);
     switch (value) {
       case 0:
         searchOnTransactions();
@@ -399,7 +401,6 @@ const Dashboard = () => {
           new Date(row.date) >= new Date(filters.startDate)) &&
         (!filters.endDate || new Date(row.date) <= new Date(filters.endDate));
 
-      console.log("staus", filters?.status);
       const matchesStatus =
         !filters.status ||
         (filters.status === "in" && row.action === "in") ||
@@ -751,7 +752,6 @@ const Dashboard = () => {
         );
 
         const result = await response.json();
-        console.log("respone", result);
         if (result?.success) {
           setTimeout(() => {
             setBtnLoader(false);
@@ -893,9 +893,6 @@ const Dashboard = () => {
           file.type === "application/vnd.ms-excel" ||
           file.type ===
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-        // console.log("is Excel file", isExcelFile);
-        // console.log("file", file);
 
         if (isExcelFile && !manual) {
           let authToken = localStorage.getItem("token");
@@ -1202,7 +1199,6 @@ const Dashboard = () => {
           setBtnLoader(true);
           const formData = new FormData();
           formData.append("file", file);
-          console.log("Form", formData);
           const response = await fetch(
             process.env.REACT_APP_BASE_URL + "/vehicle/upload",
             {
@@ -1306,7 +1302,6 @@ const Dashboard = () => {
       isDeleted: false,
     };
 
-    console.log("update", body1);
     if (!checkVehicleFields()) {
       return;
     }
@@ -1389,7 +1384,6 @@ const Dashboard = () => {
     let response = await apiHelper.get("/transaction", {}, headers);
     setTransactionData(response.data);
     handleFilterChange("filterData", response.data);
-    console.log("Data", response.data);
   };
 
   const uploadTransactionData = async (file) => {
@@ -1404,9 +1398,6 @@ const Dashboard = () => {
           file.type === "application/vnd.ms-excel" ||
           file.type ===
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-        // console.log("is Excel file", isExcelFile);
-        // console.log("file", file);
 
         if (isExcelFile) {
           let authToken = localStorage.getItem("token");
@@ -1523,14 +1514,11 @@ const Dashboard = () => {
 
       case 1: // Employee Data
         // Prepare the data for Excel
-        console.log("AA", employeeData);
         const employeeSheetData = employeeData.map((item, index) => ({
           "Sr. No.": index + 1,
           "Employee Code": item.code,
           "Driver Name": item.name,
         }));
-
-        console.log("sheete", employeeSheetData);
 
         // Convert the data to a worksheet
         const employeeSheet = XLSX.utils.json_to_sheet(employeeSheetData);
@@ -2362,9 +2350,7 @@ const Dashboard = () => {
                       <TableCell align="center">
                         {row?.location?.name}
                       </TableCell>
-                      <TableCell align="center">
-                        {row?.aggregatorElectric}
-                      </TableCell>
+                      <TableCell align="center">{row?.aggregator}</TableCell>
                       <TableCell align="center">
                         <Chip
                           label={row.action === "in" ? "Check in" : "Check out"}
@@ -2379,7 +2365,6 @@ const Dashboard = () => {
                           }}
                           onClick={() => {
                             handleImageClick(row.pictures);
-                            console.log("Click", row.pictures);
                           }}
                         ></i>
                       </TableCell>
@@ -2484,7 +2469,7 @@ const Dashboard = () => {
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Aggregator
                     </TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}> 
+                    <TableCell sx={{ fontWeight: "bold" }}>
                       Chasis No.
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
@@ -2679,10 +2664,6 @@ const Dashboard = () => {
               imageObj && imageObj[position]?.url
                 ? extractGoogleDriveFileId(imageObj[position]?.url)
                 : null;
-            console.log(
-              position,
-              `https://lh3.googleusercontent.com/d/${urlid}=w1000?authuser=1/view`
-            );
 
             return (
               <img
