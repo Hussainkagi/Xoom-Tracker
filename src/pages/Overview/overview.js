@@ -81,7 +81,7 @@ function Overview() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "bottom", // Legend position
+        display: false, // Hide the legend
       },
       datalabels: {
         display: true, // Ensure labels are displayed
@@ -92,7 +92,7 @@ function Overview() {
           size: 12,
           weight: "bold",
         },
-        formatter: (value) => `${value} `, // Add "AED" to numbers
+        formatter: (value) => `${value}`, // Customize label format if needed
       },
     },
   };
@@ -441,16 +441,37 @@ function Overview() {
     <div className={styles.parent__container}>
       <div className="container mt-4">
         <div className="row">
-          <div className="col-lg-6 col-md-6 mb-4">
-            <div className="card bg-light shadow-sm">
-              <div className="card-body text-center">
-                <h5 className="card-title">Vehicle by Aggregator</h5>
-                <div className="d-flex">
-                  <div className={styles.chart__parent}>
-                    <Pie data={pieChartData} options={pieChartOptions} />
-                  </div>
-                  <div>
-                    <div>
+          <div className="row">
+            <div className="col-lg-6 col-md-6 mb-4">
+              <div
+                className="card bg-light shadow-sm"
+                style={{ height: "100%" }}
+              >
+                <div className="card-body text-center d-flex flex-column">
+                  <h5 className="card-title">Vehicle by Aggregator</h5>
+                  <div
+                    className="d-flex align-items-center"
+                    style={{ flex: "1 0 auto" }}
+                  >
+                    <div
+                      className={styles.chart__parent}
+                      style={{ flex: "1 1 auto", maxWidth: "50%" }}
+                    >
+                      <Pie
+                        data={pieChartData}
+                        options={pieChartOptions}
+                        style={{ height: "250px", width: "250px" }}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        flex: "1 1 auto",
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        marginLeft: "20px",
+                      }}
+                      className={styles.pie__card}
+                    >
                       <ul style={{ listStyleType: "none", padding: 0 }}>
                         {pieChartData.labels.map((label, index) => (
                           <li
@@ -461,7 +482,6 @@ function Overview() {
                               marginBottom: "10px",
                             }}
                           >
-                            {/* Color indicator */}
                             <span
                               style={{
                                 display: "inline-block",
@@ -471,7 +491,6 @@ function Overview() {
                                 marginRight: "10px",
                               }}
                             ></span>
-                            {/* Label and Value */}
                             <span>
                               {label}: {pieChartData.datasets[0].data[index]}{" "}
                             </span>
@@ -483,18 +502,37 @@ function Overview() {
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="col-lg-6 col-md-6 mb-4">
-            <div className="card bg-light shadow-sm">
-              <div className="card-body text-center">
-                <h5 className="card-title">Occupied Vehicle by Category</h5>
-                <div className="d-flex">
-                  <div className={styles.chart__parent}>
-                    <Pie data={vehiclePieChartData} options={pieChartOptions} />
-                  </div>
-                  <div>
-                    <div>
+            <div className="col-lg-6 col-md-6 mb-4">
+              <div
+                className="card bg-light shadow-sm"
+                style={{ height: "100%" }}
+              >
+                <div className="card-body text-center d-flex flex-column">
+                  <h5 className="card-title">Occupied Vehicle by Category</h5>
+                  <div
+                    className="d-flex align-items-center"
+                    style={{ flex: "1 0 auto" }}
+                  >
+                    <div
+                      className={styles.chart__parent}
+                      style={{ flex: "1 1 auto", maxWidth: "50%" }}
+                    >
+                      <Pie
+                        data={vehiclePieChartData}
+                        options={pieChartOptions}
+                        style={{ height: "250px", width: "250px" }}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        flex: "1 1 auto",
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        marginLeft: "20px",
+                      }}
+                      className={styles.pie__card}
+                    >
                       <ul style={{ listStyleType: "none", padding: 0 }}>
                         {vehiclePieChartData.labels.map((label, index) => (
                           <li
@@ -505,7 +543,6 @@ function Overview() {
                               marginBottom: "10px",
                             }}
                           >
-                            {/* Color indicator */}
                             <span
                               style={{
                                 display: "inline-block",
@@ -516,7 +553,6 @@ function Overview() {
                                 marginRight: "10px",
                               }}
                             ></span>
-                            {/* Label and Value */}
                             <span>
                               {label}:{" "}
                               {vehiclePieChartData.datasets[0].data[index]}{" "}
