@@ -883,10 +883,10 @@ const Dashboard = () => {
 
   const uploadEmployeeData = async (file) => {
     try {
-      if (!file) {
-        alert("No file selected. Please upload a file.");
-        return;
-      }
+      // if (!file) {
+      //   alert("No file selected. Please upload a file.");
+      //   return;
+      // }
 
       if (file) {
         const isExcelFile =
