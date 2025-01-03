@@ -20,6 +20,15 @@
   margin-bottom: 0;
 }
 
+.pie__card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pie__card::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
 .table__container::-webkit-scrollbar {
   width: 6px;
 }
