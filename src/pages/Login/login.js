@@ -12,6 +12,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [btnLoader, setBtnLoader] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
 
   // Handle form submission
@@ -69,18 +71,35 @@ const Login = () => {
                 </label>
               </div>
 
-              <div data-mdb-input-init className="form-outline mb-3">
-                <input
-                  type="password"
-                  id="form3Example4"
-                  className="form-control form-control-lg"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <div
+                data-mdb-input-init
+                className="form-outline mb-3 position-relative"
+              >
+                <div className={`d-flex align-items-center gap-2`}>
+                  <input
+                    type={showPassword ? "text" : "password"} // Toggle input type
+                    id="form3Example4"
+                    className="form-control form-control-lg"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <span
+                    className={`password__input`}
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    <i
+                      className={`bi ${
+                        showPassword ? "bi-eye-slash" : "bi-eye"
+                      }`}
+                    ></i>
+                  </span>
+                </div>
+
                 <label className="form-label" htmlFor="form3Example4">
                   Password
                 </label>
+                {/* Eye Icon for toggling visibility */}
               </div>
 
               {/* <div className="d-flex justify-content-between align-items-center">
