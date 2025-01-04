@@ -883,10 +883,10 @@ const Dashboard = () => {
 
   const uploadEmployeeData = async (file) => {
     try {
-      if (!file) {
-        alert("No file selected. Please upload a file.");
-        return;
-      }
+      // if (!file) {
+      //   alert("No file selected. Please upload a file.");
+      //   return;
+      // }
 
       if (file) {
         const isExcelFile =
@@ -1081,7 +1081,7 @@ const Dashboard = () => {
           setBtnLoader(false);
         }, 800);
 
-        showToast("success", "Success", "Vehicle created successfully!");
+        showToast("success", "Success", "Location created successfully!");
       } else {
         showToast("error", "Error", response.message);
         setBtnLoader(false);
@@ -1835,7 +1835,7 @@ const Dashboard = () => {
                 name="locName"
                 value={locationName}
                 onChange={handleInputChange}
-                placeholder="Enter cocation name"
+                placeholder="Enter Lcocation name"
               />
             </div>
 
