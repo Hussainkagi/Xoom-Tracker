@@ -26,6 +26,8 @@ import Toast from "../../components/Toast/toast";
 import alrtSign from "../../assets/Images/alert.png";
 import progress from "../../assets/Images/progress.jpg";
 
+const REACT_APP_BASE_URL = "http://139.59.58.9:3000/api";
+
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -743,7 +745,7 @@ const Dashboard = () => {
       formData.append("file", file);
       try {
         let response = await fetch(
-          process.env.REACT_APP_BASE_URL + "/transaction/upload-fine",
+          REACT_APP_BASE_URL + "/transaction/upload-fine",
           {
             method: "POST",
             headers,
@@ -905,7 +907,7 @@ const Dashboard = () => {
           formData.append("file", file);
 
           const response = await fetch(
-            process.env.REACT_APP_BASE_URL + "/employee/upload",
+            REACT_APP_BASE_URL + "/employee/upload",
             {
               method: "POST",
               headers,
@@ -1200,7 +1202,7 @@ const Dashboard = () => {
           const formData = new FormData();
           formData.append("file", file);
           const response = await fetch(
-            process.env.REACT_APP_BASE_URL + "/vehicle/upload",
+            REACT_APP_BASE_URL + "/vehicle/upload",
             {
               method: "POST",
               headers,
@@ -1410,7 +1412,7 @@ const Dashboard = () => {
           formData.append("file", file);
 
           const response = await fetch(
-            process.env.REACT_APP_BASE_URL + "/transaction/upload",
+            REACT_APP_BASE_URL + "/transaction/upload",
             {
               method: "POST",
               headers,

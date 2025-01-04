@@ -8,6 +8,8 @@ import { Autocomplete, TextField } from "@mui/material";
 import Toast from "../../components/Toast/toast";
 import CheckMark from "../../components/CheckMark/check";
 
+const REACT_APP_BASE_URL = "http://139.59.58.9:3000/api";
+
 const CustomAutocomplete = styled(Autocomplete)({
   "& .MuiAutocomplete-endAdornment": {
     display: "none",
@@ -305,7 +307,7 @@ const Home = () => {
 
     try {
       const response = await fetch(
-        process.env.REACT_APP_BASE_URL + "/transaction",
+        REACT_APP_BASE_URL + "/transaction",
         {
           method: "POST",
           headers,
