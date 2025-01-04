@@ -1,7 +1,11 @@
 {
   "files": {
     "main.css": "/static/css/main.b09a1600.css",
+<<<<<<< HEAD
     "main.js": "/static/js/main.80e71a59.js",
+=======
+    "main.js": "/static/js/main.485f4790.js",
+>>>>>>> parent of befd722 (- added build)
     "static/js/453.ed3810f9.chunk.js": "/static/js/453.ed3810f9.chunk.js",
     "static/media/alert.png": "/static/media/alert.671b663335e66aed2dc9.png",
     "static/media/bootstrap-icons.woff?": "/static/media/bootstrap-icons.39795c0b4513de014cf8.woff",
@@ -11,11 +15,19 @@
     "static/media/logo.jpeg": "/static/media/logo.410c92427b7f332cb1fd.jpeg",
     "index.html": "/index.html",
     "main.b09a1600.css.map": "/static/css/main.b09a1600.css.map",
+<<<<<<< HEAD
     "main.80e71a59.js.map": "/static/js/main.80e71a59.js.map",
+=======
+    "main.485f4790.js.map": "/static/js/main.485f4790.js.map",
+>>>>>>> parent of befd722 (- added build)
     "453.ed3810f9.chunk.js.map": "/static/js/453.ed3810f9.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b09a1600.css",
+<<<<<<< HEAD
     "static/js/main.80e71a59.js"
+=======
+    "static/js/main.485f4790.js"
+>>>>>>> parent of befd722 (- added build)
   ]
 }
