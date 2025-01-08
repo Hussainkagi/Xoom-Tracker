@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an axios instance with default configuration
 const api = axios.create({
-  baseURL: "http://139.59.58.9:3000/api/",
+  baseURL: "https://app.xoom.ae/api/",
   headers: {
     "Content-Type": "application/json",
   },
