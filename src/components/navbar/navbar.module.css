@@ -1,0 +1,44 @@
+.logo__image {
+  width: 4.5rem;
+  height: 2.25rem;
+  border-radius: .5rem;
+}
+.icon{ 
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.exit__model {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.btn__box{
+  display: flex;
+  gap: 20px;
+}
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Stays on top of all content */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.body-padding {
+  padding-top: 70px; /* Adjust based on the navbar height */
+}
+
+.item__pointer{
+  cursor: pointer;
+}
+
+
+
+@media (max-width: 768px) {
+.btn__box{
+flex-direction: column;
+}
+}

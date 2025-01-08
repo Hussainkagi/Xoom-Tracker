@@ -1,0 +1,20 @@
+.add__btn {
+    background-color: #9acb3b;
+    border: none;
+}
+
+.loader__box{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.invalid__text{
+    color: red;
+    font-weight: 400;
+}
+
+.super__user__text{
+    color: #9acb3b;
+}

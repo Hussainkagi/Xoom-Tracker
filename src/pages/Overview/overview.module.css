@@ -1,0 +1,47 @@
+.parent__container {
+  padding: 1.5rem 2.5rem;
+}
+
+.chart__parent {
+  width: 22rem;
+  height: 22rem;
+  margin: 0 auto;
+}
+
+.scrollable__card {
+  /* max-height: 300px;
+  overflow-y: auto; */
+}
+.table__container{
+  max-height: 200px;
+  overflow-y: auto;
+}
+.table__container .table {
+  margin-bottom: 0;
+}
+
+.pie__card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pie__card::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.table__container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.table__container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .chart__parent {
+    width: 15rem;
+    height: 15rem;
+    margin: 0 auto;
+  }
+}
