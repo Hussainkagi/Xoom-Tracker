@@ -7,6 +7,7 @@ import { styled } from "@mui/material/styles";
 import { Autocomplete, TextField } from "@mui/material";
 import Toast from "../../components/Toast/toast";
 import CheckMark from "../../components/CheckMark/check";
+import imageCompression from "browser-image-compression";
 
 const REACT_APP_BASE_URL = "https://app.xoom.ae/api";
 
@@ -153,21 +154,34 @@ const Home = () => {
   };
 
   // Handling picture uploads and showing preview
-  const handlePictureChange = (side, file) => {
-    setVehiclePictures((prevPictures) => ({
-      ...prevPictures,
-      [side]: file,
-    }));
+  const handlePictureChange = async (side, file) => {
+    try {
+      // Compress the image
+      const options = {
+        maxSizeMB: 1, // Maximum file size in MB
+        maxWidthOrHeight: 1024, // Max width or height in pixels
+        useWebWorker: true, // Use web workers for better performance
+      };
+      const compressedFile = await imageCompression(file, options);
 
-    // Create preview URL for the image
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setVehiclePreviews((prevPreviews) => ({
-        ...prevPreviews,
-        [side]: e.target.result,
+      // Set the compressed image
+      setVehiclePictures((prevPictures) => ({
+        ...prevPictures,
+        [side]: compressedFile,
       }));
-    };
-    reader.readAsDataURL(file);
+
+      // Create preview URL for the compressed image
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setVehiclePreviews((prevPreviews) => ({
+          ...prevPreviews,
+          [side]: e.target.result,
+        }));
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error("Error compressing the image:", error);
+    }
   };
 
   const handleSelectInputChange = (input, type) => {
@@ -326,7 +340,7 @@ const Home = () => {
         setBtnLoader(false);
       }
     } catch (err) {
-      showToast("error", "Error", "Something went wrong!");
+      showToast("error", "Error", err?.message || "An error occurred");
       console.error("Error submitting form:", err);
     }
     setBtnLoader(false);
