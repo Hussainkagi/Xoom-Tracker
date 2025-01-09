@@ -139,7 +139,7 @@ const Home = () => {
         }
 
         console.log("response", response?.data);
-      } catch (error) { }
+      } catch (error) {}
     }
   };
 
@@ -171,7 +171,6 @@ const Home = () => {
   };
 
   const handleSelectInputChange = (input, type) => {
-    console.log("aaaaa", input);
     if (type === 1) {
       handleFormInputs("empCode", input);
 
@@ -294,8 +293,6 @@ const Home = () => {
     formData.append("aggregator", checkout ? formInputs?.aggregator : "idle");
     formData.append("action", !checkout ? "in" : "out");
 
-    console.log("form", formInputs);
-
     if (vehiclePictures.back)
       formData.append("vehiclePictures[back]", vehiclePictures.back);
     if (vehiclePictures.front)
@@ -306,15 +303,12 @@ const Home = () => {
       formData.append("vehiclePictures[right]", vehiclePictures.right);
 
     try {
-      const response = await fetch(
-        REACT_APP_BASE_URL + "/transaction",
-        {
-          method: "POST",
-          headers,
-          body: formData,
-        }
-      );
-      console.log("responsesjfskjdhdgf", response);
+      const response = await fetch(REACT_APP_BASE_URL + "/transaction", {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
       const result = await response.json();
       // const response = await apiHelper.post("/transaction", formData, headers);
       if (result.success === true) {
@@ -336,7 +330,6 @@ const Home = () => {
       console.error("Error submitting form:", err);
     }
     setBtnLoader(false);
-    // console.log("Form Data:", formData);
   };
 
   const checkModal = (
@@ -482,7 +475,6 @@ const Home = () => {
                 ) || null
               }
               onChange={(event, newValue) => {
-                console.log("dddddd", newValue);
                 handleSelectInputChange(newValue ? newValue.name : "", 4);
               }}
               getOptionLabel={(option) => option.name}
