@@ -26,7 +26,7 @@ import Toast from "../../components/Toast/toast";
 import alrtSign from "../../assets/Images/alert.png";
 import progress from "../../assets/Images/progress.jpg";
 
-const REACT_APP_BASE_URL = "http://139.59.58.9:3000/api";
+const REACT_APP_BASE_URL = "https://app.xoom.ae/api";
 
 let themeColor = "#9acb3b";
 function CustomTabPanel(props) {
