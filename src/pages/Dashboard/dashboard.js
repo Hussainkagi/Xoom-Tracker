@@ -977,6 +977,7 @@ const Dashboard = () => {
             getEmployeeData();
           }, 800);
         } else {
+          setBtnLoader(false);
           showToast("error", "Error", response.message);
         }
       }
@@ -1201,14 +1202,11 @@ const Dashboard = () => {
           setBtnLoader(true);
           const formData = new FormData();
           formData.append("file", file);
-          const response = await fetch(
-            REACT_APP_BASE_URL + "/vehicle/upload",
-            {
-              method: "POST",
-              headers,
-              body: formData,
-            }
-          );
+          const response = await fetch(REACT_APP_BASE_URL + "/vehicle/upload", {
+            method: "POST",
+            headers,
+            body: formData,
+          });
           const result = await response.json();
           if (result?.success) {
             setTimeout(() => {
@@ -1276,6 +1274,7 @@ const Dashboard = () => {
             showToast("success", "Success", "Vehicle created successfully!");
           } else {
             showToast("error", "Error", response.message);
+            setBtnLoader(false);
           }
         } catch (err) {
           alert("something went wrong");

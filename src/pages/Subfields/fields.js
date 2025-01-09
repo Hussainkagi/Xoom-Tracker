@@ -79,7 +79,6 @@ function Fields() {
   };
 
   const confirmDelete = () => {
-    console.log("Are you sure you want to delete", deleteTarget);
     const { id, type } = deleteTarget;
 
     switch (type) {
@@ -146,7 +145,6 @@ function Fields() {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.post("/aggregator", body, headers);
       if (res.success) {
@@ -157,7 +155,6 @@ function Fields() {
         showToast("error", "Error", res?.message);
       }
     } catch (err) {
-      console.log("ee", err);
       showToast("error", "Error", "Something went wrong!!");
     }
   };
@@ -175,7 +172,6 @@ function Fields() {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.post("/owned-by", body, headers);
 
@@ -233,7 +229,6 @@ function Fields() {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.post("/vehicle-type", body, headers);
       if (res?.success) {
@@ -263,7 +258,6 @@ function Fields() {
       Authorization: "Bearer " + authToken,
     };
 
-    console.log("body", body);
     try {
       let res = await apiHelper.del(`/aggregator/${id}`, headers, {});
 
