@@ -91,12 +91,7 @@ const Home = () => {
   useEffect(() => {
     fetchAllData();
   }, []);
-  const currentDate = new Date();
-  const currentISODate = currentDate.toISOString().split("T")[0];
-  const currentTime = currentDate.toTimeString().split(" ")[0].slice(0, 5); // Format HH:MM
 
-  // Determine max time for the time input
-  const maxTime = formInputs.date === currentISODate ? currentTime : "23:59";
   // **************************Get APIS**********************************
 
   const fetchAllData = async () => {
