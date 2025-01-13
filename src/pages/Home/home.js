@@ -454,6 +454,7 @@ const Home = () => {
           type="date"
           className="form-control"
           id="date"
+          max={new Date().toISOString().split("T")[0]}
           value={formInputs?.date}
           onChange={(e) => handleFormInputs("date", e.target.value)}
         />

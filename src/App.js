@@ -39,22 +39,22 @@ function App() {
               path="/"
               element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
             />
-
-            {/* Dashboard Route */}
+            {/* Protected Routes */}
             <Route
-              path="/dashboard"
+              path="/overview"
               element={
                 isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
               }
             />
 
-            {/* Protected Routes */}
+            {/* Dashboard Route */}
             <Route
-              path="/overview"
+              path="/dashboard"
               element={
                 isAuthenticated ? <Overview /> : <Navigate to="/login" />
               }
             />
+
             <Route
               path="/users"
               element={

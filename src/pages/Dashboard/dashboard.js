@@ -2281,6 +2281,9 @@ const Dashboard = () => {
               <Table sx={{ minWidth: 650 }} aria-label="transaction table">
                 <TableHead>
                   <TableRow>
+                    <TableCell sx={{ fontWeight: "bold" }} align="center">
+                      Ref.
+                    </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Employee Code
                     </TableCell>
@@ -2315,68 +2318,78 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {paginatedData?.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row?.employee?.code}</TableCell>
-                      <TableCell>{row?.employee?.name}</TableCell>
-                      <TableCell>
-                        <div className={styles.plate__code}>
-                          <span>
-                            <strong>{`${row?.vehicle?.code || ""}`}</strong>{" "}
-                          </span>
-                          <span className={styles.emirates}>
-                            {row?.vehicle?.emirates === "Dubai"
-                              ? "DXB"
-                              : row?.vehicle?.emirates === "Sharjah"
-                              ? "SHJ"
-                              : row?.vehicle?.emirates === "AbuDhabi"
-                              ? "AUH"
-                              : ""}
-                          </span>
-                          <span>
-                            {" "}
-                            <strong>{row?.vehicle?.vehicleNo}</strong>
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {row?.vehicle
-                          ? `${row.vehicle.model?.brand} (${row.vehicle.vehicleType?.name} ${row.vehicle.vehicleType?.fuel})`
-                          : ""}
-                      </TableCell>
-                      <TableCell align="center">{row.date}</TableCell>
-                      <TableCell align="center">
-                        {formatTime(row.time)}
-                      </TableCell>
-                      <TableCell align="center">
-                        {row?.location?.name}
-                      </TableCell>
-                      <TableCell align="center">{row?.aggregator}</TableCell>
-                      <TableCell align="center">
-                        <Chip
-                          label={row.action === "in" ? "Check in" : "Check out"}
-                          color={row.action === "in" ? "success" : "error"}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <i
-                          className="bi bi-eye cursor-pointer"
-                          style={{
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {
-                            handleImageClick(row.pictures);
-                          }}
-                        ></i>
-                      </TableCell>
+                  {paginatedData?.map((row, index) => {
+                    // Calculate the S.No. based on total count and current page
+                    const serialNumber =
+                      filters?.filterData?.length -
+                      (pageTable?.transactionPage * rowsPerPage + index);
 
-                      <TableCell>
-                        <Tooltip title={row?.comments || "No comments"}>
-                          <i className="bi bi-chat"></i>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                    return (
+                      <TableRow key={row.id}>
+                        {/* Add S.No. column */}
+                        <TableCell align="center">{serialNumber}</TableCell>
+                        <TableCell>{row?.employee?.code}</TableCell>
+                        <TableCell>{row?.employee?.name}</TableCell>
+                        <TableCell>
+                          <div className={styles.plate__code}>
+                            <span>
+                              <strong>{`${row?.vehicle?.code || ""}`}</strong>{" "}
+                            </span>
+                            <span className={styles.emirates}>
+                              {row?.vehicle?.emirates === "Dubai"
+                                ? "DXB"
+                                : row?.vehicle?.emirates === "Sharjah"
+                                ? "SHJ"
+                                : row?.vehicle?.emirates === "AbuDhabi"
+                                ? "AUH"
+                                : ""}
+                            </span>
+                            <span>
+                              {" "}
+                              <strong>{row?.vehicle?.vehicleNo}</strong>
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {row?.vehicle
+                            ? `${row.vehicle.model?.brand} (${row.vehicle.vehicleType?.name} ${row.vehicle.vehicleType?.fuel})`
+                            : ""}
+                        </TableCell>
+                        <TableCell align="center">{row.date}</TableCell>
+                        <TableCell align="center">
+                          {formatTime(row.time)}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row?.location?.name}
+                        </TableCell>
+                        <TableCell align="center">{row?.aggregator}</TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={
+                              row.action === "in" ? "Check in" : "Check out"
+                            }
+                            color={row.action === "in" ? "success" : "error"}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <i
+                            className="bi bi-eye cursor-pointer"
+                            style={{
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              handleImageClick(row.pictures);
+                            }}
+                          ></i>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip title={row?.comments || "No comments"}>
+                            <i className="bi bi-chat"></i>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
               <TablePagination
